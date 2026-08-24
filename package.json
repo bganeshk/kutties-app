@@ -1,15 +1,24 @@
 {
-  "name": "excel-sync-app",
+  "name": "kutties-app",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@expo/metro-runtime": "~57.0.12",
+    "axios": "^1.19.0",
+    "drizzle-orm": "^0.45.2",
     "expo": "~57.0.15",
+    "expo-sqlite": "~57.0.1",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
-    "react-native": "0.86.2"
+    "react-dom": "19.2.3",
+    "react-native": "0.86.2",
+    "react-native-web": "^0.21.2",
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "@types/uuid": "^10.0.0",
+    "drizzle-kit": "^0.31.10",
     "typescript": "~6.0.3"
   },
   "scripts": {
