@@ -1,4 +1,6 @@
-**This is excel based remote sync, for web its using web memory and in anodroid it uses sqllitedb**
+# Android APP
+
+## This is excel based remote sync, for web its using web memory and in anodroid it uses sqllitedb
 
   Location: /Users/ganeshkumar/Documents/AMS/code/excel-api/
 
