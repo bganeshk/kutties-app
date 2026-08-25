@@ -92,7 +92,7 @@ export default function SubItemScreen({ navigation, route }: Props) {
           const hasChildren = (rows as DashRow[]).some(
             (r) => String(r.parentview ?? '') === String(item.Dashcaption ?? ''),
           );
-
+          
           return (
             <TouchableOpacity
               style={styles.card}
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#EEEEEE' },
   header: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: PRIMARY, paddingHorizontal: 16, paddingVertical: 12,
+    backgroundColor: PRIMARY, paddingHorizontal: 16, paddingVertical: 15,
   },
   headerTitle: { flex: 1, color: '#fff', fontSize: 18, fontWeight: '700', marginLeft: 14 },
   headerIcon: { marginLeft: 14 },

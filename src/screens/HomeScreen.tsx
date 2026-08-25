@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: PRIMARY, paddingHorizontal: 16, paddingVertical: 12,
   },
-  headerTitle: { flex: 1, color: '#fff', fontSize: 20, fontWeight: '700', marginLeft: 16 },
+  headerTitle: { flex: 1, color: '#fff', fontSize: 18, fontWeight: '700', marginLeft: 14 },
   headerActions: { flexDirection: 'row' },
   headerIcon: { marginLeft: 14 },
   errorBanner: {

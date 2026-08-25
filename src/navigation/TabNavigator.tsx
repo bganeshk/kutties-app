@@ -1,11 +1,34 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import HomeStack from './HomeStack';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
+import SubItemScreen from '../screens/SubItemScreen';
+import LandingScreen from '../screens/LandingScreen';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
+
+// Each tab gets its own Stack instance so drill-down works independently
+function makeTabStack(parentview: string, title: string) {
+  const Stack = createNativeStackNavigator();
+  return function TabStack() {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+          name="SubItems"
+          component={SubItemScreen}
+          initialParams={{ parentview, title }}
+        />
+        <Stack.Screen name="Landing" component={LandingScreen} />
+      </Stack.Navigator>
+    );
+  };
+}
+
+const TeachersStack = makeTabStack('Teachers', 'Teachers');
+const CoursesStack  = makeTabStack('Course', 'Course');
+const StudentsStack = makeTabStack('Students', 'Students');
 
 export default function TabNavigator() {
   return (
@@ -34,7 +57,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Teachers"
-        children={() => <PlaceholderScreen title="Teachers" />}
+        component={TeachersStack}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />
@@ -42,8 +65,8 @@ export default function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Course"
-        children={() => <PlaceholderScreen title="Courses" />}
+        name="Courses"
+        component={CoursesStack}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="school" size={size} color={color} />
@@ -52,7 +75,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Students"
-        children={() => <PlaceholderScreen title="Students" />}
+        component={StudentsStack}
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="people" size={size} color={color} />
