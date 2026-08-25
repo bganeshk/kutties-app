@@ -3,8 +3,9 @@ import {
   View, Text, StyleSheet, SafeAreaView, TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors, KStyles } from '../styles/kutties-styles';
 
-const PRIMARY = '#C2185B';
+const PRIMARY = Colors.primary;
 
 interface Props {
   navigation: any;
@@ -46,29 +47,21 @@ export default function LandingScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#fff' },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: PRIMARY, paddingHorizontal: 16, paddingVertical: 12,
-  },
-  headerTitle: { flex: 1, color: '#fff', fontSize: 18, fontWeight: '700', marginLeft: 14 },
+  root: { flex: 1, backgroundColor: Colors.surface },
+  header: KStyles.header,
+  headerTitle: KStyles.headerTitle,
   body: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
   badge: {
     width: 96, height: 96, borderRadius: 48,
-    backgroundColor: '#FCE4EC', justifyContent: 'center', alignItems: 'center',
+    backgroundColor: Colors.lightPink, justifyContent: 'center', alignItems: 'center',
     marginBottom: 24,
   },
   pageTitle: { fontSize: 24, fontWeight: '700', color: '#222', marginBottom: 8, textAlign: 'center' },
   viewLabel: {
     fontSize: 13, fontWeight: '600', color: '#fff',
-    backgroundColor: PRIMARY, paddingHorizontal: 14, paddingVertical: 4,
+    backgroundColor: Colors.primary, paddingHorizontal: 14, paddingVertical: 4,
     borderRadius: 12, overflow: 'hidden', marginBottom: 20,
   },
   hint: { fontSize: 14, color: '#aaa', textAlign: 'center' },
-  fab: {
-    position: 'absolute', bottom: 24, right: 20, width: 56, height: 56,
-    borderRadius: 28, backgroundColor: PRIMARY, alignItems: 'center',
-    justifyContent: 'center', elevation: 6, shadowColor: PRIMARY,
-    shadowOpacity: 0.4, shadowRadius: 6, shadowOffset: { width: 0, height: 3 },
-  },
+  fab: KStyles.fab,
 });

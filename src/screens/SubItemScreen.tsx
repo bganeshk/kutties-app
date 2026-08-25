@@ -5,8 +5,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
+import { getIconForCaption } from '../utils/iconMap';
+import type { IconEntry } from '../utils/iconMap';
+import { resolveScreen } from '../navigation/screenRegistry';
+import { Colors, KStyles } from '../styles/kutties-styles';
 
-const PRIMARY = '#C2185B';
+const PRIMARY = Colors.primary;
 const { width } = Dimensions.get('window');
 const CARD_SIZE = (width - 48) / 1.95;
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
@@ -26,15 +30,24 @@ function resolveImageUri(value: string): string {
   return `${API_BASE}/assets/${value}`;
 }
 
-function CardIcon({ value }: { value: string | undefined }) {
-  if (!value) return <Text style={styles.cardEmoji}>📌</Text>;
-  return (
-    <Image
-      source={{ uri: resolveImageUri(value) }}
-      style={styles.cardImage}
-      resizeMode="contain"
-    />
-  );
+function CardIcon({ caption, value }: { caption: string | undefined; value: string | undefined }) {
+  const entry: IconEntry | null = caption ? getIconForCaption(caption) : null;
+  if (entry) {
+    if (typeof entry === 'string') {
+      return <Text style={styles.cardEmoji}>{entry}</Text>;
+    }
+    return <Ionicons name={entry.ionicon} size={CARD_SIZE * 0.38} color={entry.color} />;
+  }
+  if (value) {
+    return (
+      <Image
+        source={{ uri: resolveImageUri(value) }}
+        style={styles.cardImage}
+        resizeMode="contain"
+      />
+    );
+  }
+  return <Text style={styles.cardEmoji}>📌</Text>;
 }
 
 interface Props {
@@ -104,15 +117,21 @@ export default function SubItemScreen({ navigation, route }: Props) {
                     title: String(item.Dashcaption ?? item.id),
                   });
                 } else {
-                  navigation.navigate('Landing', {
-                    title: String(item.Dashcaption ?? item.id),
-                    appviewsheet: String(item.appviewsheet ?? ''),
-                  });
+                  const appviewsheet = String(item.appviewsheet ?? '');
+                  const screenName = resolveScreen(appviewsheet);
+                  if (screenName === 'Landing') {
+                    navigation.navigate('Landing', {
+                      title: String(item.Dashcaption ?? item.id),
+                      appviewsheet,
+                    });
+                  } else {
+                    navigation.navigate(screenName);
+                  }
                 }
               }}
             >
               <View style={styles.cardImageArea}>
-                <CardIcon value={item.dash_image} />
+                <CardIcon caption={String(item.Dashcaption ?? '')} value={item.dash_image} />
                 <Text style={styles.cardLabel}>{String(item.Dashcaption ?? item.id)}</Text>
               </View>
             </TouchableOpacity>
@@ -124,20 +143,13 @@ export default function SubItemScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#EEEEEE' },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: PRIMARY, paddingHorizontal: 16, paddingVertical: 15,
-  },
-  headerTitle: { flex: 1, color: '#fff', fontSize: 18, fontWeight: '700', marginLeft: 14 },
-  headerIcon: { marginLeft: 14 },
+  root: { flex: 1, backgroundColor: Colors.background },
+  header: KStyles.header,
+  headerTitle: KStyles.headerTitle,
+  headerIcon: KStyles.headerIcon,
   grid: { padding: 12 },
   row: { justifyContent: 'space-between', marginBottom: 12 },
-  card: {
-    width: CARD_SIZE, backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden',
-    elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
+  card: { ...KStyles.card, width: CARD_SIZE },
   cardImageArea: {
     height: CARD_SIZE * 0.95, alignItems: 'center',
     justifyContent: 'center', backgroundColor: '#fefefe',
@@ -145,7 +157,7 @@ const styles = StyleSheet.create({
   cardEmoji: { fontSize: 64 },
   cardImage: { width: CARD_SIZE * 0.70, height: CARD_SIZE * 0.70 },
   cardLabel: { fontSize: 13, fontWeight: '500', color: '#222', marginTop: 3, textAlign: 'center', paddingHorizontal: 6 },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 80 },
-  empty: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 80 },
-  emptyText: { fontSize: 15, color: '#888' },
+  loader: { ...KStyles.center, marginTop: 80 },
+  empty: { ...KStyles.center, marginTop: 80 },
+  emptyText: { fontSize: 15, color: Colors.muted },
 });

@@ -1,6 +1,7 @@
 import { getDb, DbRow } from '../db/database';
 import { ExcelApi } from '../api/excel.api';
 import { v4 as uuidv4 } from 'uuid';
+import { normalizeRow } from '../db/models/registry';
 
 export type SyncResult = {
   sheet: string;
@@ -14,13 +15,15 @@ async function pullSheet(sheet: string): Promise<number> {
   const rows = await ExcelApi.listRows(sheet);
   const now = Date.now();
 
-  for (const row of rows) {
-    const { id, ...rest } = row;
+  for (const raw of rows) {
+    // Normalize through model registry (field mapping, type coercion, lastmodified)
+    const normalized = normalizeRow(sheet, raw as Record<string, unknown>);
+    const { id, ...rest } = normalized;
     await db.upsertRow({
-      id,
+      id:         String(id ?? raw.id ?? ''),
       sheet,
-      data: JSON.stringify(rest),
-      updatedAt: now,
+      data:       JSON.stringify(rest),
+      updatedAt:  now,
       syncStatus: 'synced',
     });
   }
@@ -38,7 +41,10 @@ async function pushSheet(sheet: string): Promise<{ pushed: number; errors: strin
 
   for (const row of dirty) {
     try {
-      const payload = JSON.parse(row.data) as Record<string, unknown>;
+      const payload: Record<string, unknown> = {
+        ...JSON.parse(row.data),
+        lastmodified: new Date().toISOString(),
+      };
       if (row.syncStatus === 'pending_create') {
         await ExcelApi.createRow(sheet, { ...payload, id: row.id });
       } else if (row.syncStatus === 'pending_update') {

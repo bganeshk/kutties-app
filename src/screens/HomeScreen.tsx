@@ -1,12 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  Image, Dimensions, SafeAreaView, StatusBar, ActivityIndicator,
+  Image, Dimensions, SafeAreaView, StatusBar, ActivityIndicator, // Image kept as fallback
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
+import { getIconForCaption } from '../utils/iconMap';
+import type { IconEntry } from '../utils/iconMap';
+import { Colors, KStyles } from '../styles/kutties-styles';
 
-const PRIMARY = '#C2185B';
+const PRIMARY = Colors.primary;
 const { width } = Dimensions.get('window');
 const CARD_SIZE = (width - 48) / 1.95;
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
@@ -26,16 +29,25 @@ function resolveImageUri(value: string): string {
   return `${API_BASE}/assets/${value}`;
 }
 
-interface CardIconProps { value: string | undefined }
-function CardIcon({ value }: CardIconProps) {
-  if (!value) return <Text style={styles.cardEmoji}>📌</Text>;
-  return (
-    <Image
-      source={{ uri: resolveImageUri(value) }}
-      style={styles.cardImage}
-      resizeMode="contain"
-    />
-  );
+interface CardIconProps { caption: string | undefined; value: string | undefined }
+function CardIcon({ caption, value }: CardIconProps) {
+  const entry: IconEntry | null = caption ? getIconForCaption(caption) : null;
+  if (entry) {
+    if (typeof entry === 'string') {
+      return <Text style={styles.cardEmoji}>{entry}</Text>;
+    }
+    return <Ionicons name={entry.ionicon} size={CARD_SIZE * 0.38} color={entry.color} />;
+  }
+  if (value) {
+    return (
+      <Image
+        source={{ uri: resolveImageUri(value) }}
+        style={styles.cardImage}
+        resizeMode="contain"
+      />
+    );
+  }
+  return <Text style={styles.cardEmoji}>📌</Text>;
 }
 
 interface Props { navigation?: any }
@@ -113,8 +125,8 @@ export default function HomeScreen({ navigation }: Props) {
               }
             >
               <View style={styles.cardImageArea}>
-                <CardIcon value={item.dash_image} />
-                 <Text style={styles.cardLabel}>{String(item.Dashcaption ?? item.id)}</Text>
+                <CardIcon caption={String(item.Dashcaption ?? '')} value={item.dash_image} />
+                <Text style={styles.cardLabel}>{String(item.Dashcaption ?? item.id)}</Text>
               </View>
               
             </TouchableOpacity>
@@ -127,27 +139,17 @@ export default function HomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#EEEEEE' },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: PRIMARY, paddingHorizontal: 16, paddingVertical: 12,
-  },
-  headerTitle: { flex: 1, color: '#fff', fontSize: 18, fontWeight: '700', marginLeft: 14 },
+  root: { flex: 1, backgroundColor: Colors.background },
+  header: KStyles.header,
+  headerTitle: KStyles.headerTitle,
   headerActions: { flexDirection: 'row' },
-  headerIcon: { marginLeft: 14 },
-  errorBanner: {
-    backgroundColor: '#fce4ec', color: '#b71c1c',
-    fontSize: 12, paddingHorizontal: 16, paddingVertical: 6,
-  },
+  headerIcon: KStyles.headerIcon,
+  errorBanner: KStyles.errorBanner,
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
-  loaderText: { color: '#888', fontSize: 14 },
+  loaderText: { color: Colors.muted, fontSize: 14 },
   grid: { padding: 12 },
   row: { justifyContent: 'space-between', marginBottom: 12 },
-  card: {
-    width: CARD_SIZE, backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden',
-    elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
+  card: { ...KStyles.card, width: CARD_SIZE },
   cardImageArea: {
     height: CARD_SIZE * 0.95, alignItems: 'center',
     justifyContent: 'center', backgroundColor: '#fefefe',

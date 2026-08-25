@@ -27,7 +27,7 @@ const sleep = (ms: number): Promise<void> => {
         setPhase('sync');
         await syncSheet('dashboard').catch(() => {});  // best-effort; offline is fine
         await syncSheet('products').catch(() => {});  // best-effort; offline is fine
-        await sleep(1000)
+        await sleep(500)
         setPhase('ready');
       } catch (e) {
         setInitError((e as Error).message);
