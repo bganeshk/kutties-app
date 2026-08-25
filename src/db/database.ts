@@ -1,5 +1,8 @@
 import { Platform } from 'react-native';
-import { syncedRows as syncedRowsSchema, syncMeta as syncMetaSchema } from './schema';
+import * as schema from './schema';
+
+// Drizzle instance — only available on native (null on web)
+export let drizzleDb: import('drizzle-orm/expo-sqlite').ExpoSQLiteDatabase<typeof schema> | null = null;
 
 export interface DbRow {
   id: string;
@@ -53,6 +56,7 @@ class SQLiteDb implements IDb {
     // dynamic import so the module is never loaded on web
     this.dbPromise = (async () => {
       const SQLite = await import('expo-sqlite');
+      const { drizzle } = await import('drizzle-orm/expo-sqlite');
       const db = await SQLite.openDatabaseAsync('excel_sync.db');
       await db.execAsync(`
         CREATE TABLE IF NOT EXISTS synced_rows (
@@ -67,7 +71,17 @@ class SQLiteDb implements IDb {
           sheet TEXT PRIMARY KEY,
           last_synced_at INTEGER NOT NULL DEFAULT 0
         );
+        CREATE TABLE IF NOT EXISTS products (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          price REAL NOT NULL DEFAULT 0,
+          stock INTEGER NOT NULL DEFAULT 0,
+          sync_status TEXT NOT NULL DEFAULT 'synced',
+          updated_at INTEGER NOT NULL
+        );
       `);
+      // expose drizzle instance for typed queries
+      drizzleDb = drizzle(db, { schema });
       return db;
     })();
   }
