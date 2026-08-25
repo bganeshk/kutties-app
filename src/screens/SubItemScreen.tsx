@@ -8,7 +8,7 @@ import { useSheet } from '../hooks/useSheet';
 
 const PRIMARY = '#C2185B';
 const { width } = Dimensions.get('window');
-const CARD_SIZE = (width - 48) / 2;
+const CARD_SIZE = (width - 48) / 1.95;
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 interface DashRow {
@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center', backgroundColor: '#fefefe',
   },
   cardEmoji: { fontSize: 64 },
-  cardImage: { width: CARD_SIZE * 0.65, height: CARD_SIZE * 0.65 },
-  cardLabel: { fontSize: 13, fontWeight: '500', color: '#222', marginTop: 6, textAlign: 'center', paddingHorizontal: 6 },
+  cardImage: { width: CARD_SIZE * 0.70, height: CARD_SIZE * 0.70 },
+  cardLabel: { fontSize: 13, fontWeight: '500', color: '#222', marginTop: 3, textAlign: 'center', paddingHorizontal: 6 },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 80 },
   empty: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 80 },
   emptyText: { fontSize: 15, color: '#888' },

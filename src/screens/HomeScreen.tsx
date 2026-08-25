@@ -8,7 +8,7 @@ import { useSheet } from '../hooks/useSheet';
 
 const PRIMARY = '#C2185B';
 const { width } = Dimensions.get('window');
-const CARD_SIZE = (width - 48) / 2;
+const CARD_SIZE = (width - 48) / 1.95;
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 interface DashRow {
