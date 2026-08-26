@@ -16,7 +16,7 @@ function stripComputed(obj: Record<string, unknown>): Record<string, unknown> {
  * Pass all columns through unchanged so getRefOptions can read them.
  */
 function toReftblRow(raw: Record<string, unknown>): Record<string, unknown> {
-  return { ...raw, id: String(raw.id ?? raw.txid ?? '').trim() };
+  return { ...raw, id: String(raw.id ?? '').trim() };
 }
 
 const TRANSFORMERS: Record<string, RowTransformer> = {

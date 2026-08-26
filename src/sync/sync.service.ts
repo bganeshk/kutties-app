@@ -19,8 +19,9 @@ async function pullSheet(sheet: string): Promise<number> {
     // Normalize through model registry (field mapping, type coercion, lastmodified)
     const normalized = normalizeRow(sheet, raw as Record<string, unknown>);
     const { id, ...rest } = normalized;
+    const rowId = String(id ?? '').trim() || uuidv4();
     await db.upsertRow({
-      id:         String(id ?? raw.id ?? ''),
+      id:         rowId,
       sheet,
       data:       JSON.stringify(rest),
       updatedAt:  now,

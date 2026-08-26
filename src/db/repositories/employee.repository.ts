@@ -12,7 +12,6 @@ export class EmployeeRepository extends BaseRepository<EmployeeModel> {
 
   protected toRow(item: EmployeeModel): Record<string, unknown> {
     return {
-      txid:         item.txid,
       name:         item.name,
       designation:  item.designation,
       department:   item.department,

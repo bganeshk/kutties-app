@@ -3,7 +3,6 @@ import type { AuditFields } from './audit.model';
 
 export const dashboard = sqliteTable('dashboard', {
   id:           text('id').primaryKey(),
-  txid:         text('txid'),
   dashcaption:  text('dashcaption'),
   dashImage:    text('dash_image'),
   appviewsheet: text('appviewsheet'),
@@ -21,7 +20,6 @@ export type NewDashboardRow = typeof dashboard.$inferInsert;
 
 export interface DashboardModel extends AuditFields {
   id: string;
-  txid?: string;
   Dashcaption?: string;
   dash_image?: string;
   appviewsheet?: string;
@@ -32,8 +30,7 @@ export interface DashboardModel extends AuditFields {
 
 export function toDashboardModel(row: Record<string, unknown>): DashboardModel {
   return {
-    id:           String(row.id ?? row.txid ?? ''),
-    txid:         row.txid as string,
+    id:           String(row.id ?? ''),
     Dashcaption:  row.Dashcaption as string,
     dash_image:   row.dash_image as string,
     appviewsheet: row.appviewsheet as string,

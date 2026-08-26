@@ -394,7 +394,6 @@ export default function EmployeeForm({ navigation, route }: Props) {
       const newId = isRecordEdit ? item!.id : uuidv4();
       const employee: EmployeeModel = {
         id:          newId,
-        txid:        isRecordEdit ? item?.txid : newId,
         name:        name.trim() || undefined,
         designation: designation.trim() || undefined,
         department:  department.trim() || undefined,

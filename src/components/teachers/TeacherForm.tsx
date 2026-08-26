@@ -479,7 +479,6 @@ export default function TeacherForm({ navigation, route }: Props) {
       const newId = isRecordEdit ? item!.id : uuidv4();
       const teacher: TeacherModel = {
         id:           newId,
-        txid:         isRecordEdit ? item?.txid : newId,
         name:         name.trim() || undefined,
         designation:  designation.trim() || undefined,
         email:        email.trim() || undefined,

@@ -12,7 +12,6 @@ export class TeacherRepository extends BaseRepository<TeacherModel> {
 
   protected toRow(item: TeacherModel): Record<string, unknown> {
     return {
-      txid:         item.txid,
       name:         item.name,
       designation:  item.designation,
       email:        item.email,

@@ -3,8 +3,7 @@ import type { AuditFields } from './audit.model';
 
 // ── Drizzle table (native SQLite) ─────────────────────────────────────────
 export const teachers = sqliteTable('teachers', {
-  id:           text('id').primaryKey(),          // mapped from txid
-  txid:         text('txid'),
+  id:           text('id').primaryKey(),
   name:         text('name'),
   designation:  text('designation'),
   email:        text('email'),
@@ -28,7 +27,6 @@ export type NewTeacher = typeof teachers.$inferInsert;
 // ── Domain model (what the UI works with) ────────────────────────────────
 export interface TeacherModel extends AuditFields {
   id: string;
-  txid?: string;
   name?: string;
   designation?: string;
   email?: string;
@@ -51,8 +49,7 @@ export function parseSubjects(subjects?: string | unknown): string[] {
 
 export function toTeacherModel(row: Record<string, unknown>): TeacherModel {
   return {
-    id:           String(row.id ?? row.txid ?? ''),
-    txid:         row.txid as string,
+    id:           String(row.id ?? ''),
     name:         row.name as string,
     designation:  row.designation as string,
     email:        row.email as string,

@@ -4,7 +4,6 @@ import type { AuditFields } from './audit.model';
 // ── Drizzle table (native SQLite) ─────────────────────────────────────────
 export const employees = sqliteTable('employees', {
   id:           text('id').primaryKey(),
-  txid:         text('txid'),
   name:         text('name'),
   designation:  text('designation'),
   department:   text('department'),
@@ -27,7 +26,6 @@ export type NewEmployee = typeof employees.$inferInsert;
 // ── Domain model (what the UI works with) ────────────────────────────────
 export interface EmployeeModel extends AuditFields {
   id: string;
-  txid?: string;
   name?: string;
   designation?: string;
   department?: string;
@@ -41,8 +39,7 @@ export interface EmployeeModel extends AuditFields {
 
 export function toEmployeeModel(row: Record<string, unknown>): EmployeeModel {
   return {
-    id:           String(row.id ?? row.txid ?? ''),
-    txid:         row.txid as string,
+    id:           String(row.id ?? ''),
     name:         row.name as string,
     designation:  row.designation as string,
     department:   row.department as string,
