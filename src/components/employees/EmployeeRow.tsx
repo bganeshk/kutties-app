@@ -1,23 +1,24 @@
 import React, { memo, useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Pressable, Linking, Dimensions, Image,
+  View, Text, StyleSheet, Pressable, Linking, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import type { TeacherModel } from '../../db/models/teacher.model';
+import type { EmployeeModel } from '../../db/models/employee.model';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 
 const PRIMARY = Colors.primary;
 
-export type { TeacherModel as Teacher } from '../../db/models/teacher.model';
+export type { EmployeeModel as Employee } from '../../db/models/employee.model';
 
-interface TeacherRowProps {
-  item: TeacherModel;
+interface EmployeeRowProps {
+  item: EmployeeModel;
   selected?: boolean;
-  onPress: (item: TeacherModel) => void;
-  onLongPress: (item: TeacherModel) => void;
-  onQrPress?: (item: TeacherModel) => void;
-  activeSubject?: string;
-  onSubjectPress?: (subject: string) => void;
+  activeDept?: string;
+  activeDesig?: string;
+  onPress: (item: EmployeeModel) => void;
+  onLongPress: (item: EmployeeModel) => void;
+  onDeptPress?: (dept: string) => void;
+  onDesigPress?: (desig: string) => void;
 }
 
 interface ActionButtonProps {
@@ -41,7 +42,6 @@ function ActionButton({ icon, color, label, onPress }: ActionButtonProps) {
       style={styles.actionBtn}
       onPress={onPress}
       onLongPress={() => setVisible(true)}
-      // pointer devices (web / desktop)
       onHoverIn={() => setVisible(true)}
       onHoverOut={() => setVisible(false)}
     >
@@ -71,9 +71,56 @@ function Avatar({ name, photo }: { name: string; photo?: string }) {
   );
 }
 
-const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, activeSubject, onSubjectPress }: TeacherRowProps) => {
+function DeptChip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+
+  useEffect(() => {
+    if (!tooltipVisible) return;
+    const t = setTimeout(() => setTooltipVisible(false), 1500);
+    return () => clearTimeout(t);
+  }, [tooltipVisible]);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onLongPress={() => setTooltipVisible(true)}
+      onHoverIn={() => setTooltipVisible(true)}
+      onHoverOut={() => setTooltipVisible(false)}
+      style={[styles.deptChip, active && styles.deptChipActive]}
+    >
+      {tooltipVisible && (
+        <View style={styles.deptTooltip}>
+          <Text style={styles.tooltipText}>Dept:</Text>
+        </View>
+      )}
+      {active && (
+        <Ionicons name="funnel" size={9} color="#fff" style={{ marginRight: 3 }} />
+      )}
+      <Text style={[styles.deptChipText, active && styles.deptChipTextActive]} numberOfLines={1}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+function DesigChip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[styles.desigChip, active && styles.desigChipActive]}
+    >
+      {active && (
+        <Ionicons name="funnel" size={9} color="#fff" style={{ marginRight: 3 }} />
+      )}
+      <Text style={[styles.desigChipText, active && styles.desigChipTextActive]} numberOfLines={1}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+const EmployeeRow = memo(({ item, selected, activeDept, activeDesig, onPress, onLongPress, onDeptPress, onDesigPress }: EmployeeRowProps) => {
   const name = item.name ?? String(item.id);
-  const subjectList = item.subjectList ?? [];
 
   return (
     <Pressable
@@ -89,7 +136,7 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
       {/* Avatar */}
       <Avatar name={String(name)} photo={item.idphoto} />
 
-      {/* Info — two-column layout: left (name/designation) | right (email + subjects) */}
+      {/* Info — two-column layout: left (name/designation) | right (department + email) */}
       <View style={styles.info}>
         <View style={styles.twoCol}>
 
@@ -97,38 +144,30 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
           <View style={styles.leftCol}>
             <Text style={styles.name} numberOfLines={1}>{name}</Text>
             {item.designation ? (
-              <Text style={styles.designation} numberOfLines={1}>{String(item.designation)}</Text>
+              <DesigChip
+                label={String(item.designation)}
+                active={activeDesig === item.designation}
+                onPress={() => onDesigPress?.(String(item.designation))}
+              />
             ) : null}
           </View>
 
-          {/* Right column — email + all subjects stacked */}
-          {(item.email || subjectList.length > 0) ? (
+          {/* Right column — department chip + email */}
+          {(item.department || item.email) ? (
             <View style={styles.rightCol}>
+              {item.department ? (
+                <DeptChip
+                  label={String(item.department)}
+                  active={activeDept === item.department}
+                  onPress={() => onDeptPress?.(String(item.department))}
+                />
+              ) : null}
               {item.email ? (
                 <View style={styles.metaChip}>
                   <Ionicons name="mail-outline" size={11} color="#555" style={styles.metaChipIcon} />
                   <Text style={styles.metaChipText} numberOfLines={1}>{String(item.email)}</Text>
                 </View>
               ) : null}
-              {subjectList.length > 0 && (
-                <View style={styles.subjectRow}>
-                  {subjectList.map((s, i) => {
-                    const isActive = activeSubject === s;
-                    return (
-                      <Pressable
-                        key={i}
-                        onPress={() => onSubjectPress?.(s)}
-                        style={[styles.subjectChip, isActive && styles.subjectChipActive]}
-                      >
-                        {isActive && (
-                          <Ionicons name="filter" size={9} color="#1565C0" style={{ marginRight: 2 }} />
-                        )}
-                        <Text style={styles.subjectChipText}>{s}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              )}
             </View>
           ) : null}
 
@@ -153,12 +192,6 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
             </>
           ) : null}
           <ActionButton
-            icon="qr-code"
-            color="#6A1B9A"
-            label="QR Code"
-            onPress={() => onQrPress?.(item)}
-          />
-          <ActionButton
             icon="checkmark-circle"
             color={PRIMARY}
             label="Attendance"
@@ -169,7 +202,7 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
   );
 });
 
-export default TeacherRow;
+export default EmployeeRow;
 
 const styles = StyleSheet.create({
   container: {
@@ -196,7 +229,36 @@ const styles = StyleSheet.create({
   rightCol: { width: 155, alignItems: 'flex-end', gap: 4 },
   name: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
   designation: { fontSize: 12, color: PRIMARY, fontWeight: '600', marginTop: 1 },
-  meta: { fontSize: 12, color: '#666' },
+  deptChip: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#EDE7F6', borderRadius: 10,
+    paddingHorizontal: 7, paddingVertical: 2,
+  },
+  deptChipActive: {
+    backgroundColor: '#4527A0',
+  },
+  deptTooltip: {
+    position: 'absolute',
+    bottom: '100%',
+    right: 0,
+    backgroundColor: 'rgba(33,33,33,0.88)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    zIndex: 99,
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  deptChipText: { fontSize: 10, color: '#4527A0', fontWeight: '600' },
+  deptChipTextActive: { color: '#fff' },
+  desigChip: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: Colors.lightPink, borderRadius: 10,
+    paddingHorizontal: 7, paddingVertical: 2, marginTop: 2,
+  },
+  desigChipActive: { backgroundColor: PRIMARY },
+  desigChipText: { fontSize: 11, color: PRIMARY, fontWeight: '600' },
+  desigChipTextActive: { color: '#fff' },
   metaChip: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#F5F5F5', borderRadius: 8,
@@ -204,20 +266,6 @@ const styles = StyleSheet.create({
   },
   metaChipIcon: { marginRight: 3 },
   metaChipText: { fontSize: 11, color: '#555', flexShrink: 1 },
-  subjectRow: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 3,
-    justifyContent: 'flex-end', width: 155,
-  },
-  subjectChip: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#E3F2FD', borderRadius: 10,
-    paddingHorizontal: 7, paddingVertical: 2,
-  },
-  subjectChipActive: {
-    backgroundColor: '#BBDEFB',
-    borderWidth: 1, borderColor: '#1565C0',
-  },
-  subjectChipText: { fontSize: 10, color: '#1565C0', fontWeight: '600' },
   actions: { flexDirection: 'row', marginTop: 6, gap: 4 },
   actionBtn: {
     padding: 7, borderRadius: 20,

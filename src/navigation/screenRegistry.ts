@@ -2,9 +2,9 @@
 export const APP_SCREEN_MAP: Record<string, string> = {
   'Teachers View':         'TeacherList',
   'Teacher Dash View':     'TeacherList',
-  // add more as screens are built:
-  // 'Student View':       'StudentList',
-  // 'Courses View':       'CourseList',
+  'Employee View':         'EmployeeList',
+  'Employees View':        'EmployeeList',
+  'Employee Dash View':    'EmployeeList',
 };
 
 export function resolveScreen(appviewsheet: string): string {

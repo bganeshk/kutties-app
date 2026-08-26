@@ -38,6 +38,7 @@ const iconMap: Record<string, IconEntry> = {
   'Students':             '👨‍🎓',
   'Finance':              '💹',
   'My Task':              '📋',
+  'Employees':            '🧑‍💼',
   'Course Attendance':    '🙋',
   'Scan Attendance QR':   { ionicon: 'qr-code', color: '#1565C0' },
   'Class Diary':          '📖',

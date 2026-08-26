@@ -1,24 +1,25 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View, TextInput, StyleSheet, Text,
   SafeAreaView, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../../hooks/useSheet';
-import { teacherRepository } from '../../db/repositories';
-import type { TeacherModel } from '../../db/models';
-import TeacherRow from './TeacherRow';
+import { employeeRepository } from '../../db/repositories';
+import type { EmployeeModel } from '../../db/models';
+import EmployeeRow from './EmployeeRow';
 import { GroupedList, GroupConfig } from '../shared';
 import { Colors, KStyles } from '../../styles/kutties-styles';
-type Teacher = TeacherModel;
+
+type Employee = EmployeeModel;
 
 const PRIMARY = Colors.primary;
 
-const TEACHER_GROUPS: GroupConfig<Teacher>[] = [
+const EMPLOYEE_GROUPS: GroupConfig<Employee>[] = [
   {
     key: 'active',
     label: 'Active',
-    filter: (t) => t.status === 'active',
+    filter: (e) => e.status === 'active',
     dotColor: '#2E7D32',
     bgColor: '#F1F8E9',
     defaultExpanded: true,
@@ -26,7 +27,7 @@ const TEACHER_GROUPS: GroupConfig<Teacher>[] = [
   {
     key: 'inactive',
     label: 'Inactive',
-    filter: (t) => t.status !== 'active',
+    filter: (e) => e.status !== 'active',
     dotColor: '#9E9E9E',
     bgColor: '#F5F5F5',
     defaultExpanded: false,
@@ -37,46 +38,44 @@ interface Props {
   navigation: any;
 }
 
-export default function TeacherList({ navigation }: Props) {
-  const { syncing, sync } = useSheet('teachers');
+export default function EmployeeList({ navigation }: Props) {
+  const { syncing, sync } = useSheet('employees');
   const synced = useRef(false);
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [deptFilter, setDeptFilter] = useState<string | null>(null);
+  const [desigFilter, setDesigFilter] = useState<string | null>(null);
 
-  const toggleSubjectFilter = useCallback((subject: string) => {
-    setSubjectFilter((prev) => (prev === subject ? null : subject));
-  }, []);
-
-  const displayedTeachers = useMemo(() =>
-    subjectFilter
-      ? teachers.filter((t) => t.subjectList?.includes(subjectFilter))
-      : teachers,
-    [teachers, subjectFilter],
-  );
-
-  const loadTeachers = useCallback(async () => {
+  const loadEmployees = useCallback(async () => {
     const results = search.trim()
-      ? await teacherRepository.search(search)
-      : await teacherRepository.findAll();
-    setTeachers(results.sort((a, b) =>
+      ? await employeeRepository.search(search)
+      : await employeeRepository.findAll();
+    setEmployees(results.sort((a, b) =>
       String(a.name ?? '').localeCompare(String(b.name ?? ''))
     ));
   }, [search]);
 
   useEffect(() => {
-    loadTeachers();
-  }, [loadTeachers]);
+    loadEmployees();
+  }, [loadEmployees]);
 
   useEffect(() => {
     if (!synced.current) {
       synced.current = true;
-      sync().then(() => loadTeachers());
+      sync().then(() => loadEmployees());
     }
   }, []);
 
-  const toggleSelect = useCallback((item: Teacher) => {
+  const toggleDeptFilter = useCallback((dept: string) => {
+    setDeptFilter(prev => prev === dept ? null : dept);
+  }, []);
+
+  const toggleDesigFilter = useCallback((desig: string) => {
+    setDesigFilter(prev => prev === desig ? null : desig);
+  }, []);
+
+  const toggleSelect = useCallback((item: Employee) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       next.has(item.id) ? next.delete(item.id) : next.add(item.id);
@@ -84,35 +83,36 @@ export default function TeacherList({ navigation }: Props) {
     });
   }, []);
 
-  const handlePress = useCallback((item: Teacher) => {
+  const handlePress = useCallback((item: Employee) => {
     if (selectedIds.size > 0) {
       toggleSelect(item);
     } else {
       navigation.navigate('Landing', {
         title: String(item.name ?? item.id),
-        appviewsheet: 'TeacherDetails',
+        appviewsheet: 'EmployeeDetails',
       });
     }
   }, [selectedIds, navigation, toggleSelect]);
 
-  const renderTeacher = useCallback((item: Teacher) => (
-    <TeacherRow
+  const renderEmployee = useCallback((item: Employee) => (
+    <EmployeeRow
       item={item}
       selected={selectedIds.has(item.id)}
+      activeDept={deptFilter ?? undefined}
+      activeDesig={desigFilter ?? undefined}
       onPress={handlePress}
       onLongPress={toggleSelect}
-      activeSubject={subjectFilter ?? undefined}
-      onSubjectPress={toggleSubjectFilter}
-      onQrPress={(t) =>
-        navigation.navigate('Landing', {
-          title: String(t.name ?? t.id),
-          appviewsheet: 'TeacherAttendanceQR',
-        })
-      }
+      onDeptPress={toggleDeptFilter}
+      onDesigPress={toggleDesigFilter}
     />
-  ), [selectedIds, handlePress, toggleSelect, subjectFilter, toggleSubjectFilter, navigation]);
+  ), [selectedIds, handlePress, toggleSelect, toggleDeptFilter, deptFilter, toggleDesigFilter, desigFilter]);
 
-  const isEmpty = displayedTeachers.length === 0;
+  const displayedEmployees = employees.filter(e =>
+    (!deptFilter  || e.department  === deptFilter) &&
+    (!desigFilter || e.designation === desigFilter)
+  );
+
+  const isEmpty = displayedEmployees.length === 0;
 
   return (
     <SafeAreaView style={styles.root}>
@@ -121,7 +121,7 @@ export default function TeacherList({ navigation }: Props) {
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Teachers</Text>
+        <Text style={styles.headerTitle}>Employees</Text>
         <TouchableOpacity onPress={() => sync()} style={styles.headerIcon}>
           {syncing
             ? <ActivityIndicator size="small" color="#fff" />
@@ -147,16 +147,27 @@ export default function TeacherList({ navigation }: Props) {
         )}
       </View>
 
-      {/* Subject filter banner */}
-      {subjectFilter && (
-        <View style={styles.filterBanner}>
-          <Ionicons name="filter" size={14} color="#1565C0" style={{ marginRight: 6 }} />
-          <Text style={styles.filterBannerText}>Subject: {subjectFilter}</Text>
-          <TouchableOpacity onPress={() => setSubjectFilter(null)} style={{ marginLeft: 'auto' }}>
-            <Ionicons name="close-circle" size={18} color="#1565C0" />
+      {/* Dept filter banner */}
+      {deptFilter ? (
+        <View style={styles.deptBanner}>
+          <Ionicons name="funnel" size={13} color="#4527A0" style={{ marginRight: 6 }} />
+          <Text style={styles.deptBannerText} numberOfLines={1}>{deptFilter}</Text>
+          <TouchableOpacity onPress={() => setDeptFilter(null)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Ionicons name="close-circle" size={16} color="#4527A0" />
           </TouchableOpacity>
         </View>
-      )}
+      ) : null}
+
+      {/* Designation filter banner */}
+      {desigFilter ? (
+        <View style={styles.desigBanner}>
+          <Ionicons name="funnel" size={13} color={PRIMARY} style={{ marginRight: 6 }} />
+          <Text style={styles.desigBannerText} numberOfLines={1}>{desigFilter}</Text>
+          <TouchableOpacity onPress={() => setDesigFilter(null)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Ionicons name="close-circle" size={16} color={PRIMARY} />
+          </TouchableOpacity>
+        </View>
+      ) : null}
 
       {/* Selection banner */}
       {selectedIds.size > 0 && (
@@ -175,14 +186,14 @@ export default function TeacherList({ navigation }: Props) {
       ) : isEmpty ? (
         <View style={styles.center}>
           <Ionicons name="people-outline" size={48} color="#ccc" />
-          <Text style={styles.emptyText}>No teachers found</Text>
+          <Text style={styles.emptyText}>No employees found</Text>
         </View>
       ) : (
         <GroupedList
-          data={displayedTeachers}
-          groups={TEACHER_GROUPS}
-          keyExtractor={(t) => t.id}
-          renderItem={renderTeacher}
+          data={displayedEmployees}
+          groups={EMPLOYEE_GROUPS}
+          keyExtractor={(e) => e.id}
+          renderItem={renderEmployee}
         />
       )}
 
@@ -191,7 +202,7 @@ export default function TeacherList({ navigation }: Props) {
         style={styles.fab}
         activeOpacity={0.85}
         onPress={() =>
-          navigation.navigate('Landing', { title: 'Add Teacher', appviewsheet: 'TeacherForm' })
+          navigation.navigate('Landing', { title: 'Add Employee', appviewsheet: 'EmployeeForm' })
         }
       >
         <Ionicons name="add" size={28} color="#fff" />
@@ -214,18 +225,26 @@ const styles = StyleSheet.create({
   },
   searchIcon: { marginRight: 6 },
   searchInput: { flex: 1, fontSize: 14, color: '#222', paddingVertical: 2 },
-  filterBanner: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#E3F2FD', paddingHorizontal: 16, paddingVertical: 8,
-    borderBottomWidth: 0.5, borderBottomColor: '#BBDEFB',
-  },
-  filterBannerText: { fontSize: 13, fontWeight: '600', color: '#1565C0' },
   selectionBanner: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     backgroundColor: Colors.lightPink, paddingHorizontal: 16, paddingVertical: 8,
   },
   selectionText: { fontSize: 13, fontWeight: '600', color: PRIMARY },
   clearText: { fontSize: 13, color: PRIMARY, textDecorationLine: 'underline' },
+  deptBanner: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#EDE7F6',
+    paddingHorizontal: 14, paddingVertical: 7,
+    borderBottomWidth: 1, borderBottomColor: '#D1C4E9',
+  },
+  deptBannerText: { flex: 1, fontSize: 13, fontWeight: '600', color: '#4527A0' },
+  desigBanner: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: Colors.lightPink,
+    paddingHorizontal: 14, paddingVertical: 7,
+    borderBottomWidth: 1, borderBottomColor: Colors.border,
+  },
+  desigBannerText: { flex: 1, fontSize: 13, fontWeight: '600', color: PRIMARY },
   center: { ...KStyles.center, gap: 12, paddingTop: 80 },
   emptyText: { fontSize: 14, color: '#aaa' },
   fab: KStyles.fab,

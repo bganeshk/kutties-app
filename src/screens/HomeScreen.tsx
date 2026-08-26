@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
 import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
+import { resolveScreen } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
 
 const PRIMARY = Colors.primary;
@@ -113,24 +114,40 @@ export default function HomeScreen({ navigation }: Props) {
               <Text style={styles.emptyHint}>Tap refresh to sync from server</Text>
             </View>
           }
-          renderItem={({ item }) => (
+          renderItem={({ item }) => {
+            const hasChildren = (rows as DashRow[]).some(
+              (r) => String(r.parentview ?? '') === String(item.Dashcaption ?? ''),
+            );
+            const appviewsheet = String(item.appviewsheet ?? '');
+            const screenName = resolveScreen(appviewsheet);
+
+            return (
             <TouchableOpacity
               style={styles.card}
               activeOpacity={0.85}
-              onPress={() =>
-                navigation?.navigate('SubItems', {
-                  parentview: String(item.Dashcaption ?? ''),
-                  title: String(item.Dashcaption ?? item.id),
-                })
-              }
+              onPress={() => {
+                if (!hasChildren && screenName !== 'Landing') {
+                  navigation?.navigate(screenName);
+                } else if (hasChildren) {
+                  navigation?.navigate('SubItems', {
+                    parentview: String(item.Dashcaption ?? ''),
+                    title: String(item.Dashcaption ?? item.id),
+                  });
+                } else {
+                  navigation?.navigate('Landing', {
+                    title: String(item.Dashcaption ?? item.id),
+                    appviewsheet,
+                  });
+                }
+              }}
             >
               <View style={styles.cardImageArea}>
                 <CardIcon caption={String(item.Dashcaption ?? '')} value={item.dash_image} />
                 <Text style={styles.cardLabel}>{String(item.Dashcaption ?? item.id)}</Text>
               </View>
-              
             </TouchableOpacity>
-          )}
+            );
+          }}
         />
       )}
 

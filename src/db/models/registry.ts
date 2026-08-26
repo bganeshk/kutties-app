@@ -1,4 +1,5 @@
 import { toTeacherModel } from './teacher.model';
+import { toEmployeeModel } from './employee.model';
 import { toDashboardModel } from './dashboard.model';
 import { toProductModel } from './product.model';
 
@@ -12,6 +13,7 @@ function stripComputed(obj: Record<string, unknown>): Record<string, unknown> {
 
 const TRANSFORMERS: Record<string, RowTransformer> = {
   teachers:  (raw) => stripComputed(toTeacherModel(raw)  as unknown as Record<string, unknown>),
+  employees: (raw) => stripComputed(toEmployeeModel(raw) as unknown as Record<string, unknown>),
   dashboard: (raw) => stripComputed(toDashboardModel(raw) as unknown as Record<string, unknown>),
   products:  (raw) => stripComputed(toProductModel(raw)   as unknown as Record<string, unknown>),
 };
