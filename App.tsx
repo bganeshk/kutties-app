@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { AppState, AppStateStatus, Text, StyleSheet, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -27,6 +27,10 @@ const sleep = (ms: number): Promise<void> => {
         setPhase('sync');
         await syncSheet('dashboard').catch(() => {});  // best-effort; offline is fine
         await syncSheet('products').catch(() => {});  // best-effort; offline is fine
+        await syncSheet('reftbl').catch(() => {});
+        await syncSheet('teachers').catch(() => {});
+        await syncSheet('employees').catch(() => {});
+     
         await sleep(500)
         setPhase('ready');
       } catch (e) {
@@ -35,6 +39,17 @@ const sleep = (ms: number): Promise<void> => {
       }
     }
     bootstrap();
+  }, []);
+
+  // Push pending changes when the app goes to background / inactive
+  useEffect(() => {
+    const sheets = ['dashboard', 'products', 'reftbl', 'teachers', 'employees'];
+    const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'background' || state === 'inactive') {
+        sheets.forEach(sheet => syncSheet(sheet).catch(() => {}));
+      }
+    });
+    return () => sub.remove();
   }, []);
 
   if (phase === 'db')   return <AppSplashScreen message="Initialising database…" />;

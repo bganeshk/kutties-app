@@ -5,7 +5,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import HomeStack from './HomeStack';
 import SubItemScreen from '../screens/SubItemScreen';
 import LandingScreen from '../screens/LandingScreen';
-import { TeacherList } from '../components/teachers';
+import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList } from '../components/employees';
 
 const Tab = createBottomTabNavigator();
@@ -24,6 +24,7 @@ function makeTabStack(parentview: string, title: string) {
         />
         <Stack.Screen name="Landing" component={LandingScreen} />
         <Stack.Screen name="TeacherList" component={TeacherList} />
+        <Stack.Screen name="TeacherForm" component={TeacherForm} />
         <Stack.Screen name="EmployeeList" component={EmployeeList} />
       </Stack.Navigator>
     );

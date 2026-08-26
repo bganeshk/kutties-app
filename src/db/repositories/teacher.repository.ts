@@ -22,6 +22,7 @@ export class TeacherRepository extends BaseRepository<TeacherModel> {
       subjects:     item.subjects,
       idphoto:      item.idphoto,
       joiningDate:  item.joiningDate,
+      remarks:      item.remarks,
       lastmodified: new Date().toISOString(),
     };
   }

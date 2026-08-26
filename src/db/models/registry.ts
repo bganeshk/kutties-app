@@ -11,11 +11,20 @@ function stripComputed(obj: Record<string, unknown>): Record<string, unknown> {
   return rest;
 }
 
+/**
+ * reftbl rows have a real `id` from the API.
+ * Pass all columns through unchanged so getRefOptions can read them.
+ */
+function toReftblRow(raw: Record<string, unknown>): Record<string, unknown> {
+  return { ...raw, id: String(raw.id ?? raw.txid ?? '').trim() };
+}
+
 const TRANSFORMERS: Record<string, RowTransformer> = {
   teachers:  (raw) => stripComputed(toTeacherModel(raw)  as unknown as Record<string, unknown>),
   employees: (raw) => stripComputed(toEmployeeModel(raw) as unknown as Record<string, unknown>),
   dashboard: (raw) => stripComputed(toDashboardModel(raw) as unknown as Record<string, unknown>),
   products:  (raw) => stripComputed(toProductModel(raw)   as unknown as Record<string, unknown>),
+  reftbl:    (raw) => toReftblRow(raw),
 };
 
 /**

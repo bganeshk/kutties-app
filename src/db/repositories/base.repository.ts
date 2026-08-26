@@ -1,4 +1,5 @@
 import { LocalDb } from '../../sync/sync.service';
+import { getDb } from '../database';
 
 export class BaseRepository<T extends { id: string }> {
   constructor(protected readonly sheet: string) {}
@@ -29,7 +30,17 @@ export class BaseRepository<T extends { id: string }> {
   }
 
   async delete(id: string): Promise<void> {
-    await LocalDb.deleteRow(id);
+    const db = getDb();
+    const rows = await db.getRows(this.sheet);
+    console.log(`[Repo.delete] sheet=${this.sheet} id=${id} total rows=${rows.length} ids=${rows.map(r=>r.id).join(',')}`);
+    const row = rows.find((r) => r.id === id);
+    if (!row) throw new Error(`Record not found (id=${id})`);
+    if (row.syncStatus === 'pending_create') {
+      await db.deleteRow(id);
+    } else {
+      await db.updateRowStatus(id, 'pending_delete');
+    }
+    console.log(`[Repo.delete] done, syncStatus was ${row.syncStatus}`);
   }
 
   async count(): Promise<number> {

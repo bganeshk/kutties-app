@@ -14,6 +14,7 @@ export const teachers = sqliteTable('teachers', {
   subjects:     text('subjects'),                 // comma-separated
   idphoto:      text('idphoto'),
   joiningDate:  text('joining_date'),
+  remarks:      text('remarks'),
   lastmodified: text('lastmodified'),
   syncStatus:   text('sync_status', {
     enum: ['synced', 'pending_create', 'pending_update', 'pending_delete'],
@@ -38,6 +39,7 @@ export interface TeacherModel extends AuditFields {
   subjectList?: string[];    // parsed array (computed)
   idphoto?: string;
   joiningDate?: string;
+  remarks?: string;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -61,6 +63,7 @@ export function toTeacherModel(row: Record<string, unknown>): TeacherModel {
     subjectList:  parseSubjects(row.subjects as string),
     idphoto:      row.idphoto as string,
     joiningDate:  row.joiningDate as string,
+    remarks:      row.remarks as string,
     lastmodified: row.lastmodified as string,
   };
 }

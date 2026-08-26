@@ -4,6 +4,7 @@ import {
   SafeAreaView, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSheet } from '../../hooks/useSheet';
 import { teacherRepository } from '../../db/repositories';
 import type { TeacherModel } from '../../db/models';
@@ -69,6 +70,11 @@ export default function TeacherList({ navigation }: Props) {
     loadTeachers();
   }, [loadTeachers]);
 
+  // reload list every time the screen comes back into focus (e.g. after save/edit)
+  useFocusEffect(useCallback(() => {
+    loadTeachers();
+  }, [loadTeachers]));
+
   useEffect(() => {
     if (!synced.current) {
       synced.current = true;
@@ -88,10 +94,7 @@ export default function TeacherList({ navigation }: Props) {
     if (selectedIds.size > 0) {
       toggleSelect(item);
     } else {
-      navigation.navigate('Landing', {
-        title: String(item.name ?? item.id),
-        appviewsheet: 'TeacherDetails',
-      });
+      navigation.navigate('TeacherForm', { mode: 'view', item });
     }
   }, [selectedIds, navigation, toggleSelect]);
 
@@ -190,9 +193,7 @@ export default function TeacherList({ navigation }: Props) {
       <TouchableOpacity
         style={styles.fab}
         activeOpacity={0.85}
-        onPress={() =>
-          navigation.navigate('Landing', { title: 'Add Teacher', appviewsheet: 'TeacherForm' })
-        }
+        onPress={() => navigation.navigate('TeacherForm', { mode: 'add' })}
       >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
@@ -209,8 +210,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: Colors.surface, margin: 10, borderRadius: 8,
     paddingHorizontal: 10, paddingVertical: 6,
-    elevation: 1, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
+    elevation: 1, boxShadow: '0px 1px 3px rgba(0,0,0,0.05)',
   },
   searchIcon: { marginRight: 6 },
   searchInput: { flex: 1, fontSize: 14, color: '#222', paddingVertical: 2 },

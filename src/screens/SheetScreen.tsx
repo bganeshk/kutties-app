@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   input: { flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 8, backgroundColor: '#fff' },
   addBtn: { backgroundColor: '#0052cc', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, justifyContent: 'center' },
   addText: { color: '#fff', fontWeight: '600' },
-  row: { flexDirection: 'row', backgroundColor: '#fff', marginHorizontal: 12, marginBottom: 6, borderRadius: 6, padding: 12, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 },
+  row: { flexDirection: 'row', backgroundColor: '#fff', marginHorizontal: 12, marginBottom: 6, borderRadius: 6, padding: 12, alignItems: 'center', boxShadow: '0px 1px 4px rgba(0,0,0,0.05)', elevation: 1 },
   rowData: { flex: 1 },
   cell: { fontSize: 14, color: '#333', marginBottom: 2 },
   key: { fontWeight: '600', color: '#0052cc' },
