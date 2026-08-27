@@ -61,7 +61,7 @@ function Snackbar({ visible, message, kind, opacity }: {
 
 interface Props {
   navigation: any;
-  route: { params: { mode: 'add' | 'view' | 'edit'; item?: TeacherModel } };
+  route: { params: { mode: 'add' | 'edit'; item?: TeacherModel } };
 }
 
 // ── Field row wrapper ────────────────────────────────────────────────────────
@@ -376,10 +376,7 @@ function DatePicker({ value, onChange, editable = true }: { value: string; onCha
 
 export default function TeacherForm({ navigation, route }: Props) {
   const { mode, item } = route.params;
-  // isRecordEdit — are we working on an existing record (view OR edit mode)?
-  const isRecordEdit = mode === 'view' || mode === 'edit';
-  // editable — can the user type in fields right now?
-  const [editable, setEditable] = useState(mode !== 'view');
+  const isRecordEdit = mode === 'edit';
 
   // ── Form state ─────────────────────────────────────────────────────────────
   const [name, setName]               = useState(item?.name ?? '');
@@ -398,21 +395,6 @@ export default function TeacherForm({ navigation, route }: Props) {
   const [errors, setErrors]           = useState<Record<string, string>>({});
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const snackbar = useSnackbar();
-
-  const handleCancelEdit = useCallback(() => {
-    setName(item?.name ?? '');
-    setDesignation(item?.designation ?? '');
-    setEmail(item?.email ?? '');
-    setPhone(item?.phone ?? '');
-    setAddress(item?.address ?? '');
-    setSelectedSubjects(item?.subjectList ?? []);
-    setJoiningDate(item?.joiningDate ?? '');
-    setRemarks(item?.remarks ?? '');
-    setIdphoto(item?.idphoto ?? '');
-    setIsActive((item?.status ?? 'active') === 'active');
-    setErrors({});
-    setEditable(false);
-  }, [item]);
 
   // ── Subject options from reftbl ────────────────────────────────────────────
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
@@ -541,27 +523,16 @@ export default function TeacherForm({ navigation, route }: Props) {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          {mode === 'add' ? 'Add Teacher' : editable ? 'Edit Teacher' : 'Teacher Details'}
+          {mode === 'add' ? 'Add Teacher' : 'Edit Teacher'}
         </Text>
         <View style={styles.headerActions}>
-          {isRecordEdit && editable && (
-            <TouchableOpacity
-              onPress={handleCancelEdit}
-              style={styles.headerIcon}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="close-outline" size={24} color="#fff" />
-            </TouchableOpacity>
-          )}
-          {isRecordEdit && !editable && (
-            <TouchableOpacity
-              onPress={() => setEditable(true)}
-              style={styles.headerIcon}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="create-outline" size={22} color="#fff" />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.headerIcon}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="close-outline" size={24} color="#fff" />
+          </TouchableOpacity>
           {isRecordEdit && (
             <TouchableOpacity
               onPress={handleDelete}
@@ -586,7 +557,7 @@ export default function TeacherForm({ navigation, route }: Props) {
             onChangeText={setName}
             placeholder="e.g. Anita Sharma"
             autoCapitalize="words"
-            editable={editable}
+            editable={true}
           />
           {errors.name ? <Text style={styles.error}>{errors.name}</Text> : null}
         </Field>
@@ -597,7 +568,7 @@ export default function TeacherForm({ navigation, route }: Props) {
             onChangeText={setDesignation}
             placeholder="e.g. Senior Teacher"
             autoCapitalize="words"
-            editable={editable}
+            editable={true}
           />
         </Field>
 
@@ -608,7 +579,7 @@ export default function TeacherForm({ navigation, route }: Props) {
             placeholder="e.g. anita@school.com"
             keyboardType="email-address"
             autoCapitalize="none"
-            editable={editable}
+            editable={true}
           />
           {errors.email ? <Text style={styles.error}>{errors.email}</Text> : null}
         </Field>
@@ -620,7 +591,7 @@ export default function TeacherForm({ navigation, route }: Props) {
             placeholder="e.g. +91 98765 43210"
             keyboardType="phone-pad"
             autoCapitalize="none"
-            editable={editable}
+            editable={true}
           />
           {errors.phone ? <Text style={styles.error}>{errors.phone}</Text> : null}
         </Field>
@@ -631,7 +602,7 @@ export default function TeacherForm({ navigation, route }: Props) {
             onChangeText={setAddress}
             placeholder="Street, city…"
             multiline
-            editable={editable}
+            editable={true}
           />
           {errors.address ? <Text style={styles.error}>{errors.address}</Text> : null}
         </Field>
@@ -640,7 +611,7 @@ export default function TeacherForm({ navigation, route }: Props) {
         <Text style={styles.section}>ID Photo</Text>
 
         <Field label="Photo">
-          <PhotoPicker uri={idphoto} onChange={setIdphoto} editable={editable} />
+          <PhotoPicker uri={idphoto} onChange={setIdphoto} editable={true} />
         </Field>
 
         {/* ── Academic ──────────────────────────────────────────────────────── */}
@@ -654,12 +625,12 @@ export default function TeacherForm({ navigation, route }: Props) {
             placeholder="Tap to select subjects…"
             title="Select Subjects"
             loading={loadingSubjects}
-            disabled={!editable}
+            disabled={false}
           />
         </Field>
 
         <Field label="Joining Date">
-          <DatePicker value={joiningDate} onChange={setJoiningDate} editable={editable} />
+          <DatePicker value={joiningDate} onChange={setJoiningDate} editable={true} />
         </Field>
 
         <Field label="Remarks">
@@ -668,7 +639,7 @@ export default function TeacherForm({ navigation, route }: Props) {
             onChangeText={setRemarks}
             placeholder="Any additional notes…"
             multiline
-            editable={editable}
+            editable={true}
           />
         </Field>
 
@@ -685,7 +656,7 @@ export default function TeacherForm({ navigation, route }: Props) {
           <Switch
             value={isActive}
             onValueChange={setIsActive}
-            disabled={!editable}
+            disabled={false}
             trackColor={{ false: '#ccc', true: Colors.lightPink }}
             thumbColor={isActive ? PRIMARY : '#f4f3f4'}
           />
@@ -705,21 +676,19 @@ export default function TeacherForm({ navigation, route }: Props) {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Save button — only shown when editable */}
-      {editable && (
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
-            onPress={handleSave}
-            disabled={saving}
-            activeOpacity={0.85}
-          >
-            {saving
-              ? <ActivityIndicator color="#fff" size="small" />
-              : <Text style={styles.saveBtnText}>{isRecordEdit ? 'Save Changes' : 'Add Teacher'}</Text>}
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* Save button */}
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
+          onPress={handleSave}
+          disabled={saving}
+          activeOpacity={0.85}
+        >
+          {saving
+            ? <ActivityIndicator color="#fff" size="small" />
+            : <Text style={styles.saveBtnText}>{isRecordEdit ? 'Save Changes' : 'Add Teacher'}</Text>}
+        </TouchableOpacity>
+      </View>
 
       <Snackbar
         visible={snackbar.visible}

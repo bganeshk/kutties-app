@@ -8,9 +8,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
-import { employeeRepository } from '../../db/repositories';
+import { employeeRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
 import type { EmployeeModel } from '../../db/models/employee.model';
+import SingleSelectDropdown from '../shared/SingleSelectDropdown';
 import ConfirmDialog from '../shared/ConfirmDialog';
 
 const PRIMARY = Colors.primary;
@@ -60,7 +61,7 @@ function Snackbar({ visible, message, kind, opacity }: {
 
 interface Props {
   navigation: any;
-  route: { params: { mode: 'add' | 'view' | 'edit'; item?: EmployeeModel } };
+  route: { params: { mode: 'add' | 'edit'; item?: EmployeeModel } };
 }
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
@@ -317,8 +318,7 @@ function DatePicker({ value, onChange, editable = true }: { value: string; onCha
 
 export default function EmployeeForm({ navigation, route }: Props) {
   const { mode, item } = route.params;
-  const isRecordEdit = mode === 'view' || mode === 'edit';
-  const [editable, setEditable] = useState(mode !== 'view');
+  const isRecordEdit = mode === 'edit';
 
   // ── Form state ─────────────────────────────────────────────────────────────
   const [name, setName]               = useState(item?.name ?? '');
@@ -335,24 +335,34 @@ export default function EmployeeForm({ navigation, route }: Props) {
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const snackbar = useSnackbar();
 
-  const handleCancelEdit = useCallback(() => {
-    setName(item?.name ?? '');
-    setDesignation(item?.designation ?? '');
-    setDepartment(item?.department ?? '');
-    setEmail(item?.email ?? '');
-    setPhone(item?.phone ?? '');
-    setAddress(item?.address ?? '');
-    setJoiningDate(item?.joiningDate ?? '');
-    setIdphoto(item?.idphoto ?? '');
-    setIsActive((item?.status ?? 'active') === 'active');
-    setErrors({});
-    setEditable(false);
-  }, [item]);
+  // ── Reference options from reftbl ─────────────────────────────────────────
+  const [deptOptions, setDeptOptions]   = useState<string[]>([]);
+  const [desigOptions, setDesigOptions] = useState<string[]>([]);
+  const [loadingRefs, setLoadingRefs]   = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      await ensureReftbl();
+      const [depts, desigs] = await Promise.all([
+        getRefOptions('DeptRef'),
+        getRefOptions('DesigRef'),
+      ]);
+      if (!cancelled) {
+        setDeptOptions(depts);
+        setDesigOptions(desigs);
+        setLoadingRefs(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // ── Validation ─────────────────────────────────────────────────────────────
   const validate = useCallback(async (): Promise<boolean> => {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = 'Name is required';
+    if (!designation.trim()) errs.designation = 'Designation is required';
+    if (!department.trim()) errs.department = 'Department is required';
 
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
@@ -384,7 +394,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
-  }, [name, email, phone, address, isRecordEdit, item]);
+  }, [name, designation, department, email, phone, address, isRecordEdit, item]);
 
   // ── Save ───────────────────────────────────────────────────────────────────
   const handleSave = useCallback(async () => {
@@ -450,27 +460,16 @@ export default function EmployeeForm({ navigation, route }: Props) {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          {mode === 'add' ? 'Add Employee' : editable ? 'Edit Employee' : 'Employee Details'}
+          {mode === 'add' ? 'Add Employee' : 'Edit Employee'}
         </Text>
         <View style={styles.headerActions}>
-          {isRecordEdit && editable && (
-            <TouchableOpacity
-              onPress={handleCancelEdit}
-              style={styles.headerIcon}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="close-outline" size={24} color="#fff" />
-            </TouchableOpacity>
-          )}
-          {isRecordEdit && !editable && (
-            <TouchableOpacity
-              onPress={() => setEditable(true)}
-              style={styles.headerIcon}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="create-outline" size={22} color="#fff" />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.headerIcon}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="close-outline" size={24} color="#fff" />
+          </TouchableOpacity>
           {isRecordEdit && (
             <TouchableOpacity
               onPress={handleDelete}
@@ -495,29 +494,33 @@ export default function EmployeeForm({ navigation, route }: Props) {
             onChangeText={setName}
             placeholder="e.g. Rahul Mehta"
             autoCapitalize="words"
-            editable={editable}
+            editable={true}
           />
           {errors.name ? <Text style={styles.error}>{errors.name}</Text> : null}
         </Field>
 
-        <Field label="Designation">
-          <InputField
-            value={designation}
-            onChangeText={setDesignation}
-            placeholder="e.g. Office Manager"
-            autoCapitalize="words"
-            editable={editable}
+        <Field label="Designation" required>
+          <SingleSelectDropdown
+            selected={designation}
+            options={desigOptions}
+            onChange={setDesignation}
+            placeholder="Select designation…"
+            title="Select Designation"
+            loading={loadingRefs}
           />
+          {errors.designation ? <Text style={styles.error}>{errors.designation}</Text> : null}
         </Field>
 
-        <Field label="Department">
-          <InputField
-            value={department}
-            onChangeText={setDepartment}
-            placeholder="e.g. Administration"
-            autoCapitalize="words"
-            editable={editable}
+        <Field label="Department" required>
+          <SingleSelectDropdown
+            selected={department}
+            options={deptOptions}
+            onChange={setDepartment}
+            placeholder="Select department…"
+            title="Select Department"
+            loading={loadingRefs}
           />
+          {errors.department ? <Text style={styles.error}>{errors.department}</Text> : null}
         </Field>
 
         <Field label="Email" required>
@@ -527,7 +530,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
             placeholder="e.g. rahul@school.com"
             keyboardType="email-address"
             autoCapitalize="none"
-            editable={editable}
+            editable={true}
           />
           {errors.email ? <Text style={styles.error}>{errors.email}</Text> : null}
         </Field>
@@ -539,7 +542,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
             placeholder="e.g. +91 98765 43210"
             keyboardType="phone-pad"
             autoCapitalize="none"
-            editable={editable}
+            editable={true}
           />
           {errors.phone ? <Text style={styles.error}>{errors.phone}</Text> : null}
         </Field>
@@ -550,7 +553,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
             onChangeText={setAddress}
             placeholder="Street, city…"
             multiline
-            editable={editable}
+            editable={true}
           />
           {errors.address ? <Text style={styles.error}>{errors.address}</Text> : null}
         </Field>
@@ -559,14 +562,14 @@ export default function EmployeeForm({ navigation, route }: Props) {
         <Text style={styles.section}>ID Photo</Text>
 
         <Field label="Photo">
-          <PhotoPicker uri={idphoto} onChange={setIdphoto} editable={editable} />
+          <PhotoPicker uri={idphoto} onChange={setIdphoto} editable={true} />
         </Field>
 
         {/* ── Employment ────────────────────────────────────────────────────── */}
         <Text style={styles.section}>Employment</Text>
 
         <Field label="Joining Date">
-          <DatePicker value={joiningDate} onChange={setJoiningDate} editable={editable} />
+          <DatePicker value={joiningDate} onChange={setJoiningDate} editable={true} />
         </Field>
 
         {/* ── Status ────────────────────────────────────────────────────────── */}
@@ -582,7 +585,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
           <Switch
             value={isActive}
             onValueChange={setIsActive}
-            disabled={!editable}
+            disabled={false}
             trackColor={{ false: '#ccc', true: Colors.lightPink }}
             thumbColor={isActive ? PRIMARY : '#f4f3f4'}
           />
@@ -602,21 +605,19 @@ export default function EmployeeForm({ navigation, route }: Props) {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Save button — only shown when editable */}
-      {editable && (
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
-            onPress={handleSave}
-            disabled={saving}
-            activeOpacity={0.85}
-          >
-            {saving
-              ? <ActivityIndicator color="#fff" size="small" />
-              : <Text style={styles.saveBtnText}>{isRecordEdit ? 'Save Changes' : 'Add Employee'}</Text>}
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* Save button */}
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
+          onPress={handleSave}
+          disabled={saving}
+          activeOpacity={0.85}
+        >
+          {saving
+            ? <ActivityIndicator color="#fff" size="small" />
+            : <Text style={styles.saveBtnText}>{isRecordEdit ? 'Save Changes' : 'Add Employee'}</Text>}
+        </TouchableOpacity>
+      </View>
 
       <Snackbar
         visible={snackbar.visible}

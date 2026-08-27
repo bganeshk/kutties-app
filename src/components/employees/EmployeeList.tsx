@@ -93,7 +93,7 @@ export default function EmployeeList({ navigation }: Props) {
     if (selectedIds.size > 0) {
       toggleSelect(item);
     } else {
-      navigation.navigate('EmployeeForm', { mode: 'view', item });
+      navigation.navigate('EmployeeDetails', { item });
     }
   }, [selectedIds, navigation, toggleSelect]);
 

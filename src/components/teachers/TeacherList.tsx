@@ -94,7 +94,7 @@ export default function TeacherList({ navigation }: Props) {
     if (selectedIds.size > 0) {
       toggleSelect(item);
     } else {
-      navigation.navigate('TeacherForm', { mode: 'view', item });
+      navigation.navigate('TeacherDetails', { item });
     }
   }, [selectedIds, navigation, toggleSelect]);
 
