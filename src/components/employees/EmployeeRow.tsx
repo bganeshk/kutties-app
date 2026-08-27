@@ -191,11 +191,13 @@ const EmployeeRow = memo(({ item, selected, activeDept, activeDesig, onPress, on
               />
             </>
           ) : null}
-          <ActionButton
-            icon="checkmark-circle"
-            color={PRIMARY}
-            label="Attendance"
-          />
+          {item.status === 'active' && (
+            <ActionButton
+              icon="checkmark-circle"
+              color={PRIMARY}
+              label="Attendance"
+            />
+          )}
         </View>
       </View>
     </Pressable>

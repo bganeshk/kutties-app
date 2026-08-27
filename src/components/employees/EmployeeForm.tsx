@@ -420,7 +420,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
       syncSheet('employees').catch(() => {/* silent */});
 
       snackbar.show(isRecordEdit ? 'Changes saved' : 'Employee added', 'success');
-      setTimeout(() => navigation.goBack(), 800);
+      navigation.goBack();
     } catch (e) {
       snackbar.show(`Save failed: ${(e as Error).message}`, 'error');
     } finally {

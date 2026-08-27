@@ -1,23 +1,20 @@
 import React, { memo, useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, Pressable, Linking, Dimensions, Image,
+  View, Text, StyleSheet, Pressable, Linking, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import type { TeacherModel } from '../../db/models/teacher.model';
+import type { StudentModel } from '../../db/models/student.model';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 
 const PRIMARY = Colors.primary;
 
-export type { TeacherModel as Teacher } from '../../db/models/teacher.model';
-
-interface TeacherRowProps {
-  item: TeacherModel;
+interface StudentRowProps {
+  item: StudentModel;
   selected?: boolean;
-  onPress: (item: TeacherModel) => void;
-  onLongPress: (item: TeacherModel) => void;
-  onQrPress?: (item: TeacherModel) => void;
-  activeSubject?: string;
-  onSubjectPress?: (subject: string) => void;
+  onPress: (item: StudentModel) => void;
+  onLongPress: (item: StudentModel) => void;
+  activeCourse?: string;
+  onCoursePress?: (course: string) => void;
 }
 
 interface ActionButtonProps {
@@ -41,7 +38,6 @@ function ActionButton({ icon, color, label, onPress }: ActionButtonProps) {
       style={styles.actionBtn}
       onPress={onPress}
       onLongPress={() => setVisible(true)}
-      // pointer devices (web / desktop)
       onHoverIn={() => setVisible(true)}
       onHoverOut={() => setVisible(false)}
     >
@@ -71,9 +67,9 @@ function Avatar({ name, photo }: { name: string; photo?: string }) {
   );
 }
 
-const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, activeSubject, onSubjectPress }: TeacherRowProps) => {
-  const name = item.name ?? String(item.id);
-  const subjectList = item.subjectList ?? [];
+const StudentRow = memo(({ item, selected, onPress, onLongPress, activeCourse, onCoursePress }: StudentRowProps) => {
+  const name = item.fullName ?? String(item.id);
+  const course = item.course;
 
   return (
     <Pressable
@@ -86,51 +82,41 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
         pressed && styles.pressed,
       ]}
     >
-      {/* Avatar */}
       <Avatar name={String(name)} photo={item.idphoto} />
 
-      {/* Info — two-column layout: left (name/designation) | right (email + subjects) */}
       <View style={styles.info}>
         <View style={styles.twoCol}>
 
-          {/* Left column */}
+          {/* Left: name + parent */}
           <View style={styles.leftCol}>
             <Text style={styles.name} numberOfLines={1}>{name}</Text>
-            {item.designation ? (
-              <Text style={styles.designation} numberOfLines={1}>{String(item.designation)}</Text>
+            {(item.motherName || item.fatherName) ? (
+              <Text style={styles.parentName} numberOfLines={1}>
+                <Ionicons name="people-outline" size={10} color="#888" />{' '}
+                {[item.motherName, item.fatherName].filter(Boolean).join(' / ')}
+              </Text>
             ) : null}
           </View>
 
-          {/* Right column — email + all subjects stacked */}
-          {(item.email || subjectList.length > 0) ? (
-            <View style={styles.rightCol}>
-              {item.email ? (
-                <View style={styles.metaChip}>
-                  <Ionicons name="mail-outline" size={11} color="#555" style={styles.metaChipIcon} />
-                  <Text style={styles.metaChipText} numberOfLines={1}>{String(item.email)}</Text>
-                </View>
-              ) : null}
-              {subjectList.length > 0 && (
-                <View style={styles.subjectRow}>
-                  {subjectList.map((s, i) => {
-                    const isActive = activeSubject === s;
-                    return (
-                      <Pressable
-                        key={i}
-                        onPress={() => onSubjectPress?.(s)}
-                        style={[styles.subjectChip, isActive && styles.subjectChipActive]}
-                      >
-                        {isActive && (
-                          <Ionicons name="filter" size={9} color="#1565C0" style={{ marginRight: 2 }} />
-                        )}
-                        <Text style={styles.subjectChipText}>{s}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              )}
-            </View>
-          ) : null}
+          {/* Right: reg number + course */}
+          <View style={styles.rightCol}>
+            {item.regNumber ? (
+              <View style={styles.regChip}>
+                <Text style={styles.regChipText}>{String(item.regNumber)}</Text>
+              </View>
+            ) : null}
+            {course ? (
+              <Pressable
+                onPress={() => onCoursePress?.(course)}
+                style={[styles.courseChip, activeCourse === course && styles.courseChipActive]}
+              >
+                {activeCourse === course && (
+                  <Ionicons name="filter" size={9} color="#1565C0" style={{ marginRight: 2 }} />
+                )}
+                <Text style={styles.courseChipText} numberOfLines={1}>{String(course)}</Text>
+              </Pressable>
+            ) : null}
+          </View>
 
         </View>
 
@@ -154,17 +140,16 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
           ) : null}
           {item.status === 'active' && (
             <ActionButton
-              icon="qr-code"
+              icon="person-add"
               color="#6A1B9A"
-              label="QR Code"
-              onPress={() => onQrPress?.(item)}
+              label="Attending Today"
             />
           )}
           {item.status === 'active' && (
             <ActionButton
-              icon="checkmark-circle"
+              icon="wallet"
               color={PRIMARY}
-              label="Attendance"
+              label="Fee Details"
             />
           )}
         </View>
@@ -173,7 +158,7 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
   );
 });
 
-export default TeacherRow;
+export default StudentRow;
 
 const styles = StyleSheet.create({
   container: {
@@ -199,34 +184,27 @@ const styles = StyleSheet.create({
   leftCol: { flex: 1, paddingRight: 8 },
   rightCol: { width: 155, alignItems: 'flex-end', gap: 4 },
   name: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
-  designation: { fontSize: 12, color: PRIMARY, fontWeight: '600', marginTop: 1 },
-  meta: { fontSize: 12, color: '#666' },
-  metaChip: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#F5F5F5', borderRadius: 8,
-    paddingHorizontal: 7, paddingVertical: 3,
+  parentName: { fontSize: 12, color: '#666', marginTop: 2 },
+  regChip: {
+    backgroundColor: '#EDE7F6',
+    borderRadius: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
   },
-  metaChipIcon: { marginRight: 3 },
-  metaChipText: { fontSize: 11, color: '#555', flexShrink: 1 },
-  subjectRow: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 3,
-    justifyContent: 'flex-end', width: 155,
-  },
-  subjectChip: {
+  regChipText: { fontSize: 11, color: '#4A148C', fontWeight: '700' },
+  courseChip: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#E3F2FD', borderRadius: 10,
     paddingHorizontal: 7, paddingVertical: 2,
+    maxWidth: 155,
   },
-  subjectChipActive: {
+  courseChipActive: {
     backgroundColor: '#BBDEFB',
     borderWidth: 1, borderColor: '#1565C0',
   },
-  subjectChipText: { fontSize: 10, color: '#1565C0', fontWeight: '600' },
+  courseChipText: { fontSize: 10, color: '#1565C0', fontWeight: '600', flexShrink: 1 },
   actions: { flexDirection: 'row', marginTop: 6, gap: 4 },
-  actionBtn: {
-    padding: 7, borderRadius: 20,
-    backgroundColor: '#F5F5F5',
-  },
+  actionBtn: { padding: 7, borderRadius: 20, backgroundColor: '#F5F5F5' },
   tooltip: {
     position: 'absolute',
     bottom: '100%',

@@ -1,5 +1,6 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import type { AuditFields } from './audit.model';
+import { normaliseDate } from './date.utils';
 
 // ── Drizzle table (native SQLite) ─────────────────────────────────────────
 export const teachers = sqliteTable('teachers', {
@@ -59,7 +60,7 @@ export function toTeacherModel(row: Record<string, unknown>): TeacherModel {
     subjects:     row.subjects as string,
     subjectList:  parseSubjects(row.subjects as string),
     idphoto:      row.idphoto as string,
-    joiningDate:  row.joiningDate as string,
+    joiningDate:  normaliseDate(row.joiningDate),
     remarks:      row.remarks as string,
     lastmodified: row.lastmodified as string,
   };

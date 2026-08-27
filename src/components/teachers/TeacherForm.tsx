@@ -480,7 +480,7 @@ export default function TeacherForm({ navigation, route }: Props) {
       syncSheet('teachers').catch(() => {/* silent — will retry on next sync */});
 
       snackbar.show(isRecordEdit ? 'Changes saved' : 'Teacher added', 'success');
-      setTimeout(() => navigation.goBack(), 800);
+      navigation.goBack();
     } catch (e) {
       snackbar.show(`Save failed: ${(e as Error).message}`, 'error');
     } finally {

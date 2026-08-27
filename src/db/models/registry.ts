@@ -1,5 +1,6 @@
 import { toTeacherModel } from './teacher.model';
 import { toEmployeeModel } from './employee.model';
+import { toStudentModel } from './student.model';
 import { toDashboardModel } from './dashboard.model';
 import { toProductModel } from './product.model';
 
@@ -22,6 +23,7 @@ function toReftblRow(raw: Record<string, unknown>): Record<string, unknown> {
 const TRANSFORMERS: Record<string, RowTransformer> = {
   teachers:  (raw) => stripComputed(toTeacherModel(raw)  as unknown as Record<string, unknown>),
   employees: (raw) => stripComputed(toEmployeeModel(raw) as unknown as Record<string, unknown>),
+  students:  (raw) => toStudentModel(raw) as unknown as Record<string, unknown>,
   dashboard: (raw) => stripComputed(toDashboardModel(raw) as unknown as Record<string, unknown>),
   products:  (raw) => stripComputed(toProductModel(raw)   as unknown as Record<string, unknown>),
   reftbl:    (raw) => toReftblRow(raw),
@@ -42,4 +44,46 @@ export function normalizeRow(
 /** Register a new sheet → model transformer at runtime */
 export function registerModel(sheet: string, transformer: RowTransformer): void {
   TRANSFORMERS[sheet] = transformer;
+}
+
+// ── Excel-key mappers ─────────────────────────────────────────────────────
+// Translate camelCase SQLite keys → the actual column names in the Excel sheet.
+// Add an entry here whenever a sheet's Excel headers differ from the camelCase
+// keys used internally.
+
+const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
+  students: {
+    regNumber:    'RegNumber',
+    fullName:     'FullName',
+    motherName:   'mother_name',
+    fatherName:   'father_name',
+    address:      'ContactAddress',
+    phone:        'phone_1',
+    dob:          'DoB',
+    email:        'emailId',
+    status:       'Status',
+    afterSchool:  'AfterSchool',
+    optWeekend:   'Opt Weekend',
+    idphoto:      'IdPhoto',
+    admissionDate: 'AdmissionDt',
+    lastmodified: 'Lastmodified',
+    // 'course' is the same in both — no mapping needed
+  },
+};
+
+/**
+ * Translate a camelCase SQLite payload to the Excel column names for the sheet.
+ * Keys not listed in the map are passed through unchanged.
+ */
+export function toExcelRow(
+  sheet: string,
+  data: Record<string, unknown>,
+): Record<string, unknown> {
+  const map = EXCEL_KEY_MAPS[sheet];
+  if (!map) return data;
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data)) {
+    result[map[key] ?? key] = value;
+  }
+  return result;
 }

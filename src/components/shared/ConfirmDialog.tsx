@@ -97,10 +97,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     alignItems: 'center',
     elevation: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
+    boxShadow: '0px 6px 12px rgba(0, 0, 0, 0.18)',
   },
   iconWrap: {
     width: 56,

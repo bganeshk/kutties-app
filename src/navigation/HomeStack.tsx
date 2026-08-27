@@ -7,8 +7,10 @@ import TeacherDetailsScreen from '../screens/TeacherDetailsScreen';
 import EmployeeDetailsScreen from '../screens/EmployeeDetailsScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList, EmployeeForm } from '../components/employees';
+import { StudentList, StudentForm } from '../components/students';
 import type { TeacherModel } from '../db/models/teacher.model';
 import type { EmployeeModel } from '../db/models/employee.model';
+import type { StudentModel } from '../db/models/student.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -20,6 +22,8 @@ export type HomeStackParamList = {
   EmployeeList: undefined;
   EmployeeDetails: { item: EmployeeModel };
   EmployeeForm: { mode: 'add' | 'edit'; item?: EmployeeModel };
+  StudentList: undefined;
+  StudentForm: { mode: 'add' | 'edit'; item?: StudentModel };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -36,6 +40,8 @@ export default function HomeStack() {
       <Stack.Screen name="EmployeeList" component={EmployeeList} />
       <Stack.Screen name="EmployeeDetails" component={EmployeeDetailsScreen} />
       <Stack.Screen name="EmployeeForm" component={EmployeeForm} />
+      <Stack.Screen name="StudentList" component={StudentList} />
+      <Stack.Screen name="StudentForm" component={StudentForm} />
     </Stack.Navigator>
   );
 }

@@ -7,6 +7,7 @@ import SubItemScreen from '../screens/SubItemScreen';
 import LandingScreen from '../screens/LandingScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList } from '../components/employees';
+import { StudentList, StudentForm } from '../components/students';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -26,6 +27,8 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="TeacherList" component={TeacherList} />
         <Stack.Screen name="TeacherForm" component={TeacherForm} />
         <Stack.Screen name="EmployeeList" component={EmployeeList} />
+        <Stack.Screen name="StudentList" component={StudentList} />
+        <Stack.Screen name="StudentForm" component={StudentForm} />
       </Stack.Navigator>
     );
   };

@@ -1,7 +1,7 @@
 import { getDb, DbRow } from '../db/database';
 import { ExcelApi } from '../api/excel.api';
 import { v4 as uuidv4 } from 'uuid';
-import { normalizeRow } from '../db/models/registry';
+import { normalizeRow, toExcelRow } from '../db/models/registry';
 
 export type SyncResult = {
   sheet: string;
@@ -42,10 +42,11 @@ async function pushSheet(sheet: string): Promise<{ pushed: number; errors: strin
 
   for (const row of dirty) {
     try {
-      const payload: Record<string, unknown> = {
+      const rawPayload: Record<string, unknown> = {
         ...JSON.parse(row.data),
         lastmodified: new Date().toISOString(),
       };
+      const payload = toExcelRow(sheet, rawPayload);
       if (row.syncStatus === 'pending_create') {
         await ExcelApi.createRow(sheet, { ...payload, id: row.id });
       } else if (row.syncStatus === 'pending_update') {

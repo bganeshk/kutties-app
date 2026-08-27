@@ -9,29 +9,19 @@ import { useSheet } from '../../hooks/useSheet';
 import { employeeRepository } from '../../db/repositories';
 import type { EmployeeModel } from '../../db/models';
 import EmployeeRow from './EmployeeRow';
-import { GroupedList, GroupConfig } from '../shared';
+import { GroupedList, GroupLevel } from '../shared';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 
 type Employee = EmployeeModel;
 
 const PRIMARY = Colors.primary;
 
-const EMPLOYEE_GROUPS: GroupConfig<Employee>[] = [
+const EMPLOYEE_GROUP_BY: GroupLevel<Employee>[] = [
   {
-    key: 'active',
-    label: 'Active',
-    filter: (e) => e.status === 'active',
-    dotColor: '#2E7D32',
-    bgColor: '#F1F8E9',
-    defaultExpanded: true,
-  },
-  {
-    key: 'inactive',
-    label: 'Inactive',
-    filter: (e) => e.status !== 'active',
-    dotColor: '#9E9E9E',
-    bgColor: '#F5F5F5',
-    defaultExpanded: false,
+    keyOf: (e) => e.status ?? 'inactive',
+    dotColor: (k) => k === 'active' ? '#2E7D32' : '#9E9E9E',
+    bgColor:  (k) => k === 'active' ? '#F1F8E9' : '#F5F5F5',
+    defaultExpanded: (k) => k === 'active',
   },
 ];
 
@@ -194,7 +184,7 @@ export default function EmployeeList({ navigation }: Props) {
       ) : (
         <GroupedList
           data={displayedEmployees}
-          groups={EMPLOYEE_GROUPS}
+          groupBy={EMPLOYEE_GROUP_BY}
           keyExtractor={(e) => e.id}
           renderItem={renderEmployee}
         />
