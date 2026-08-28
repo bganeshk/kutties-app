@@ -6,7 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
-import { courseRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
+import { courseRepository, teacherRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
 import type { CourseModel } from '../../db/models/course.model';
 import Snackbar, { useSnackbar } from '../shared/Snackbar';
@@ -14,6 +14,7 @@ import AuditRow from '../shared/AuditRow';
 import ConfirmDialog from '../shared/ConfirmDialog';
 import { Field, InputField } from '../shared/FormField';
 import MultiSelectDropdown from '../shared/MultiSelectDropdown';
+import SingleSelectDropdown from '../shared/SingleSelectDropdown';
 
 const PRIMARY = Colors.primary;
 
@@ -40,6 +41,8 @@ export default function CourseForm({ navigation, route }: Props) {
 
   const [subjectOptions,    setSubjectOptions]    = useState<string[]>([]);
   const [loadingSubjects,   setLoadingSubjects]   = useState(true);
+  const [teacherOptions,    setTeacherOptions]    = useState<string[]>([]);
+  const [loadingTeachers,   setLoadingTeachers]   = useState(true);
 
   const [saving,  setSaving]  = useState(false);
   const [errors,  setErrors]  = useState<Record<string, string>>({});
@@ -56,6 +59,40 @@ export default function CourseForm({ navigation, route }: Props) {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // ── Load teacher options from teachers table ────────────────────────────────
+  // Store email (unique) in DB; display "Name (email)" in the picker.
+  const [teacherLabelToEmail, setTeacherLabelToEmail] = useState<Map<string, string>>(new Map());
+  const [teacherEmailToLabel, setTeacherEmailToLabel] = useState<Map<string, string>>(new Map());
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const teachers = await teacherRepository.findActive();
+      if (!cancelled) {
+        const labelToEmail = new Map<string, string>();
+        const emailToLabel = new Map<string, string>();
+        const labels: string[] = [];
+        teachers
+          .filter((t) => t.email)
+          .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
+          .forEach((t) => {
+            const label = t.name ? `${t.name} (${t.email})` : t.email!;
+            labelToEmail.set(label, t.email!);
+            emailToLabel.set(t.email!, label);
+            labels.push(label);
+          });
+        setTeacherLabelToEmail(labelToEmail);
+        setTeacherEmailToLabel(emailToLabel);
+        setTeacherOptions(labels);
+        setLoadingTeachers(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Resolve the stored email → display label for the dropdown's current value
+  const classTeacherLabel = teacherEmailToLabel.get(classTeacher) ?? classTeacher;
 
   // ── Validation ─────────────────────────────────────────────────────────────
   const validate = useCallback(async (): Promise<boolean> => {
@@ -168,7 +205,14 @@ export default function CourseForm({ navigation, route }: Props) {
         </Field>
 
         <Field label="Class Teacher">
-          <InputField value={classTeacher} onChangeText={setClassTeacher} placeholder="Teacher email or name" autoCapitalize="none" editable={true} />
+          <SingleSelectDropdown
+            selected={classTeacherLabel}
+            options={teacherOptions}
+            onChange={(label) => setClassTeacher(teacherLabelToEmail.get(label) ?? label)}
+            placeholder="Select class teacher…"
+            title="Class Teacher"
+            loading={loadingTeachers}
+          />
         </Field>
 
         <Field label="Subjects" required>

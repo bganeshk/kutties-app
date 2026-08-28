@@ -34,12 +34,13 @@ const STUDENT_GROUP_BY: GroupLevel<Student>[] = [
 
 interface Props {
   navigation: any;
+  route?: { params?: { initialSearch?: string } };
 }
 
-export default function StudentList({ navigation }: Props) {
+export default function StudentList({ navigation, route }: Props) {
   const { syncing, sync } = useSheet('students');
   const synced = useRef(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(route?.params?.initialSearch ?? '');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [students, setStudents] = useState<Student[]>([]);
 

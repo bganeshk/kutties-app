@@ -51,12 +51,11 @@ const CourseRow = memo(({ item, selected, onPress, onLongPress }: CourseRowProps
 
           {/* Left column */}
           <View style={KStyles.rowLeftCol}>
-            <Text style={KStyles.rowName} numberOfLines={1}>{name}</Text>
-            <Text style={styles.division} numberOfLines={1}>{item.courseName} - {item.division}</Text>
+            <Text style={KStyles.rowName} numberOfLines={1}>{name} - {item.division}</Text>
             {item.classTeacher ? (
               <View style={styles.teacherRow}>
-                <Ionicons name="person-outline" size={11} color="#555" style={{ marginRight: 3 }} />
-                <Text style={styles.teacherText} numberOfLines={1}>{item.classTeacher}</Text>
+                <Ionicons name="person-outline" size={11} color={PRIMARY} style={{ marginRight: 3 }} />
+                <Text style={[styles.teacherText, {color:PRIMARY,fontWeight:'600'}]} numberOfLines={1}>{item.classTeacher}</Text>
               </View>
             ) : null}
           </View>
@@ -85,7 +84,6 @@ const CourseRow = memo(({ item, selected, onPress, onLongPress }: CourseRowProps
         </View>
   {item.classTeacher ? (
               <View style={styles.teacherRow}>
-                <Ionicons name="person-outline" size={11} color="#555" style={{ marginRight: 3 }} />
                 <Text style={styles.teacherText} numberOfLines={1}>{item.description}</Text>
               </View>
             ) : null}

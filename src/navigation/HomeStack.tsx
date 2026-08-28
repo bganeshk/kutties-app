@@ -26,7 +26,7 @@ export type HomeStackParamList = {
   EmployeeList: undefined;
   EmployeeDetails: { item: EmployeeModel };
   EmployeeForm: { mode: 'add' | 'edit'; item?: EmployeeModel };
-  StudentList: undefined;
+  StudentList: { initialSearch?: string } | undefined;
   StudentDetails: { item: StudentModel };
   StudentForm: { mode: 'add' | 'edit'; item?: StudentModel };
   CourseList: undefined;

@@ -55,6 +55,10 @@ function CoursesTabStack() {
       <Stack.Screen name="CourseList"      component={CourseList} />
       <Stack.Screen name="CourseDetails"   component={CourseDetailsScreen} />
       <Stack.Screen name="CourseForm"      component={CourseForm} />
+      <Stack.Screen name="StudentList"     component={StudentList} />
+      <Stack.Screen name="StudentDetails"  component={StudentDetailsScreen} />
+      <Stack.Screen name="StudentForm"     component={StudentForm} />
+      <Stack.Screen name="TeacherDetails"  component={TeacherDetailsScreen} />
       {/* Sub-screens reachable from the Course dashboard tiles */}
       <Stack.Screen name="SubItems"        component={SubItemScreen} />
       <Stack.Screen name="Landing"         component={LandingScreen} />

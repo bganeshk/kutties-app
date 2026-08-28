@@ -8,8 +8,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
-import { courseRepository } from '../db/repositories';
+import { courseRepository, teacherRepository, studentRepository } from '../db/repositories';
 import type { CourseModel } from '../db/models/course.model';
+import type { TeacherModel } from '../db/models/teacher.model';
 import { syncSheet } from '../sync/sync.service';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 import InfoRow from '../components/shared/InfoRow';
@@ -35,11 +36,31 @@ function FeeRow({ label, amount }: { label: string; amount?: number }) {
 export default function CourseDetailsScreen({ navigation, route }: Props) {
   const [item, setItem] = useState<CourseModel>(route.params.item);
   const [deleteVisible, setDeleteVisible] = useState(false);
+  const [classTeacherLabel, setClassTeacherLabel] = useState<string | undefined>();
+  const [classTeacher, setClassTeacher] = useState<TeacherModel | null>(null);
+  const [studentCount, setStudentCount] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
-      courseRepository.findById(route.params.item.id).then((fresh) => {
+      courseRepository.findById(route.params.item.id).then(async (fresh) => {
+        const current = fresh ?? item;
         if (fresh) setItem(fresh);
+        // Resolve class teacher
+        if (current.classTeacher) {
+          const teachers = await teacherRepository.findAll();
+          const match = teachers.find((t) => t.email === current.classTeacher) ?? null;
+          setClassTeacher(match);
+          setClassTeacherLabel(
+            match?.name ? `${match.name} (${current.classTeacher})` : current.classTeacher,
+          );
+        } else {
+          setClassTeacher(null);
+          setClassTeacherLabel(undefined);
+        }
+        // Count enrolled students
+        const courseKey = `${current.courseName}: ${current.division}`;
+        const enrolled = await studentRepository.findByCourse(courseKey);
+        setStudentCount(enrolled.length);
       });
     }, [route.params.item.id]),
   );
@@ -91,7 +112,7 @@ export default function CourseDetailsScreen({ navigation, route }: Props) {
           </View>
           <Text style={KStyles.detailsHeroName}>{item.courseName ?? item.id}</Text>
           {item.division ? (
-            <Text style={KStyles.detailsHeroDesignation}>Division {item.division}</Text>
+            <Text style={KStyles.detailsHeroDesignation}>Division : {item.division}</Text>
           ) : null}
         </View>
 
@@ -99,7 +120,13 @@ export default function CourseDetailsScreen({ navigation, route }: Props) {
         <Section title="Details" />
         <View style={KStyles.detailsCard}>
           <InfoRow icon="document-text-outline" label="Description"   value={item.description} />
-          <InfoRow icon="person-outline"        label="Class Teacher" value={item.classTeacher} />
+          <InfoRow
+            icon="person-outline"
+            label="Class Teacher"
+            value={classTeacherLabel}
+            onPress={classTeacher ? () => navigation.navigate('TeacherDetails', { item: classTeacher }) : undefined}
+            iconBg={PRIMARY}
+          />
           <InfoRow icon="grid-outline"          label="Division"      value={item.division} />
         </View>
 
@@ -132,6 +159,20 @@ export default function CourseDetailsScreen({ navigation, route }: Props) {
               <Text style={styles.feeAmount}>{item.bookFee}</Text>
             </View>
           ) : null}
+        </View>
+
+        {/* ── Students ──────────────────────────────────────────────────── */}
+        <Section title="Students" />
+        <View style={KStyles.detailsCard}>
+          <InfoRow
+            icon="people-outline"
+            label="Student List"
+            value={studentCount > 0 ? `${studentCount} enrolled` : 'No students yet'}
+            onPress={() => navigation.navigate('StudentList', {
+              initialSearch: `${item.courseName}: ${item.division}`,
+            })}
+            iconBg={PRIMARY}
+          />
         </View>
 
         {/* ── Audit ─────────────────────────────────────────────────────── */}

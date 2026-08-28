@@ -7,7 +7,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
-import { studentRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
+import { studentRepository, courseRepository } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
 import type { StudentModel } from '../../db/models/student.model';
 import Snackbar, { useSnackbar } from '../shared/Snackbar';
@@ -56,9 +56,14 @@ export default function StudentForm({ navigation, route }: Props) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      await ensureReftbl();
-      const opts = await getRefOptions('graderef');
-      if (!cancelled) { setCourseOptions(opts); setLoadingCourses(false); }
+      const courses = await courseRepository.findAll();
+      if (!cancelled) {
+        const opts = courses
+          .filter((c) => c.courseName && c.division)
+          .map((c) => `${c.courseName}: ${c.division}`);
+        setCourseOptions(opts);
+        setLoadingCourses(false);
+      }
     })();
     return () => { cancelled = true; };
   }, []);

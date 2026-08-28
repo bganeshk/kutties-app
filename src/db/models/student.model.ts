@@ -67,7 +67,7 @@ export function toStudentModel(row: Record<string, unknown>): StudentModel {
     status:       (['active', 'inactive', 'alumini', 'graduated'].includes(status)
       ? (status === 'alumini' ? 'Alumini' : status === 'graduated' ? 'Graduated' : status)
       : 'active') as 'active' | 'inactive' | 'Alumini' | 'Graduated',
-    course:       (row.course)                as string | undefined,
+    course:       (row.Course ?? row.course)  as string | undefined,
     afterSchool:  (row.AfterSchool ?? row.afterSchool) as string | undefined,
     optWeekend:   (row['Opt Weekend'] ?? row.optWeekend) as string | undefined,
     idphoto:      (row.IdPhoto ?? row.idphoto) as string | undefined,

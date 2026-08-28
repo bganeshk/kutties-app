@@ -9,8 +9,10 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { STUDENT_STATUS_COLOR, STUDENT_STATUS_BG, STUDENT_STATUS_BORDER } from '../utils/constants';
-import { studentRepository } from '../db/repositories';
+import { studentRepository, courseRepository, teacherRepository } from '../db/repositories';
 import type { StudentModel } from '../db/models/student.model';
+import type { TeacherModel } from '../db/models/teacher.model';
+import type { CourseModel } from '../db/models/course.model';
 import { syncSheet } from '../sync/sync.service';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 import InfoRow from '../components/shared/InfoRow';
@@ -45,12 +47,34 @@ function Section({ title }: { title: string }) {
 
 export default function StudentDetailsScreen({ navigation, route }: Props) {
   const [item, setItem] = useState<StudentModel>(route.params.item);
+  const [matchedCourse, setMatchedCourse] = useState<CourseModel | null>(null);
+  const [classTeacher, setClassTeacher] = useState<TeacherModel | null>(null);
   const [deleteVisible, setDeleteVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
-      studentRepository.findById(route.params.item.id).then((fresh) => {
-        if (fresh) setItem(fresh);
+      studentRepository.findById(route.params.item.id).then(async (fresh) => {
+        if (fresh) {
+          setItem(fresh);
+          if (fresh.course) {
+            const allCourses = await courseRepository.findAll();
+            const matched = allCourses.find(
+              (c) => `${c.courseName}: ${c.division}` === fresh.course,
+            ) ?? null;
+            setMatchedCourse(matched);
+            if (matched?.classTeacher) {
+              const teachers = await teacherRepository.findWhere(
+                (t) => t.email === matched.classTeacher,
+              );
+              setClassTeacher(teachers[0] ?? null);
+            } else {
+              setClassTeacher(null);
+            }
+          } else {
+            setMatchedCourse(null);
+            setClassTeacher(null);
+          }
+        }
       });
     }, [route.params.item.id]),
   );
@@ -179,7 +203,30 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
         {/* ── Academic ──────────────────────────────────────────────────────── */}
         <Section title="Academic" />
         <View style={KStyles.detailsCard}>
-          <InfoRow icon="school-outline" label="Course" value={item.course} />
+          <InfoRow
+            icon="school-outline"
+            label="Course"
+            value={item.course}
+            onPress={matchedCourse ? () => navigation.navigate('CourseDetails', { item: matchedCourse }) : undefined}
+            iconBg={PRIMARY}
+          />
+          <InfoRow
+            icon="person-outline"
+            label="Class Teacher"
+            value={
+              classTeacher
+                ? classTeacher.name
+                  ? `${classTeacher.name} (${classTeacher.email})`
+                  : classTeacher.email
+                : undefined
+            }
+            onPress={
+              classTeacher
+                ? () => navigation.navigate('TeacherDetails', { item: classTeacher })
+                : undefined
+            }
+            iconBg={PRIMARY}
+          />
           <InfoRow icon="calendar-outline" label="Admission Date" value={item.admissionDate} />
           <InfoRow icon="time-outline" label="After School" value={item.afterSchool} />
           <InfoRow icon="sunny-outline" label="Opt Weekend" value={item.optWeekend} />
