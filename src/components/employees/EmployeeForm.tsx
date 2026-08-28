@@ -1,319 +1,28 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, ScrollView,
-  TouchableOpacity, ActivityIndicator, Alert, Animated, KeyboardAvoidingView,
-  Platform, Switch, Image,
+  View, Text, ScrollView,
+  TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView,
+  Platform, Switch,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 import { employeeRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
 import type { EmployeeModel } from '../../db/models/employee.model';
+import Snackbar, { useSnackbar } from '../shared/Snackbar';
+import AuditRow from '../shared/AuditRow';
+import PhotoPicker from '../shared/PhotoPicker';
 import SingleSelectDropdown from '../shared/SingleSelectDropdown';
 import ConfirmDialog from '../shared/ConfirmDialog';
+import FormDatePicker from '../shared/FormDatePicker';
+import { Field, InputField } from '../shared/FormField';
 
 const PRIMARY = Colors.primary;
-
-// ── Snackbar ─────────────────────────────────────────────────────────────────
-type SnackbarKind = 'success' | 'error' | 'info';
-
-function useSnackbar() {
-  const [visible, setVisible] = useState(false);
-  const [message, setMessage] = useState('');
-  const [kind, setKind] = useState<SnackbarKind>('success');
-  const opacity = useRef(new Animated.Value(0)).current;
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const show = useCallback((msg: string, k: SnackbarKind = 'success') => {
-    if (timer.current) clearTimeout(timer.current);
-    setMessage(msg);
-    setKind(k);
-    setVisible(true);
-    Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
-    timer.current = setTimeout(() => {
-      Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }).start(() =>
-        setVisible(false),
-      );
-    }, 2800);
-  }, [opacity]);
-
-  return { visible, message, kind, opacity, show };
-}
-
-function Snackbar({ visible, message, kind, opacity }: {
-  visible: boolean;
-  message: string;
-  kind: SnackbarKind;
-  opacity: Animated.Value;
-}) {
-  if (!visible) return null;
-  const bg = kind === 'success' ? '#2E7D32' : kind === 'error' ? '#B71C1C' : '#1565C0';
-  const icon = kind === 'success' ? 'checkmark-circle' : kind === 'error' ? 'alert-circle' : 'information-circle';
-  return (
-    <Animated.View style={[styles.snackbar, { backgroundColor: bg, opacity }]}>
-      <Ionicons name={icon as any} size={18} color="#fff" style={{ marginRight: 8 }} />
-      <Text style={styles.snackbarText}>{message}</Text>
-    </Animated.View>
-  );
-}
 
 interface Props {
   navigation: any;
   route: { params: { mode: 'add' | 'edit'; item?: EmployeeModel } };
-}
-
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
-  return (
-    <View style={styles.field}>
-      <Text style={styles.label}>
-        {label}
-        {required && <Text style={styles.required}> *</Text>}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
-function InputField({
-  value, onChangeText, placeholder, keyboardType, autoCapitalize,
-  multiline, editable,
-}: {
-  value: string;
-  onChangeText: (v: string) => void;
-  placeholder?: string;
-  keyboardType?: 'default' | 'email-address' | 'phone-pad';
-  autoCapitalize?: 'none' | 'words' | 'sentences';
-  multiline?: boolean;
-  editable?: boolean;
-}) {
-  if (!editable) {
-    return (
-      <View style={[styles.input, styles.inputReadOnly, multiline && styles.inputMultiline]}>
-        <Text style={styles.inputReadOnlyText}>{value || '—'}</Text>
-      </View>
-    );
-  }
-  return (
-    <TextInput
-      style={[styles.input, multiline && styles.inputMultiline]}
-      value={value}
-      onChangeText={onChangeText}
-      placeholder={placeholder}
-      placeholderTextColor="#bbb"
-      keyboardType={keyboardType ?? 'default'}
-      autoCapitalize={autoCapitalize ?? 'sentences'}
-      multiline={multiline}
-      editable={editable}
-    />
-  );
-}
-
-function AuditRow({ label, value }: { label: string; value?: string }) {
-  return (
-    <View style={styles.auditRow}>
-      <Text style={styles.auditLabel}>{label}</Text>
-      <Text style={styles.auditValue}>{value ?? '—'}</Text>
-    </View>
-  );
-}
-
-function PhotoPicker({ uri, onChange, editable = true }: { uri: string; onChange: (uri: string) => void; editable?: boolean }) {
-  const pickImage = useCallback(async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please allow access to your photo library.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.6,
-    });
-    if (!result.canceled && result.assets[0]?.uri) {
-      onChange(result.assets[0].uri);
-    }
-  }, [onChange]);
-
-  const takePhoto = useCallback(async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please allow access to your camera.');
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.6,
-    });
-    if (!result.canceled && result.assets[0]?.uri) {
-      onChange(result.assets[0].uri);
-    }
-  }, [onChange]);
-
-  return (
-    <View style={styles.photoContainer}>
-      {uri ? (
-        <View style={styles.photoPreviewWrap}>
-          <Image source={{ uri }} style={styles.photoPreview} />
-          {editable && (
-            <TouchableOpacity style={styles.photoRemove} onPress={() => onChange('')}>
-              <Ionicons name="close-circle" size={22} color="#B71C1C" />
-            </TouchableOpacity>
-          )}
-        </View>
-      ) : (
-        <View style={styles.photoPlaceholder}>
-          <Ionicons name="person-outline" size={36} color="#ccc" />
-          <Text style={styles.photoPlaceholderText}>No photo</Text>
-        </View>
-      )}
-      {editable && (
-        <View style={styles.photoBtnRow}>
-          <TouchableOpacity style={styles.photoBtn} onPress={pickImage}>
-            <Ionicons name="image-outline" size={16} color={PRIMARY} />
-            <Text style={styles.photoBtnText}>Gallery</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.photoBtn} onPress={takePhoto}>
-            <Ionicons name="camera-outline" size={16} color={PRIMARY} />
-            <Text style={styles.photoBtnText}>Camera</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
-}
-
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-function daysInMonth(year: number, month: number): number {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-function parseDate(s: string): Date | null {
-  if (!s || s.length < 10) return null;
-  const d = new Date(s);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function formatDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
-function applyDateMask(raw: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 4) return digits;
-  if (digits.length <= 6) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
-  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
-}
-
-function DatePicker({ value, onChange, editable = true }: { value: string; onChange: (v: string) => void; editable?: boolean }) {
-  const [calOpen, setCalOpen] = useState(false);
-  const parsed = parseDate(value);
-  const today = new Date();
-  const [viewYear,  setViewYear]  = useState(parsed?.getFullYear()  ?? today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(parsed?.getMonth()     ?? today.getMonth());
-
-  const selectedDay = parsed?.getDate();
-  const selectedMon = parsed?.getMonth();
-  const selectedYr  = parsed?.getFullYear();
-
-  const totalDays = daysInMonth(viewYear, viewMonth);
-  const firstDow  = new Date(viewYear, viewMonth, 1).getDay();
-  const cells: (number | null)[] = [
-    ...Array(firstDow).fill(null),
-    ...Array.from({ length: totalDays }, (_, i) => i + 1),
-  ];
-  const weeks: (number | null)[][] = [];
-  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
-
-  const prevMonth = () => {
-    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
-    else setViewMonth(m => m - 1);
-  };
-  const nextMonth = () => {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
-    else setViewMonth(m => m + 1);
-  };
-
-  const selectDay = (day: number) => {
-    const d = new Date(viewYear, viewMonth, day);
-    onChange(formatDate(d));
-    setCalOpen(false);
-  };
-
-  if (!editable) {
-    return (
-      <View style={[styles.input, styles.inputReadOnly]}>
-        <Text style={styles.inputReadOnlyText}>{value || '—'}</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View>
-      <View style={styles.dateRow}>
-        <TextInput
-          style={[styles.input, styles.dateInput]}
-          value={value}
-          onChangeText={v => onChange(applyDateMask(v))}
-          placeholder="YYYY-MM-DD"
-          placeholderTextColor="#bbb"
-          keyboardType="numeric"
-          maxLength={10}
-        />
-        <TouchableOpacity
-          style={[styles.dateCalBtn, calOpen && styles.dateCalBtnActive]}
-          onPress={() => setCalOpen(o => !o)}
-        >
-          <Ionicons name="calendar-outline" size={20} color={calOpen ? '#fff' : PRIMARY} />
-        </TouchableOpacity>
-      </View>
-      {calOpen && (
-        <View style={styles.cal}>
-          <View style={styles.calNav}>
-            <TouchableOpacity onPress={prevMonth}>
-              <Ionicons name="chevron-back" size={20} color="#555" />
-            </TouchableOpacity>
-            <Text style={styles.calMonthLabel}>{MONTHS[viewMonth]} {viewYear}</Text>
-            <TouchableOpacity onPress={nextMonth}>
-              <Ionicons name="chevron-forward" size={20} color="#555" />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.calWeekRow}>
-            {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
-              <Text key={d} style={styles.calDowCell}>{d}</Text>
-            ))}
-          </View>
-          {weeks.map((week, wi) => (
-            <View key={wi} style={styles.calWeekRow}>
-              {week.map((day, di) => {
-                const isSelected = day !== null && day === selectedDay && viewMonth === selectedMon && viewYear === selectedYr;
-                const isToday = day !== null && day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
-                return (
-                  <TouchableOpacity
-                    key={di}
-                    style={[styles.calDayCell, isSelected && styles.calDayCellSelected, !isSelected && isToday && styles.calDayCellToday]}
-                    onPress={() => day && selectDay(day)}
-                    disabled={!day}
-                  >
-                    <Text style={[styles.calDayText, isSelected && styles.calDayTextSelected, !isSelected && isToday && styles.calDayTextToday]}>
-                      {day ?? ''}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          ))}
-        </View>
-      )}
-    </View>
-  );
 }
 
 export default function EmployeeForm({ navigation, route }: Props) {
@@ -451,21 +160,21 @@ export default function EmployeeForm({ navigation, route }: Props) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.root}
+      style={KStyles.formRoot}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       {/* Header */}
-      <View style={styles.header}>
+      <View style={KStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
+        <Text style={KStyles.headerTitle}>
           {mode === 'add' ? 'Add Employee' : 'Edit Employee'}
         </Text>
-        <View style={styles.headerActions}>
+        <View style={KStyles.headerActions}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            style={styles.headerIcon}
+            style={KStyles.headerIcon}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Ionicons name="close-outline" size={24} color="#fff" />
@@ -473,7 +182,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
           {isRecordEdit && (
             <TouchableOpacity
               onPress={handleDelete}
-              style={styles.headerIcon}
+              style={KStyles.headerIcon}
               disabled={saving}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
@@ -483,10 +192,10 @@ export default function EmployeeForm({ navigation, route }: Props) {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={KStyles.formScroll} keyboardShouldPersistTaps="handled">
 
         {/* ── Personal ──────────────────────────────────────────────────────── */}
-        <Text style={styles.section}>Personal</Text>
+        <Text style={KStyles.formSection}>Personal</Text>
 
         <Field label="Full Name" required>
           <InputField
@@ -496,7 +205,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
             autoCapitalize="words"
             editable={true}
           />
-          {errors.name ? <Text style={styles.error}>{errors.name}</Text> : null}
+          {errors.name ? <Text style={KStyles.formError}>{errors.name}</Text> : null}
         </Field>
 
         <Field label="Designation" required>
@@ -508,7 +217,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
             title="Select Designation"
             loading={loadingRefs}
           />
-          {errors.designation ? <Text style={styles.error}>{errors.designation}</Text> : null}
+          {errors.designation ? <Text style={KStyles.formError}>{errors.designation}</Text> : null}
         </Field>
 
         <Field label="Department" required>
@@ -520,7 +229,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
             title="Select Department"
             loading={loadingRefs}
           />
-          {errors.department ? <Text style={styles.error}>{errors.department}</Text> : null}
+          {errors.department ? <Text style={KStyles.formError}>{errors.department}</Text> : null}
         </Field>
 
         <Field label="Email" required>
@@ -532,7 +241,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
             autoCapitalize="none"
             editable={true}
           />
-          {errors.email ? <Text style={styles.error}>{errors.email}</Text> : null}
+          {errors.email ? <Text style={KStyles.formError}>{errors.email}</Text> : null}
         </Field>
 
         <Field label="Phone" required>
@@ -544,7 +253,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
             autoCapitalize="none"
             editable={true}
           />
-          {errors.phone ? <Text style={styles.error}>{errors.phone}</Text> : null}
+          {errors.phone ? <Text style={KStyles.formError}>{errors.phone}</Text> : null}
         </Field>
 
         <Field label="Address" required>
@@ -555,30 +264,30 @@ export default function EmployeeForm({ navigation, route }: Props) {
             multiline
             editable={true}
           />
-          {errors.address ? <Text style={styles.error}>{errors.address}</Text> : null}
+          {errors.address ? <Text style={KStyles.formError}>{errors.address}</Text> : null}
         </Field>
 
         {/* ── ID Photo ──────────────────────────────────────────────────────── */}
-        <Text style={styles.section}>ID Photo</Text>
+        <Text style={KStyles.formSection}>ID Photo</Text>
 
         <Field label="Photo">
           <PhotoPicker uri={idphoto} onChange={setIdphoto} editable={true} />
         </Field>
 
         {/* ── Employment ────────────────────────────────────────────────────── */}
-        <Text style={styles.section}>Employment</Text>
+        <Text style={KStyles.formSection}>Employment</Text>
 
         <Field label="Joining Date">
-          <DatePicker value={joiningDate} onChange={setJoiningDate} editable={true} />
+          <FormDatePicker value={joiningDate} onChange={setJoiningDate} format="iso" />
         </Field>
 
         {/* ── Status ────────────────────────────────────────────────────────── */}
-        <Text style={styles.section}>Status</Text>
+        <Text style={KStyles.formSection}>Status</Text>
 
-        <View style={styles.statusRow}>
-          <View style={styles.statusLeft}>
-            <Text style={styles.statusLabel}>{isActive ? 'Active' : 'Inactive'}</Text>
-            <Text style={styles.statusSub}>
+        <View style={KStyles.formStatusRow}>
+          <View style={KStyles.formStatusLeft}>
+            <Text style={KStyles.formStatusLabel}>{isActive ? 'Active' : 'Inactive'}</Text>
+            <Text style={KStyles.formStatusSub}>
               {isActive ? 'Employee will appear in the active list' : 'Employee will be archived'}
             </Text>
           </View>
@@ -594,8 +303,8 @@ export default function EmployeeForm({ navigation, route }: Props) {
         {/* ── Audit ─────────────────────────────────────────────────────────── */}
         {isRecordEdit && item?.lastmodified && (
           <>
-            <Text style={styles.section}>Audit</Text>
-            <View style={styles.auditCard}>
+            <Text style={KStyles.formSection}>Audit</Text>
+            <View style={KStyles.formAuditCard}>
               <AuditRow label="Last modified" value={item.lastmodified} />
             </View>
           </>
@@ -606,16 +315,16 @@ export default function EmployeeForm({ navigation, route }: Props) {
       </ScrollView>
 
       {/* Save button */}
-      <View style={styles.footer}>
+      <View style={KStyles.formFooter}>
         <TouchableOpacity
-          style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
+          style={[KStyles.formSaveBtn, saving && KStyles.formSaveBtnDisabled]}
           onPress={handleSave}
           disabled={saving}
           activeOpacity={0.85}
         >
           {saving
             ? <ActivityIndicator color="#fff" size="small" />
-            : <Text style={styles.saveBtnText}>{isRecordEdit ? 'Save Changes' : 'Add Employee'}</Text>}
+            : <Text style={KStyles.formSaveBtnText}>{isRecordEdit ? 'Save Changes' : 'Add Employee'}</Text>}
         </TouchableOpacity>
       </View>
 
@@ -639,223 +348,3 @@ export default function EmployeeForm({ navigation, route }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: KStyles.header,
-  headerTitle: KStyles.headerTitle,
-  headerIcon: KStyles.headerIcon,
-  headerActions: { flexDirection: 'row' as const, alignItems: 'center' as const },
-  scroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24 },
-
-  section: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginTop: 18,
-    marginBottom: 8,
-  },
-
-  field: { marginBottom: 12 },
-  label: { fontSize: 13, fontWeight: '600', color: '#333', marginBottom: 4 },
-  required: { color: PRIMARY },
-
-  input: {
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: '#1A1A1A',
-  },
-  inputMultiline: { height: 76, textAlignVertical: 'top' },
-
-  inputReadOnly: {
-    backgroundColor: '#FAFAFA',
-    borderColor: Colors.border,
-  },
-  inputReadOnlyText: { fontSize: 14, color: '#1A1A1A' },
-
-  error: { fontSize: 11, color: Colors.errorText, marginTop: 3 },
-
-  // ── Date picker styles ─────────────────────────────────────────────────────
-  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  dateInput: { flex: 1 },
-  dateCalBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: PRIMARY,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  dateCalBtnActive: { backgroundColor: PRIMARY },
-
-  cal: {
-    marginTop: 6,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 10,
-    padding: 10,
-  },
-  calNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-    paddingHorizontal: 4,
-  },
-  calMonthLabel: { fontSize: 14, fontWeight: '700', color: '#1A1A1A' },
-  calWeekRow: { flexDirection: 'row' },
-  calDowCell: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 11,
-    fontWeight: '700',
-    color: Colors.muted,
-    paddingVertical: 4,
-  },
-  calDayCell: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 34,
-    borderRadius: 17,
-    margin: 1,
-  },
-  calDayCellSelected: { backgroundColor: PRIMARY },
-  calDayCellToday: { backgroundColor: Colors.lightPink },
-  calDayText: { fontSize: 13, color: '#1A1A1A' },
-  calDayTextSelected: { color: '#fff', fontWeight: '700' },
-  calDayTextToday: { color: PRIMARY, fontWeight: '700' },
-
-  // ── Photo picker styles ─────────────────────────────────────────────────────
-  photoContainer: {
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 10,
-    padding: 12,
-    alignItems: 'center',
-  },
-  photoPreviewWrap: {
-    position: 'relative',
-    marginBottom: 10,
-  },
-  photoPreview: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: Colors.border,
-  },
-  photoRemove: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#fff',
-    borderRadius: 11,
-  },
-  photoPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#F0F0F0',
-    borderWidth: 1,
-    borderColor: Colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  photoPlaceholderText: { fontSize: 11, color: Colors.muted, marginTop: 4 },
-  photoBtnRow: { flexDirection: 'row', gap: 10 },
-  photoBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: PRIMARY,
-    backgroundColor: '#fff',
-  },
-  photoBtnText: { fontSize: 13, color: PRIMARY, fontWeight: '600' },
-
-  // ── Status ────────────────────────────────────────────────────────────────
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: 10,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 12,
-  },
-  statusLeft: { flex: 1 },
-  statusLabel: { fontSize: 14, fontWeight: '700', color: '#1A1A1A' },
-  statusSub: { fontSize: 12, color: Colors.muted, marginTop: 2 },
-
-  // ── Audit ─────────────────────────────────────────────────────────────────
-  auditCard: {
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 12,
-  },
-  auditRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  auditLabel: { fontSize: 12, color: Colors.muted, fontWeight: '600' },
-  auditValue: { fontSize: 12, color: '#555', flexShrink: 1, textAlign: 'right', marginLeft: 8 },
-
-  // ── Footer ────────────────────────────────────────────────────────────────
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
-    backgroundColor: '#F5F5F5',
-    borderTopWidth: 0.5,
-    borderTopColor: Colors.border,
-  },
-  saveBtn: {
-    backgroundColor: PRIMARY,
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: 'center',
-    elevation: 3,
-    boxShadow: `0px 3px 6px ${PRIMARY}59`,
-  },
-  saveBtnDisabled: { opacity: 0.6 },
-  saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-
-  // ── Snackbar ─────────────────────────────────────────────────────────────
-  snackbar: {
-    position: 'absolute',
-    bottom: 24,
-    left: 16,
-    right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-    elevation: 8,
-    boxShadow: '0px 3px 6px rgba(0,0,0,0.20)',
-  },
-  snackbarText: { color: '#fff', fontSize: 14, fontWeight: '600', flex: 1 },
-});

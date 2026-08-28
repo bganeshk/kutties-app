@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, Pressable, Linking, Image,
 } from 'react-native';
+// StyleSheet kept for local chip styles only
 import { Ionicons } from '@expo/vector-icons';
 import type { StudentModel } from '../../db/models/student.model';
 import { Colors, KStyles } from '../../styles/kutties-styles';
@@ -35,15 +36,15 @@ function ActionButton({ icon, color, label, onPress }: ActionButtonProps) {
 
   return (
     <Pressable
-      style={styles.actionBtn}
+      style={KStyles.rowActionBtn}
       onPress={onPress}
       onLongPress={() => setVisible(true)}
       onHoverIn={() => setVisible(true)}
       onHoverOut={() => setVisible(false)}
     >
       {visible && (
-        <View style={styles.tooltip}>
-          <Text style={styles.tooltipText}>{label}</Text>
+        <View style={KStyles.rowTooltip}>
+          <Text style={KStyles.rowTooltipText}>{label}</Text>
         </View>
       )}
       <Ionicons name={icon as any} size={18} color={color} />
@@ -53,7 +54,7 @@ function ActionButton({ icon, color, label, onPress }: ActionButtonProps) {
 
 function Avatar({ name, photo }: { name: string; photo?: string }) {
   if (photo) {
-    return <Image source={{ uri: photo }} style={styles.avatar} />;
+    return <Image source={{ uri: photo }} style={KStyles.rowAvatar} />;
   }
   const initials = name
     .split(' ')
@@ -61,8 +62,8 @@ function Avatar({ name, photo }: { name: string; photo?: string }) {
     .map((w) => w[0]?.toUpperCase() ?? '')
     .join('');
   return (
-    <View style={styles.avatar}>
-      <Text style={styles.avatarText}>{initials || '?'}</Text>
+    <View style={KStyles.rowAvatar}>
+      <Text style={KStyles.rowAvatarText}>{initials || '?'}</Text>
     </View>
   );
 }
@@ -77,19 +78,19 @@ const StudentRow = memo(({ item, selected, onPress, onLongPress, activeCourse, o
       onLongPress={() => onLongPress(item)}
       android_ripple={{ color: 'rgba(194,24,91,0.1)' }}
       style={({ pressed }) => [
-        styles.container,
-        selected && styles.selected,
-        pressed && styles.pressed,
+        KStyles.rowContainer,
+        selected && KStyles.selected,
+        pressed && KStyles.rowPressed,
       ]}
     >
       <Avatar name={String(name)} photo={item.idphoto} />
 
-      <View style={styles.info}>
-        <View style={styles.twoCol}>
+      <View style={KStyles.rowInfo}>
+        <View style={KStyles.rowTwoCol}>
 
           {/* Left: name + parent */}
-          <View style={styles.leftCol}>
-            <Text style={styles.name} numberOfLines={1}>{name}</Text>
+          <View style={KStyles.rowLeftCol}>
+            <Text style={KStyles.rowName} numberOfLines={1}>{name}</Text>
             {(item.motherName || item.fatherName) ? (
               <Text style={styles.parentName} numberOfLines={1}>
                 <Ionicons name="people-outline" size={10} color="#888" />{' '}
@@ -99,7 +100,7 @@ const StudentRow = memo(({ item, selected, onPress, onLongPress, activeCourse, o
           </View>
 
           {/* Right: reg number + course */}
-          <View style={styles.rightCol}>
+          <View style={KStyles.rowRightCol}>
             {item.regNumber ? (
               <View style={styles.regChip}>
                 <Text style={styles.regChipText}>{String(item.regNumber)}</Text>
@@ -121,7 +122,7 @@ const StudentRow = memo(({ item, selected, onPress, onLongPress, activeCourse, o
         </View>
 
         {/* Action buttons */}
-        <View style={styles.actions}>
+        <View style={KStyles.rowActions}>
           {item.phone ? (
             <>
               <ActionButton
@@ -161,29 +162,6 @@ const StudentRow = memo(({ item, selected, onPress, onLongPress, activeCourse, o
 export default StudentRow;
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: Colors.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.border,
-  },
-  selected: KStyles.selected,
-  pressed:  { backgroundColor: '#F5F5F5' },
-  avatar: {
-    width: 52, height: 52, borderRadius: 26,
-    backgroundColor: PRIMARY,
-    justifyContent: 'center', alignItems: 'center',
-    marginRight: 12, marginTop: 2,
-  },
-  avatarText: { fontSize: 18, fontWeight: '700', color: '#fff' },
-  info: { flex: 1 },
-  twoCol: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 2 },
-  leftCol: { flex: 1, paddingRight: 8 },
-  rightCol: { width: 155, alignItems: 'flex-end', gap: 4 },
-  name: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
   parentName: { fontSize: 12, color: '#666', marginTop: 2 },
   regChip: {
     backgroundColor: '#EDE7F6',
@@ -203,21 +181,4 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#1565C0',
   },
   courseChipText: { fontSize: 10, color: '#1565C0', fontWeight: '600', flexShrink: 1 },
-  actions: { flexDirection: 'row', marginTop: 6, gap: 4 },
-  actionBtn: { padding: 7, borderRadius: 20, backgroundColor: '#F5F5F5' },
-  tooltip: {
-    position: 'absolute',
-    bottom: '100%',
-    left: '50%',
-    transform: [{ translateX: -28 }],
-    backgroundColor: 'rgba(33,33,33,0.88)',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    zIndex: 99,
-    minWidth: 56,
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  tooltipText: { fontSize: 11, color: '#fff', fontWeight: '500' },
 });

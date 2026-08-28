@@ -3,10 +3,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import HomeStack from './HomeStack';
+import type { HomeStackParamList } from './HomeStack';
 import SubItemScreen from '../screens/SubItemScreen';
 import LandingScreen from '../screens/LandingScreen';
+import TeacherDetailsScreen from '../screens/TeacherDetailsScreen';
+import EmployeeDetailsScreen from '../screens/EmployeeDetailsScreen';
+import StudentDetailsScreen from '../screens/StudentDetailsScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
-import { EmployeeList } from '../components/employees';
+import { EmployeeList, EmployeeForm } from '../components/employees';
 import { StudentList, StudentForm } from '../components/students';
 
 const Tab = createBottomTabNavigator();
@@ -14,7 +18,7 @@ const PRIMARY = '#C2185B';
 
 // Each tab gets its own Stack instance so drill-down works independently
 function makeTabStack(parentview: string, title: string) {
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator<HomeStackParamList>();
   return function TabStack() {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -25,9 +29,13 @@ function makeTabStack(parentview: string, title: string) {
         />
         <Stack.Screen name="Landing" component={LandingScreen} />
         <Stack.Screen name="TeacherList" component={TeacherList} />
+        <Stack.Screen name="TeacherDetails" component={TeacherDetailsScreen} />
         <Stack.Screen name="TeacherForm" component={TeacherForm} />
         <Stack.Screen name="EmployeeList" component={EmployeeList} />
+        <Stack.Screen name="EmployeeDetails" component={EmployeeDetailsScreen} />
+        <Stack.Screen name="EmployeeForm" component={EmployeeForm} />
         <Stack.Screen name="StudentList" component={StudentList} />
+        <Stack.Screen name="StudentDetails" component={StudentDetailsScreen} />
         <Stack.Screen name="StudentForm" component={StudentForm} />
       </Stack.Navigator>
     );
@@ -62,6 +70,11 @@ export default function TabNavigator() {
             <Ionicons name="home" size={size} color={color} />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+          },
+        })}
       />
       <Tab.Screen
         name="Teachers"

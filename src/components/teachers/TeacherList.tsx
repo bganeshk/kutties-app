@@ -108,14 +108,14 @@ export default function TeacherList({ navigation }: Props) {
   const isEmpty = displayedTeachers.length === 0;
 
   return (
-    <SafeAreaView style={styles.root}>
+    <SafeAreaView style={KStyles.listRoot}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={KStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Teachers</Text>
-        <TouchableOpacity onPress={() => sync()} style={styles.headerIcon}>
+        <Text style={KStyles.headerTitle}>Teachers</Text>
+        <TouchableOpacity onPress={() => sync()} style={KStyles.headerIcon}>
           {syncing
             ? <ActivityIndicator size="small" color="#fff" />
             : <Ionicons name="refresh" size={22} color="#fff" />}
@@ -123,10 +123,10 @@ export default function TeacherList({ navigation }: Props) {
       </View>
 
       {/* Search bar */}
-      <View style={styles.searchRow}>
-        <Ionicons name="search" size={18} color="#999" style={styles.searchIcon} />
+      <View style={KStyles.searchRow}>
+        <Ionicons name="search" size={18} color="#999" style={KStyles.searchIcon} />
         <TextInput
-          style={styles.searchInput}
+          style={KStyles.searchInput}
           placeholder="Search by name, email, phone…"
           placeholderTextColor="#bbb"
           value={search}
@@ -153,10 +153,10 @@ export default function TeacherList({ navigation }: Props) {
 
       {/* Selection banner */}
       {selectedIds.size > 0 && (
-        <View style={styles.selectionBanner}>
-          <Text style={styles.selectionText}>{selectedIds.size} selected</Text>
+        <View style={KStyles.selectionBanner}>
+          <Text style={KStyles.selectionText}>{selectedIds.size} selected</Text>
           <TouchableOpacity onPress={() => setSelectedIds(new Set())}>
-            <Text style={styles.clearText}>Clear</Text>
+            <Text style={KStyles.clearText}>Clear</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -168,7 +168,7 @@ export default function TeacherList({ navigation }: Props) {
       ) : isEmpty ? (
         <View style={styles.center}>
           <Ionicons name="people-outline" size={48} color="#ccc" />
-          <Text style={styles.emptyText}>No teachers found</Text>
+          <Text style={KStyles.emptyText}>No teachers found</Text>
         </View>
       ) : (
         <GroupedList
@@ -181,7 +181,7 @@ export default function TeacherList({ navigation }: Props) {
 
       {/* FAB */}
       <TouchableOpacity
-        style={styles.fab}
+        style={KStyles.fab}
         activeOpacity={0.85}
         onPress={() => navigation.navigate('TeacherForm', { mode: 'add' })}
       >
@@ -192,31 +192,11 @@ export default function TeacherList({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: KStyles.header,
-  headerTitle: KStyles.headerTitle,
-  headerIcon: KStyles.headerIcon,
-  searchRow: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: Colors.surface, margin: 10, borderRadius: 8,
-    paddingHorizontal: 10, paddingVertical: 6,
-    elevation: 1, boxShadow: '0px 1px 3px rgba(0,0,0,0.05)',
-  },
-  searchIcon: { marginRight: 6 },
-  searchInput: { flex: 1, fontSize: 14, color: '#222', paddingVertical: 2 },
   filterBanner: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#E3F2FD', paddingHorizontal: 16, paddingVertical: 8,
     borderBottomWidth: 0.5, borderBottomColor: '#BBDEFB',
   },
   filterBannerText: { fontSize: 13, fontWeight: '600', color: '#1565C0' },
-  selectionBanner: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: Colors.lightPink, paddingHorizontal: 16, paddingVertical: 8,
-  },
-  selectionText: { fontSize: 13, fontWeight: '600', color: PRIMARY },
-  clearText: { fontSize: 13, color: PRIMARY, textDecorationLine: 'underline' },
   center: { ...KStyles.center, gap: 12, paddingTop: 80 },
-  emptyText: { fontSize: 14, color: '#aaa' },
-  fab: KStyles.fab,
 });

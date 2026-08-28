@@ -1,4 +1,4 @@
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+import { MONTHS } from '../../utils/constants';
 
 /**
  * Converts any common date format to dd/MMM/yyyy (e.g. 15/Jan/2010).

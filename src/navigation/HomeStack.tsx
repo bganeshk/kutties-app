@@ -5,6 +5,7 @@ import SubItemScreen from '../screens/SubItemScreen';
 import LandingScreen from '../screens/LandingScreen';
 import TeacherDetailsScreen from '../screens/TeacherDetailsScreen';
 import EmployeeDetailsScreen from '../screens/EmployeeDetailsScreen';
+import StudentDetailsScreen from '../screens/StudentDetailsScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList, EmployeeForm } from '../components/employees';
 import { StudentList, StudentForm } from '../components/students';
@@ -23,6 +24,7 @@ export type HomeStackParamList = {
   EmployeeDetails: { item: EmployeeModel };
   EmployeeForm: { mode: 'add' | 'edit'; item?: EmployeeModel };
   StudentList: undefined;
+  StudentDetails: { item: StudentModel };
   StudentForm: { mode: 'add' | 'edit'; item?: StudentModel };
 };
 
@@ -41,6 +43,7 @@ export default function HomeStack() {
       <Stack.Screen name="EmployeeDetails" component={EmployeeDetailsScreen} />
       <Stack.Screen name="EmployeeForm" component={EmployeeForm} />
       <Stack.Screen name="StudentList" component={StudentList} />
+      <Stack.Screen name="StudentDetails" component={StudentDetailsScreen} />
       <Stack.Screen name="StudentForm" component={StudentForm} />
     </Stack.Navigator>
   );

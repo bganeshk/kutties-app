@@ -39,15 +39,15 @@ function ActionButton({ icon, color, label, onPress }: ActionButtonProps) {
 
   return (
     <Pressable
-      style={styles.actionBtn}
+      style={KStyles.rowActionBtn}
       onPress={onPress}
       onLongPress={() => setVisible(true)}
       onHoverIn={() => setVisible(true)}
       onHoverOut={() => setVisible(false)}
     >
       {visible && (
-        <View style={styles.tooltip}>
-          <Text style={styles.tooltipText}>{label}</Text>
+        <View style={KStyles.rowTooltip}>
+          <Text style={KStyles.rowTooltipText}>{label}</Text>
         </View>
       )}
       <Ionicons name={icon as any} size={18} color={color} />
@@ -57,7 +57,7 @@ function ActionButton({ icon, color, label, onPress }: ActionButtonProps) {
 
 function Avatar({ name, photo }: { name: string; photo?: string }) {
   if (photo) {
-    return <Image source={{ uri: photo }} style={styles.avatar} />;
+    return <Image source={{ uri: photo }} style={KStyles.rowAvatar} />;
   }
   const initials = name
     .split(' ')
@@ -65,8 +65,8 @@ function Avatar({ name, photo }: { name: string; photo?: string }) {
     .map((w) => w[0]?.toUpperCase() ?? '')
     .join('');
   return (
-    <View style={styles.avatar}>
-      <Text style={styles.avatarText}>{initials || '?'}</Text>
+    <View style={KStyles.rowAvatar}>
+      <Text style={KStyles.rowAvatarText}>{initials || '?'}</Text>
     </View>
   );
 }
@@ -90,7 +90,7 @@ function DeptChip({ label, active, onPress }: { label: string; active: boolean; 
     >
       {tooltipVisible && (
         <View style={styles.deptTooltip}>
-          <Text style={styles.tooltipText}>Dept:</Text>
+          <Text style={KStyles.rowTooltipText}>Dept:</Text>
         </View>
       )}
       {active && (
@@ -128,21 +128,21 @@ const EmployeeRow = memo(({ item, selected, activeDept, activeDesig, onPress, on
       onLongPress={() => onLongPress(item)}
       android_ripple={{ color: 'rgba(194,24,91,0.1)' }}
       style={({ pressed }) => [
-        styles.container,
-        selected && styles.selected,
-        pressed && styles.pressed,
+        KStyles.rowContainer,
+        selected && KStyles.selected,
+        pressed && KStyles.rowPressed,
       ]}
     >
       {/* Avatar */}
       <Avatar name={String(name)} photo={item.idphoto} />
 
       {/* Info — two-column layout: left (name/designation) | right (department + email) */}
-      <View style={styles.info}>
-        <View style={styles.twoCol}>
+      <View style={KStyles.rowInfo}>
+        <View style={KStyles.rowTwoCol}>
 
           {/* Left column */}
-          <View style={styles.leftCol}>
-            <Text style={styles.name} numberOfLines={1}>{name}</Text>
+          <View style={KStyles.rowLeftCol}>
+            <Text style={KStyles.rowName} numberOfLines={1}>{name}</Text>
             {item.designation ? (
               <DesigChip
                 label={String(item.designation)}
@@ -154,7 +154,7 @@ const EmployeeRow = memo(({ item, selected, activeDept, activeDesig, onPress, on
 
           {/* Right column — department chip + email */}
           {(item.department || item.email) ? (
-            <View style={styles.rightCol}>
+            <View style={KStyles.rowRightCol}>
               {item.department ? (
                 <DeptChip
                   label={String(item.department)}
@@ -174,7 +174,7 @@ const EmployeeRow = memo(({ item, selected, activeDept, activeDesig, onPress, on
         </View>
 
         {/* Action buttons */}
-        <View style={styles.actions}>
+        <View style={KStyles.rowActions}>
           {item.phone ? (
             <>
               <ActionButton
@@ -207,38 +207,13 @@ const EmployeeRow = memo(({ item, selected, activeDept, activeDesig, onPress, on
 export default EmployeeRow;
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: Colors.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.border,
-  },
-  selected: KStyles.selected,
-  pressed:  { backgroundColor: '#F5F5F5' },
-  avatar: {
-    width: 52, height: 52, borderRadius: 26,
-    backgroundColor: PRIMARY,
-    justifyContent: 'center', alignItems: 'center',
-    marginRight: 12, marginTop: 2,
-  },
-  avatarText: { fontSize: 18, fontWeight: '700', color: '#fff' },
-  info: { flex: 1 },
-  twoCol: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 2 },
-  leftCol: { flex: 1, paddingRight: 8 },
-  rightCol: { width: 155, alignItems: 'flex-end', gap: 4 },
-  name: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
   designation: { fontSize: 12, color: PRIMARY, fontWeight: '600', marginTop: 1 },
   deptChip: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#EDE7F6', borderRadius: 10,
     paddingHorizontal: 7, paddingVertical: 2,
   },
-  deptChipActive: {
-    backgroundColor: '#4527A0',
-  },
+  deptChipActive:     { backgroundColor: '#4527A0' },
   deptTooltip: {
     position: 'absolute',
     bottom: '100%',
@@ -251,15 +226,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
-  deptChipText: { fontSize: 10, color: '#4527A0', fontWeight: '600' },
+  deptChipText:       { fontSize: 10, color: '#4527A0', fontWeight: '600' },
   deptChipTextActive: { color: '#fff' },
   desigChip: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: Colors.lightPink, borderRadius: 10,
     paddingHorizontal: 7, paddingVertical: 2, marginTop: 2,
   },
-  desigChipActive: { backgroundColor: PRIMARY },
-  desigChipText: { fontSize: 11, color: PRIMARY, fontWeight: '600' },
+  desigChipActive:     { backgroundColor: PRIMARY },
+  desigChipText:       { fontSize: 11, color: PRIMARY, fontWeight: '600' },
   desigChipTextActive: { color: '#fff' },
   metaChip: {
     flexDirection: 'row', alignItems: 'center',
@@ -268,24 +243,4 @@ const styles = StyleSheet.create({
   },
   metaChipIcon: { marginRight: 3 },
   metaChipText: { fontSize: 11, color: '#555', flexShrink: 1 },
-  actions: { flexDirection: 'row', marginTop: 6, gap: 4 },
-  actionBtn: {
-    padding: 7, borderRadius: 20,
-    backgroundColor: '#F5F5F5',
-  },
-  tooltip: {
-    position: 'absolute',
-    bottom: '100%',
-    left: '50%',
-    transform: [{ translateX: -28 }],
-    backgroundColor: 'rgba(33,33,33,0.88)',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    zIndex: 99,
-    minWidth: 56,
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  tooltipText: { fontSize: 11, color: '#fff', fontWeight: '500' },
 });
