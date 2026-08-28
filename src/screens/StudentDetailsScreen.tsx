@@ -4,11 +4,13 @@ import {
   Image, Linking, SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { STUDENT_STATUS_COLOR, STUDENT_STATUS_BG, STUDENT_STATUS_BORDER } from '../utils/constants';
 import { studentRepository } from '../db/repositories';
+import type { StudentModel } from '../db/models/student.model';
 import { syncSheet } from '../sync/sync.service';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 
@@ -67,9 +69,18 @@ function Section({ title }: { title: string }) {
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function StudentDetailsScreen({ navigation, route }: Props) {
-  const { item } = route.params;
-  const name = item.fullName ?? item.id;
+  const [item, setItem] = useState<StudentModel>(route.params.item);
   const [deleteVisible, setDeleteVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      studentRepository.findById(route.params.item.id).then((fresh) => {
+        if (fresh) setItem(fresh);
+      });
+    }, [route.params.item.id]),
+  );
+
+  const name = item.fullName ?? item.id;
 
   const handleDelete = useCallback(() => {
     studentRepository.delete(item.id).then(() => {

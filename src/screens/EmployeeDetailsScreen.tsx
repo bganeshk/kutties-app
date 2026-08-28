@@ -4,10 +4,12 @@ import {
   Image, Linking, SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { employeeRepository } from '../db/repositories';
+import type { EmployeeModel } from '../db/models/employee.model';
 import { syncSheet } from '../sync/sync.service';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 
@@ -66,9 +68,18 @@ function Section({ title }: { title: string }) {
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function EmployeeDetailsScreen({ navigation, route }: Props) {
-  const { item } = route.params;
-  const name = item.name ?? item.id;
+  const [item, setItem] = useState<EmployeeModel>(route.params.item);
   const [deleteVisible, setDeleteVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      employeeRepository.findById(route.params.item.id).then((fresh) => {
+        if (fresh) setItem(fresh);
+      });
+    }, [route.params.item.id]),
+  );
+
+  const name = item.name ?? item.id;
 
   const handleDelete = useCallback(() => {
     employeeRepository.delete(item.id).then(() => {
