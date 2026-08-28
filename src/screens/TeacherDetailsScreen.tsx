@@ -173,6 +173,13 @@ export default function TeacherDetailsScreen({ navigation, route }: Props) {
                 <Text style={styles.qaBtnText}>Email</Text>
               </TouchableOpacity>
             )}
+            <TouchableOpacity
+              style={styles.qaBtn}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="qr-code-outline" size={20} color="#6A1B9A" />
+              <Text style={styles.qaBtnText}>Clear QR</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -240,6 +247,14 @@ export default function TeacherDetailsScreen({ navigation, route }: Props) {
 
         <View style={{ height: 32 }} />
       </ScrollView>
+
+      <TouchableOpacity
+        style={KStyles.fab}
+        activeOpacity={0.85}
+        onPress={() => navigation.navigate('TeacherForm', { mode: 'edit', item })}
+      >
+        <Ionicons name="create" size={26} color="#fff" />
+      </TouchableOpacity>
 
       <ConfirmDialog
         visible={deleteVisible}

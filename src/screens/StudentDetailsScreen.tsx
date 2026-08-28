@@ -239,6 +239,14 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
         <View style={{ height: 32 }} />
       </ScrollView>
 
+      <TouchableOpacity
+        style={KStyles.fab}
+        activeOpacity={0.85}
+        onPress={() => navigation.navigate('StudentForm', { mode: 'edit', item })}
+      >
+        <Ionicons name="create" size={26} color="#fff" />
+      </TouchableOpacity>
+
       <ConfirmDialog
         visible={deleteVisible}
         title="Delete Student"
