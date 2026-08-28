@@ -36,6 +36,7 @@ export default function StudentForm({ navigation, route }: Props) {
   const [fatherName, setFatherName]   = useState(item?.fatherName    ? String(item.fatherName)    : '');
   const [email, setEmail]             = useState(item?.email         ? String(item.email)         : '');
   const [phone, setPhone]             = useState(item?.phone         ? String(item.phone)         : '');
+  const [phone2, setPhone2]           = useState(item?.phone2        ? String(item.phone2)        : '');
   const [address, setAddress]         = useState(item?.address       ? String(item.address)       : '');
   const [dob, setDob]                 = useState(item?.dob           ? String(item.dob)           : '');
   const [admissionDate, setAdmissionDate] = useState(item?.admissionDate ? String(item.admissionDate) : '');
@@ -71,13 +72,14 @@ export default function StudentForm({ navigation, route }: Props) {
     if (!address.trim())        errs.address      = 'Address is required';
     if (!phone.trim())          errs.phone        = 'Phone is required';
     else if (!/^[+\d\s\-()]{7,15}$/.test(phone.trim())) errs.phone = 'Enter a valid phone number';
+    if (phone2.trim() && !/^[+\d\s\-()]{7,15}$/.test(phone2.trim())) errs.phone2 = 'Enter a valid phone number';
     if (!email.trim())          errs.email        = 'Email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errs.email = 'Enter a valid email';
     if (!course)                errs.course       = 'Course / class is required';
     if (!admissionDate.trim())  errs.admissionDate = 'Admission date is required';
     setErrors(errs);
     return Object.keys(errs).length === 0;
-  }, [fullName, regNumber, motherName, fatherName, dob, address, phone, email, course, admissionDate]);
+  }, [fullName, regNumber, motherName, fatherName, dob, address, phone, phone2, email, course, admissionDate]);
 
   const handleSave = useCallback(async () => {
     if (!(await validate())) return;
@@ -91,6 +93,7 @@ export default function StudentForm({ navigation, route }: Props) {
         fatherName:   fatherName.trim() || undefined,
         email:        email.trim() || undefined,
         phone:        phone.trim() || undefined,
+        phone2:       phone2.trim() || undefined,
         address:      address.trim() || undefined,
         dob:          dob.trim() || undefined,
         admissionDate: admissionDate.trim() || undefined,
@@ -109,7 +112,7 @@ export default function StudentForm({ navigation, route }: Props) {
     } finally {
       setSaving(false);
     }
-  }, [validate, isEdit, item, fullName, regNumber, motherName, fatherName, email, phone, address, dob, admissionDate, course, afterSchool, optWeekend, isActive, idphoto, navigation, snackbar]);
+  }, [validate, isEdit, item, fullName, regNumber, motherName, fatherName, email, phone, phone2, address, dob, admissionDate, course, afterSchool, optWeekend, isActive, idphoto, navigation, snackbar]);
 
   const confirmDelete = useCallback(() => {
     setSaving(true);
@@ -189,6 +192,11 @@ export default function StudentForm({ navigation, route }: Props) {
         <Field label="Phone" required>
           <InputField value={phone} onChangeText={setPhone} placeholder="e.g. +91 98765 43210" keyboardType="phone-pad" autoCapitalize="none" />
           {errors.phone ? <Text style={KStyles.formError}>{errors.phone}</Text> : null}
+        </Field>
+
+        <Field label="Phone 2">
+          <InputField value={phone2} onChangeText={setPhone2} placeholder="e.g. +91 98765 43210" keyboardType="phone-pad" autoCapitalize="none" />
+          {errors.phone2 ? <Text style={KStyles.formError}>{errors.phone2}</Text> : null}
         </Field>
 
         <Field label="Address" required>

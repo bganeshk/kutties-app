@@ -18,6 +18,7 @@ export class StudentRepository extends BaseRepository<StudentModel> {
       fatherName:   item.fatherName,
       address:      item.address,
       phone:        item.phone,
+      phone2:       item.phone2,
       dob:          item.dob,
       email:        item.email,
       status:       item.status,
@@ -46,7 +47,7 @@ export class StudentRepository extends BaseRepository<StudentModel> {
   async search(query: string): Promise<StudentModel[]> {
     const q = query.toLowerCase();
     return this.findWhere(s =>
-      [s.fullName, s.regNumber, s.email, s.phone, s.course, s.motherName, s.fatherName]
+      [s.fullName, s.regNumber, s.email, s.phone, s.phone2, s.course, s.motherName, s.fatherName]
         .some(v => String(v ?? '').toLowerCase().includes(q))
     );
   }

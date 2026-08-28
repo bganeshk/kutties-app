@@ -59,6 +59,7 @@ const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
     fatherName:   'father_name',
     address:      'ContactAddress',
     phone:        'phone_1',
+    phone2:       'phone_2',
     dob:          'DoB',
     email:        'emailId',
     status:       'Status',

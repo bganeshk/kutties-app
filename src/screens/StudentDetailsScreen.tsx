@@ -185,6 +185,12 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
             onPress={item.phone ? () => Linking.openURL(`tel:${item.phone}`) : undefined}
           />
           <InfoRow
+            icon="call-outline"
+            label="Phone 2"
+            value={item.phone2}
+            onPress={item.phone2 ? () => Linking.openURL(`tel:${item.phone2}`) : undefined}
+          />
+          <InfoRow
             icon="mail-outline"
             label="Email"
             value={item.email}

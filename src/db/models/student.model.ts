@@ -11,6 +11,7 @@ export const students = sqliteTable('students', {
   fatherName:   text('father_name'),
   address:      text('address'),
   phone:        text('phone'),
+  phone2:       text('phone2'),
   dob:          text('dob'),
   email:        text('email'),
   status:       text('status', { enum: ['active', 'inactive','Alumini','Graduated'] }),
@@ -38,6 +39,7 @@ export interface StudentModel extends AuditFields {
   fatherName?: string;
   address?: string;
   phone?: string;
+  phone2?: string;
   dob?: string;
   email?: string;
   status?: 'active' | 'inactive' | 'Alumini' | 'Graduated';
@@ -59,6 +61,7 @@ export function toStudentModel(row: Record<string, unknown>): StudentModel {
     fatherName:   (row.FatherName ?? row.fatherName ?? row.father_name) as string | undefined,
     address:      (row.ContactAddress ?? row.address) as string | undefined,
     phone:        (row.phone_1 ?? row.phone)  as string | undefined,
+    phone2:       (row.phone_2 ?? row.phone2) as string | undefined,
     dob:          normaliseDate(row.DoB ?? row.dob),
     email:        (row.emailId ?? row.email)  as string | undefined,
     status:       (['active', 'inactive', 'alumini', 'graduated'].includes(status)
