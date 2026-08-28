@@ -258,6 +258,7 @@ export const KStyles = StyleSheet.create({
   formSnackbarText: { color: '#fff', fontSize: 14, fontWeight: '600', flex: 1 },
 
   // ── Details screen ───────────────────────────────────────────────────────────
+  detailsRoot:  { flex: 1, backgroundColor: '#F5F5F5' },
   detailsScroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24 },
   detailsHeroCard: {
     backgroundColor: Colors.surface, borderRadius: 14,
@@ -271,12 +272,17 @@ export const KStyles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center', marginBottom: 14,
   },
   detailsAvatarText: { fontSize: 30, fontWeight: '700', color: '#fff' },
-  detailsHeroName:   { fontSize: 20, fontWeight: '700', color: '#1A1A1A', textAlign: 'center' },
+  detailsHeroName:        { fontSize: 20, fontWeight: '700', color: '#1A1A1A', textAlign: 'center' },
+  detailsHeroDesignation: { fontSize: 14, color: Colors.primary, fontWeight: '600', marginTop: 4 },
   detailsStatusBadge: {
     marginTop: 10, paddingHorizontal: 14, paddingVertical: 4,
     borderRadius: 12, borderWidth: 1,
   },
-  detailsStatusBadgeText: { fontSize: 12, fontWeight: '700' },
+  detailsStatusBadgeText:    { fontSize: 12, fontWeight: '700' },
+  detailsStatusActive:       { backgroundColor: '#F1F8E9', borderColor: '#A5D6A7' },
+  detailsStatusInactive:     { backgroundColor: '#F5F5F5', borderColor: '#BDBDBD' },
+  detailsStatusActiveText:   { color: '#2E7D32' },
+  detailsStatusInactiveText: { color: '#757575' },
   detailsQuickActions:    { flexDirection: 'row', gap: 10, marginBottom: 12 },
   detailsQaBtn: {
     flex: 1, alignItems: 'center', justifyContent: 'center',

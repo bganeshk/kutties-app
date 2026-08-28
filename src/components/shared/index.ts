@@ -14,3 +14,4 @@ export { default as SingleSelectDropdown } from './SingleSelectDropdown';
 export { default as FormDatePicker } from './FormDatePicker';
 export { default as RefDropdown } from './RefDropdown';
 export { Field, InputField } from './FormField';
+export { default as InfoRow } from './InfoRow';
