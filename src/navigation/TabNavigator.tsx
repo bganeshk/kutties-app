@@ -9,14 +9,16 @@ import LandingScreen from '../screens/LandingScreen';
 import TeacherDetailsScreen from '../screens/TeacherDetailsScreen';
 import EmployeeDetailsScreen from '../screens/EmployeeDetailsScreen';
 import StudentDetailsScreen from '../screens/StudentDetailsScreen';
+import CourseDetailsScreen from '../screens/CourseDetailsScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList, EmployeeForm } from '../components/employees';
 import { StudentList, StudentForm } from '../components/students';
+import { CourseList, CourseForm } from '../components/courses';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
 
-// Each tab gets its own Stack instance so drill-down works independently
+// ── Generic sub-item tab (Teachers, Students) ─────────────────────────────
 function makeTabStack(parentview: string, title: string) {
   const Stack = createNativeStackNavigator<HomeStackParamList>();
   return function TabStack() {
@@ -27,23 +29,40 @@ function makeTabStack(parentview: string, title: string) {
           component={SubItemScreen}
           initialParams={{ parentview, title }}
         />
-        <Stack.Screen name="Landing" component={LandingScreen} />
-        <Stack.Screen name="TeacherList" component={TeacherList} />
-        <Stack.Screen name="TeacherDetails" component={TeacherDetailsScreen} />
-        <Stack.Screen name="TeacherForm" component={TeacherForm} />
-        <Stack.Screen name="EmployeeList" component={EmployeeList} />
+        <Stack.Screen name="Landing"         component={LandingScreen} />
+        <Stack.Screen name="TeacherList"     component={TeacherList} />
+        <Stack.Screen name="TeacherDetails"  component={TeacherDetailsScreen} />
+        <Stack.Screen name="TeacherForm"     component={TeacherForm} />
+        <Stack.Screen name="EmployeeList"    component={EmployeeList} />
         <Stack.Screen name="EmployeeDetails" component={EmployeeDetailsScreen} />
-        <Stack.Screen name="EmployeeForm" component={EmployeeForm} />
-        <Stack.Screen name="StudentList" component={StudentList} />
-        <Stack.Screen name="StudentDetails" component={StudentDetailsScreen} />
-        <Stack.Screen name="StudentForm" component={StudentForm} />
+        <Stack.Screen name="EmployeeForm"    component={EmployeeForm} />
+        <Stack.Screen name="StudentList"     component={StudentList} />
+        <Stack.Screen name="StudentDetails"  component={StudentDetailsScreen} />
+        <Stack.Screen name="StudentForm"     component={StudentForm} />
+        <Stack.Screen name="CourseList"      component={CourseList} />
+        <Stack.Screen name="CourseDetails"   component={CourseDetailsScreen} />
+        <Stack.Screen name="CourseForm"      component={CourseForm} />
       </Stack.Navigator>
     );
   };
 }
 
+// ── Dedicated Courses tab — opens CourseList directly as root ─────────────
+function CoursesTabStack() {
+  const Stack = createNativeStackNavigator<HomeStackParamList>();
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CourseList"      component={CourseList} />
+      <Stack.Screen name="CourseDetails"   component={CourseDetailsScreen} />
+      <Stack.Screen name="CourseForm"      component={CourseForm} />
+      {/* Sub-screens reachable from the Course dashboard tiles */}
+      <Stack.Screen name="SubItems"        component={SubItemScreen} />
+      <Stack.Screen name="Landing"         component={LandingScreen} />
+    </Stack.Navigator>
+  );
+}
+
 const TeachersStack = makeTabStack('Teachers', 'Teachers');
-const CoursesStack  = makeTabStack('Course', 'Course');
 const StudentsStack = makeTabStack('Students', 'Students');
 
 export default function TabNavigator() {
@@ -87,7 +106,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Courses"
-        component={CoursesStack}
+        component={CoursesTabStack}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="school" size={size} color={color} />

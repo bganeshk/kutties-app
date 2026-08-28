@@ -8,6 +8,8 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Student View':          'StudentList',
   'Students View':         'StudentList',
   'Student Dash View':     'StudentList',
+  'Courses View':          'CourseList',
+  'Course View':           'CourseList',
 };
 
 export function resolveScreen(appviewsheet: string): string {

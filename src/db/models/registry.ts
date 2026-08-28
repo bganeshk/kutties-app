@@ -3,6 +3,7 @@ import { toEmployeeModel } from './employee.model';
 import { toStudentModel } from './student.model';
 import { toDashboardModel } from './dashboard.model';
 import { toProductModel } from './product.model';
+import { toCourseModel } from './course.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -26,6 +27,7 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   students:  (raw) => toStudentModel(raw) as unknown as Record<string, unknown>,
   dashboard: (raw) => stripComputed(toDashboardModel(raw) as unknown as Record<string, unknown>),
   products:  (raw) => stripComputed(toProductModel(raw)   as unknown as Record<string, unknown>),
+  courses:   (raw) => stripComputed(toCourseModel(raw)    as unknown as Record<string, unknown>),
   reftbl:    (raw) => toReftblRow(raw),
 };
 
