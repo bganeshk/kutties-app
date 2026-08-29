@@ -12,11 +12,13 @@ import StudentDetailsScreen from '../screens/StudentDetailsScreen';
 import CourseDetailsScreen from '../screens/CourseDetailsScreen';
 import CourseTimeTableDetailsScreen from '../screens/CourseTimeTableDetailsScreen';
 import TeacherScheduleScreen from '../screens/TeacherScheduleScreen';
+import HandbookDetailsScreen from '../screens/HandbookDetailsScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList, EmployeeForm } from '../components/employees';
 import { StudentList, StudentForm } from '../components/students';
 import { CourseList, CourseForm } from '../components/courses';
 import { CourseTimeTableList, CourseTimeTableForm } from '../components/coursetimetable';
+import { HandbookList, HandbookForm } from '../components/handbook';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -32,20 +34,26 @@ function makeTabStack(parentview: string, title: string) {
           component={SubItemScreen}
           initialParams={{ parentview, title }}
         />
-        <Stack.Screen name="Landing"         component={LandingScreen} />
-        <Stack.Screen name="TeacherList"     component={TeacherList} />
-        <Stack.Screen name="TeacherDetails"  component={TeacherDetailsScreen} />
-        <Stack.Screen name="TeacherForm"     component={TeacherForm} />
-        <Stack.Screen name="TeacherSchedule" component={TeacherScheduleScreen} />
-        <Stack.Screen name="EmployeeList"    component={EmployeeList} />
-        <Stack.Screen name="EmployeeDetails" component={EmployeeDetailsScreen} />
-        <Stack.Screen name="EmployeeForm"    component={EmployeeForm} />
-        <Stack.Screen name="StudentList"     component={StudentList} />
-        <Stack.Screen name="StudentDetails"  component={StudentDetailsScreen} />
-        <Stack.Screen name="StudentForm"     component={StudentForm} />
-        <Stack.Screen name="CourseList"      component={CourseList} />
-        <Stack.Screen name="CourseDetails"   component={CourseDetailsScreen} />
-        <Stack.Screen name="CourseForm"      component={CourseForm} />
+        <Stack.Screen name="Landing"             component={LandingScreen} />
+        <Stack.Screen name="TeacherList"         component={TeacherList} />
+        <Stack.Screen name="TeacherDetails"      component={TeacherDetailsScreen} />
+        <Stack.Screen name="TeacherForm"         component={TeacherForm} />
+        <Stack.Screen name="TeacherSchedule"     component={TeacherScheduleScreen} />
+        <Stack.Screen name="EmployeeList"        component={EmployeeList} />
+        <Stack.Screen name="EmployeeDetails"     component={EmployeeDetailsScreen} />
+        <Stack.Screen name="EmployeeForm"        component={EmployeeForm} />
+        <Stack.Screen name="StudentList"         component={StudentList} />
+        <Stack.Screen name="StudentDetails"      component={StudentDetailsScreen} />
+        <Stack.Screen name="StudentForm"         component={StudentForm} />
+        <Stack.Screen name="CourseList"          component={CourseList} />
+        <Stack.Screen name="CourseDetails"       component={CourseDetailsScreen} />
+        <Stack.Screen name="CourseForm"          component={CourseForm} />
+        <Stack.Screen name="CourseTimeTableList"    component={CourseTimeTableList} />
+        <Stack.Screen name="CourseTimeTableDetails" component={CourseTimeTableDetailsScreen} />
+        <Stack.Screen name="CourseTimeTableForm"    component={CourseTimeTableForm} />
+        <Stack.Screen name="HandbookList"        component={HandbookList} />
+        <Stack.Screen name="HandbookDetails"     component={HandbookDetailsScreen} />
+        <Stack.Screen name="HandbookForm"        component={HandbookForm} />
       </Stack.Navigator>
     );
   };
@@ -79,6 +87,18 @@ function CoursesTabStack() {
 
 const TeachersStack = makeTabStack('Teachers', 'Teachers');
 const StudentsStack = makeTabStack('Students', 'Students');
+
+// ── Dedicated Handbook tab ────────────────────────────────────────────────
+function HandbookTabStack() {
+  const Stack = createNativeStackNavigator<HomeStackParamList>();
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="HandbookList"    component={HandbookList} />
+      <Stack.Screen name="HandbookDetails" component={HandbookDetailsScreen} />
+      <Stack.Screen name="HandbookForm"    component={HandbookForm} />
+    </Stack.Navigator>
+  );
+}
 
 export default function TabNavigator() {
   return (
@@ -134,6 +154,15 @@ export default function TabNavigator() {
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="people" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Handbook"
+        component={HandbookTabStack}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="book" size={size} color={color} />
           ),
         }}
       />

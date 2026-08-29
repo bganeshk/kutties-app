@@ -17,6 +17,10 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Teacher Schedule View':     'TeacherSchedule',
   'TeacherSchedule View':      'TeacherSchedule',
   'Teacher Schedule':          'TeacherSchedule',
+  'Handbook View':             'HandbookList',
+  'Handbook':                  'HandbookList',
+  'Teachers Handbook':         'HandbookList',
+  'Teacher Handbook View':     'HandbookList',
 };
 
 export function resolveScreen(appviewsheet: string): string {
