@@ -4,6 +4,7 @@ import { toStudentModel } from './student.model';
 import { toDashboardModel } from './dashboard.model';
 import { toProductModel } from './product.model';
 import { toCourseModel } from './course.model';
+import { toCourseTimeTableModel } from './coursetimetable.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -27,8 +28,9 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   students:  (raw) => toStudentModel(raw) as unknown as Record<string, unknown>,
   dashboard: (raw) => stripComputed(toDashboardModel(raw) as unknown as Record<string, unknown>),
   products:  (raw) => stripComputed(toProductModel(raw)   as unknown as Record<string, unknown>),
-  courses:   (raw) => stripComputed(toCourseModel(raw)    as unknown as Record<string, unknown>),
-  reftbl:    (raw) => toReftblRow(raw),
+  courses:         (raw) => stripComputed(toCourseModel(raw)            as unknown as Record<string, unknown>),
+  coursetimetbl:   (raw) => toCourseTimeTableModel(raw)                 as unknown as Record<string, unknown>,
+  reftbl:          (raw) => toReftblRow(raw),
 };
 
 /**
@@ -54,6 +56,15 @@ export function registerModel(sheet: string, transformer: RowTransformer): void 
 // keys used internally.
 
 const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
+  coursetimetbl: {
+    courseDivision: 'CourseDivision',
+    day:            'Day',
+    subject:        'Subject',
+    teacher:        'Teacher',
+    startTime:      'Start Time',
+    endTime:        'End Time',
+    lastmodified:   'Lastmodified',
+  },
   students: {
     regNumber:    'RegNumber',
     fullName:     'FullName',

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { CourseModel } from '../../db/models/course.model';
@@ -13,6 +13,33 @@ interface CourseRowProps {
   selected?: boolean;
   onPress: (item: CourseModel) => void;
   onLongPress: (item: CourseModel) => void;
+  onTimetable?: (item: CourseModel) => void;
+  onStudents?: (item: CourseModel) => void;
+}
+
+function ActionButton({ icon, color, label, onPress }: { icon: string; color: string; label: string; onPress?: () => void }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!visible) return;
+    const t = setTimeout(() => setVisible(false), 1500);
+    return () => clearTimeout(t);
+  }, [visible]);
+  return (
+    <Pressable
+      style={KStyles.rowActionBtn}
+      onPress={onPress}
+      onLongPress={() => setVisible(true)}
+      onHoverIn={() => setVisible(true)}
+      onHoverOut={() => setVisible(false)}
+    >
+      {visible && (
+        <View style={KStyles.rowTooltip}>
+          <Text style={KStyles.rowTooltipText}>{label}</Text>
+        </View>
+      )}
+      <Ionicons name={icon as any} size={18} color={color} />
+    </Pressable>
+  );
 }
 
 function FeeChip({ label, amount }: { label: string; amount?: number }) {
@@ -25,7 +52,7 @@ function FeeChip({ label, amount }: { label: string; amount?: number }) {
   );
 }
 
-const CourseRow = memo(({ item, selected, onPress, onLongPress }: CourseRowProps) => {
+const CourseRow = memo(({ item, selected, onPress, onLongPress, onTimetable, onStudents }: CourseRowProps) => {
   const name     = item.courseName ?? String(item.id);
   const subjects = item.subjectList;
 
@@ -82,11 +109,28 @@ const CourseRow = memo(({ item, selected, onPress, onLongPress }: CourseRowProps
             </View>
           )}
         </View>
-  {item.classTeacher ? (
-              <View style={styles.teacherRow}>
-                <Text style={styles.teacherText} numberOfLines={1}>{item.description}</Text>
-              </View>
-            ) : null}
+
+        {/* Action buttons */}
+        {(onTimetable || onStudents) && (
+          <View style={KStyles.rowActions}>
+            {onTimetable && (
+              <ActionButton
+                icon="calendar-outline"
+                color="#1565C0"
+                label="Timetable"
+                onPress={() => onTimetable(item)}
+              />
+            )}
+            {onStudents && (
+              <ActionButton
+                icon="people-outline"
+                color={PRIMARY}
+                label="Students"
+                onPress={() => onStudents(item)}
+              />
+            )}
+          </View>
+        )}
       </View>
     </Pressable>
   );

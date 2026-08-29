@@ -10,10 +10,12 @@ import TeacherDetailsScreen from '../screens/TeacherDetailsScreen';
 import EmployeeDetailsScreen from '../screens/EmployeeDetailsScreen';
 import StudentDetailsScreen from '../screens/StudentDetailsScreen';
 import CourseDetailsScreen from '../screens/CourseDetailsScreen';
+import CourseTimeTableDetailsScreen from '../screens/CourseTimeTableDetailsScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList, EmployeeForm } from '../components/employees';
 import { StudentList, StudentForm } from '../components/students';
 import { CourseList, CourseForm } from '../components/courses';
+import { CourseTimeTableList, CourseTimeTableForm } from '../components/coursetimetable';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -47,21 +49,28 @@ function makeTabStack(parentview: string, title: string) {
   };
 }
 
-// ── Dedicated Courses tab — opens CourseList directly as root ─────────────
+// ── Dedicated Courses tab — opens Course dashboard as root ────────────────
 function CoursesTabStack() {
   const Stack = createNativeStackNavigator<HomeStackParamList>();
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="CourseList"      component={CourseList} />
-      <Stack.Screen name="CourseDetails"   component={CourseDetailsScreen} />
-      <Stack.Screen name="CourseForm"      component={CourseForm} />
-      <Stack.Screen name="StudentList"     component={StudentList} />
-      <Stack.Screen name="StudentDetails"  component={StudentDetailsScreen} />
-      <Stack.Screen name="StudentForm"     component={StudentForm} />
-      <Stack.Screen name="TeacherDetails"  component={TeacherDetailsScreen} />
-      {/* Sub-screens reachable from the Course dashboard tiles */}
-      <Stack.Screen name="SubItems"        component={SubItemScreen} />
-      <Stack.Screen name="Landing"         component={LandingScreen} />
+      {/* Root: Course dashboard (same SubItems pattern as other tabs) */}
+      <Stack.Screen
+        name="SubItems"
+        component={SubItemScreen}
+        initialParams={{ parentview: 'Course', title: 'Course' }}
+      />
+      <Stack.Screen name="Landing"                component={LandingScreen} />
+      <Stack.Screen name="CourseList"             component={CourseList} />
+      <Stack.Screen name="CourseDetails"          component={CourseDetailsScreen} />
+      <Stack.Screen name="CourseForm"             component={CourseForm} />
+      <Stack.Screen name="CourseTimeTableList"    component={CourseTimeTableList} />
+      <Stack.Screen name="CourseTimeTableDetails" component={CourseTimeTableDetailsScreen} />
+      <Stack.Screen name="CourseTimeTableForm"    component={CourseTimeTableForm} />
+      <Stack.Screen name="StudentList"            component={StudentList} />
+      <Stack.Screen name="StudentDetails"         component={StudentDetailsScreen} />
+      <Stack.Screen name="StudentForm"            component={StudentForm} />
+      <Stack.Screen name="TeacherDetails"         component={TeacherDetailsScreen} />
     </Stack.Navigator>
   );
 }

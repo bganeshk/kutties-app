@@ -64,14 +64,26 @@ export default function CourseList({ navigation }: Props) {
     }
   }, [selectedIds, navigation, toggleSelect]);
 
+  const handleTimetable = useCallback((item: Course) => {
+    const courseKey = `${item.courseName}: ${item.division}`;
+    navigation.navigate('CourseTimeTableList', { initialCourse: courseKey });
+  }, [navigation]);
+
+  const handleStudents = useCallback((item: Course) => {
+    const courseKey = `${item.courseName}: ${item.division}`;
+    navigation.navigate('StudentList', { initialSearch: courseKey });
+  }, [navigation]);
+
   const renderCourse = useCallback((item: Course) => (
     <CourseRow
       item={item}
       selected={selectedIds.has(item.id)}
       onPress={handlePress}
       onLongPress={toggleSelect}
+      onTimetable={handleTimetable}
+      onStudents={handleStudents}
     />
-  ), [selectedIds, handlePress, toggleSelect]);
+  ), [selectedIds, handlePress, toggleSelect, handleTimetable, handleStudents]);
 
   const isEmpty = courses.length === 0;
 

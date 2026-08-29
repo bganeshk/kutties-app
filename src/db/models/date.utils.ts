@@ -29,3 +29,22 @@ export function normaliseDate(raw: unknown): string | undefined {
   }
   return s; // return as-is if unrecognised
 }
+
+/**
+ * Extracts HH:MM from any time-like value.
+ * Handles:
+ *  - ISO datetime strings (Excel epoch): "1899-12-30T09:45:00.000Z" → "09:45"
+ *  - Plain time strings: "9:45" → "09:45", "09:45" → "09:45"
+ * Returns undefined for empty/null input.
+ */
+export function extractTime(raw: unknown): string | undefined {
+  if (!raw) return undefined;
+  const s = String(raw);
+  // ISO datetime — grab HH:MM after the T
+  const isoMatch = s.match(/T(\d{2}:\d{2})/);
+  if (isoMatch) return isoMatch[1];
+  // Plain time like "9:45" or "09:45"
+  const plainMatch = s.match(/^(\d{1,2}:\d{2})/);
+  if (plainMatch) return plainMatch[1].padStart(5, '0');
+  return undefined;
+}
