@@ -36,6 +36,7 @@ const iconMap: Record<string, IconEntry> = {
   'Salary':               '💰',
   'Schedule':             '📅',
   'My Schedule':          '🕐',
+  'Teacher Schedule':     '📅',
   'Teachers':             '👩‍🏫',
   'Course':               '🎓',
   'Students':             '👨‍🎓',

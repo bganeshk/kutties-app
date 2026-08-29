@@ -16,6 +16,7 @@ interface TeacherRowProps {
   onPress: (item: TeacherModel) => void;
   onLongPress: (item: TeacherModel) => void;
   onQrPress?: (item: TeacherModel) => void;
+  onSchedulePress?: (item: TeacherModel) => void;
   activeSubject?: string;
   onSubjectPress?: (subject: string) => void;
 }
@@ -41,7 +42,6 @@ function ActionButton({ icon, color, label, onPress }: ActionButtonProps) {
       style={KStyles.rowActionBtn}
       onPress={onPress}
       onLongPress={() => setVisible(true)}
-      // pointer devices (web / desktop)
       onHoverIn={() => setVisible(true)}
       onHoverOut={() => setVisible(false)}
     >
@@ -71,7 +71,7 @@ function Avatar({ name, photo }: { name: string; photo?: string }) {
   );
 }
 
-const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, activeSubject, onSubjectPress }: TeacherRowProps) => {
+const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, onSchedulePress, activeSubject, onSubjectPress }: TeacherRowProps) => {
   const name = item.name ?? String(item.id);
   const subjectList = item.subjectList ?? [];
 
@@ -134,8 +134,8 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
 
         </View>
 
-        {/* Action buttons */}
-        <View style={KStyles.rowActions}>
+        {/* Action buttons — stopPropagation prevents the outer Pressable from swallowing the tap */}
+        <View style={KStyles.rowActions} onTouchEnd={(e) => e.stopPropagation()}>
           {item.phone ? (
             <>
               <ActionButton
@@ -158,6 +158,14 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, acti
               color="#6A1B9A"
               label="QR Code"
               onPress={() => onQrPress?.(item)}
+            />
+          )}
+          {item.status === 'active' && (
+            <ActionButton
+              icon="calendar"
+              color="#E65100"
+              label="Schedule"
+              onPress={() => onSchedulePress?.(item)}
             />
           )}
           {item.status === 'active' && (

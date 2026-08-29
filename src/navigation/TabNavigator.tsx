@@ -11,6 +11,7 @@ import EmployeeDetailsScreen from '../screens/EmployeeDetailsScreen';
 import StudentDetailsScreen from '../screens/StudentDetailsScreen';
 import CourseDetailsScreen from '../screens/CourseDetailsScreen';
 import CourseTimeTableDetailsScreen from '../screens/CourseTimeTableDetailsScreen';
+import TeacherScheduleScreen from '../screens/TeacherScheduleScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList, EmployeeForm } from '../components/employees';
 import { StudentList, StudentForm } from '../components/students';
@@ -35,6 +36,7 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="TeacherList"     component={TeacherList} />
         <Stack.Screen name="TeacherDetails"  component={TeacherDetailsScreen} />
         <Stack.Screen name="TeacherForm"     component={TeacherForm} />
+        <Stack.Screen name="TeacherSchedule" component={TeacherScheduleScreen} />
         <Stack.Screen name="EmployeeList"    component={EmployeeList} />
         <Stack.Screen name="EmployeeDetails" component={EmployeeDetailsScreen} />
         <Stack.Screen name="EmployeeForm"    component={EmployeeForm} />

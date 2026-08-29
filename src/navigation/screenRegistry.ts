@@ -13,7 +13,10 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Course Time Table View':     'CourseTimeTableList',
   'CourseTimeTable View':       'CourseTimeTableList',
   'Course Timetable View':      'CourseTimeTableList',
-  'CourseTimeTableView':        'CourseTimeTableList',
+  'CourseTimeTableView':       'CourseTimeTableList',
+  'Teacher Schedule View':     'TeacherSchedule',
+  'TeacherSchedule View':      'TeacherSchedule',
+  'Teacher Schedule':          'TeacherSchedule',
 };
 
 export function resolveScreen(appviewsheet: string): string {

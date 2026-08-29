@@ -102,6 +102,12 @@ export default function TeacherList({ navigation }: Props) {
           appviewsheet: 'TeacherAttendanceQR',
         })
       }
+      onSchedulePress={(t) =>
+        navigation.navigate('TeacherSchedule', {
+          teacherEmail: t.email,
+          teacherName: t.name,
+        })
+      }
     />
   ), [selectedIds, handlePress, toggleSelect, subjectFilter, toggleSubjectFilter, navigation]);
 
