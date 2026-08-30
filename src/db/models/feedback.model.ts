@@ -14,6 +14,7 @@ export interface FeedbackModel extends AuditFields {
   actionTaken?: string;      // follow-up action by school
   status?: 'open' | 'reviewed' | 'closed';
   remarks?: string;
+  createdBy?: string;
 }
 
 // ── Mapper — handles both raw API key (PascalCase) and local DB key ────────
@@ -26,6 +27,7 @@ export function toFeedbackModel(
     : rawStatus === 'closed'   ? 'closed'
     : rawStatus === 'open'     ? 'open'
     : undefined;
+  const createdBy = ((row.createdBy ?? row.CreatedBy) as string | undefined) || undefined;
 
   return {
     id:           String(row.id ?? ''),
@@ -39,6 +41,7 @@ export function toFeedbackModel(
     actionTaken:  (row.actionTaken  ?? row.ActionTaken)  as string | undefined,
     status,
     remarks:      (row.remarks      ?? row.Remarks)      as string | undefined,
+    createdBy,
     lastmodified: (row.lastmodified ?? row.Lastmodified) as string | undefined,
   };
 }

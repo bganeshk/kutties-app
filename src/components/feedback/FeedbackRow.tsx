@@ -36,7 +36,7 @@ const FeedbackRow = memo(({ item, onPress }: FeedbackRowProps) => {
       {/* Avatar initials */}
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>
-          {(item.teacherName ?? 'T').charAt(0).toUpperCase()}
+          {(item.createdBy ?? 'T').charAt(0).toUpperCase()}
         </Text>
       </View>
 
@@ -45,11 +45,20 @@ const FeedbackRow = memo(({ item, onPress }: FeedbackRowProps) => {
         <View style={KStyles.rowTwoCol}>
           <View style={KStyles.rowLeftCol}>
             <Text style={KStyles.rowName} numberOfLines={1}>
-              {item.teacherName ?? '—'}
+              {item.createdBy ?? '—'}
             </Text>
-            <Text style={styles.studentLabel} numberOfLines={1}>
+
+             {item.teacherName ? (
+                         <Text style={styles.studentLabel} numberOfLines={1}>
+              Student: {item.teacherName ?? '—'}
+            </Text>
+                      ) : null}
+            {item.studentName ? (
+                         <Text style={styles.studentLabel} numberOfLines={1}>
               Student: {item.studentName ?? '—'}
             </Text>
+                      ) : null}
+           
           </View>
           <View style={KStyles.rowRightCol}>
             {/* Status badge */}

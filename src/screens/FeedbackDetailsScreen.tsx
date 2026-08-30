@@ -88,10 +88,15 @@ export default function FeedbackDetailsScreen({ navigation, route }: Props) {
             <Ionicons name="chatbubble-ellipses" size={36} color="#fff" />
           </View>
           <Text style={KStyles.detailsHeroName} numberOfLines={1}>
-            {item.teacherName ?? 'Unknown Teacher'}
+            {item.createdBy ?? 'Unknown Creator'}
           </Text>
           {item.studentName ? (
             <Text style={styles.studentLabel}>Student: {item.studentName}</Text>
+          ) : null}
+          {item.createdBy ? (
+            <Text style={styles.studentLabel}>
+             Teacher: {item.teacherName?? ""}
+            </Text>
           ) : null}
           {stars ? (
             <Text style={styles.stars}>{stars}</Text>

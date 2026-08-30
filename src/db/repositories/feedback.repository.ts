@@ -26,6 +26,7 @@ export class FeedbackRepository extends BaseRepository<FeedbackModel> {
       actionTaken:  item.actionTaken,
       status:       item.status,
       remarks:      item.remarks,
+      createdBy:    item.createdBy,
       lastmodified: new Date().toISOString(),
     };
   }

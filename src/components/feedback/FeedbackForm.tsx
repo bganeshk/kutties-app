@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 import { SHEETS } from '../../utils/constants';
-import { feedbackRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
+import { feedbackRepository, getRefOptions, ensureReftbl, studentRepository, teacherRepository } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
 import type { FeedbackModel } from '../../db/models/feedback.model';
 import Snackbar, { useSnackbar } from '../shared/Snackbar';
@@ -19,9 +19,9 @@ import SingleSelectDropdown from '../shared/SingleSelectDropdown';
 
 const PRIMARY = Colors.primary;
 
-const RATING_OPTIONS   = ['1', '2', '3', '4', '5'];
-const CATEGORY_OPTIONS = ['Communication', 'Punctuality', 'Subject Knowledge', 'Behaviour', 'Overall'];
-const STATUS_OPTIONS   = ['open', 'reviewed', 'closed'];
+const RATING_OPTIONS      = ['1', '2', '3', '4', '5'];
+const CATEGORY_OPTIONS    = ['Communication', 'Punctuality', 'Subject Knowledge', 'Behaviour', 'Overall'];
+const STATUS_OPTIONS      = ['open', 'reviewed', 'closed'];
 
 interface Props {
   navigation: any;
@@ -43,11 +43,70 @@ export default function FeedbackForm({ navigation, route }: Props) {
   const [actionTaken,  setActionTaken]  = useState(item?.actionTaken  ?? '');
   const [status,       setStatus]       = useState<string>(item?.status ?? 'open');
   const [remarks,      setRemarks]      = useState(item?.remarks      ?? '');
+  const [createdBy,    setCreatedBy]    = useState<string>(item?.createdBy ?? '');
 
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const snackbar = useSnackbar();
+
+  // ── Students — load once, build groups map for the dropdown ───────────────
+  const [studentOptions,  setStudentOptions]  = useState<string[]>([]);
+  const [studentGroups,   setStudentGroups]   = useState<Record<string, string[]>>({});
+  const [loadingStudents, setLoadingStudents] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      let rows = await studentRepository.findAll();
+      if (rows.length === 0) {
+        await syncSheet(SHEETS.STUDENTS);
+        rows = await studentRepository.findAll();
+      }
+      if (!cancelled) {
+        const mapped = rows
+          .filter(s => s.fullName)
+          .map(s => ({ fullName: s.fullName!, course: s.course ?? '' }));
+
+        // All names sorted (used by the dropdown when no chip is active)
+        setStudentOptions(mapped.map(s => s.fullName).sort());
+
+        // groups map: { courseName → [studentName, …] }
+        const groups: Record<string, string[]> = {};
+        for (const s of mapped) {
+          if (!s.course) continue;
+          if (!groups[s.course]) groups[s.course] = [];
+          groups[s.course].push(s.fullName);
+        }
+        for (const key of Object.keys(groups)) groups[key].sort();
+        setStudentGroups(groups);
+
+        setLoadingStudents(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // ── Teacher options ────────────────────────────────────────────────────────
+  const [teacherOptions,  setTeacherOptions]  = useState<string[]>([]);
+  const [loadingTeachers, setLoadingTeachers] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      // Use local cache first; sync only if empty
+      let rows = await teacherRepository.findAll();
+      if (rows.length === 0) {
+        await syncSheet(SHEETS.TEACHERS);
+        rows = await teacherRepository.findAll();
+      }
+      if (!cancelled) {
+        setTeacherOptions(rows.map(t => t.name ?? '').filter(Boolean).sort());
+        setLoadingTeachers(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // ── Subject options from reftbl ────────────────────────────────────────────
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
@@ -72,9 +131,10 @@ export default function FeedbackForm({ navigation, route }: Props) {
     if (!studentName.trim()) errs.studentName = 'Student name is required';
     if (!teacherName.trim()) errs.teacherName = 'Teacher name is required';
     if (!feedback.trim())    errs.feedback    = 'Feedback text is required';
+    if (!createdBy)          errs.createdBy   = 'Creator role is required';
     setErrors(errs);
     return Object.keys(errs).length === 0;
-  }, [studentName, teacherName, feedback]);
+  }, [studentName, teacherName, feedback, createdBy]);
 
   // ── Save ───────────────────────────────────────────────────────────────────
   const handleSave = useCallback(async () => {
@@ -93,6 +153,7 @@ export default function FeedbackForm({ navigation, route }: Props) {
         actionTaken:  actionTaken.trim()  || undefined,
         status:       (status as FeedbackModel['status']) || 'open',
         remarks:      remarks.trim()      || undefined,
+        createdBy:    createdBy.trim() || undefined,
       };
       await feedbackRepository.save(entry);
       syncSheet(SHEETS.FEEDBACK).catch(() => {/* silent */});
@@ -103,7 +164,7 @@ export default function FeedbackForm({ navigation, route }: Props) {
     } finally {
       setSaving(false);
     }
-  }, [validate, isEdit, item, studentName, teacherName, subject, feedbackDate, rating, category, feedback, actionTaken, status, remarks, navigation, snackbar]);
+  }, [validate, isEdit, item, studentName, teacherName, subject, feedbackDate, rating, category, feedback, actionTaken, status, remarks, createdBy, navigation, snackbar]);
 
   // ── Delete ─────────────────────────────────────────────────────────────────
   const confirmDelete = useCallback(() => {
@@ -170,25 +231,39 @@ export default function FeedbackForm({ navigation, route }: Props) {
         <Text style={KStyles.formSection}>Participants</Text>
 
         <Field label="Student Name" required>
-          <InputField
-            value={studentName}
-            onChangeText={setStudentName}
-            placeholder="e.g. Arjun Kumar"
-            autoCapitalize="words"
-            editable
+          <SingleSelectDropdown
+            selected={studentName}
+            options={studentOptions}
+            onChange={setStudentName}
+            placeholder="Select a student…"
+            title="Select Student"
+            loading={loadingStudents}
+            groups={studentGroups}
           />
           {errors.studentName ? <Text style={KStyles.formError}>{errors.studentName}</Text> : null}
         </Field>
 
         <Field label="Teacher Name" required>
-          <InputField
-            value={teacherName}
-            onChangeText={setTeacherName}
-            placeholder="e.g. Mrs. Priya Sharma"
-            autoCapitalize="words"
-            editable
+          <SingleSelectDropdown
+            selected={teacherName}
+            options={teacherOptions}
+            onChange={setTeacherName}
+            placeholder="Select a teacher…"
+            title="Select Teacher"
+            loading={loadingTeachers}
           />
           {errors.teacherName ? <Text style={KStyles.formError}>{errors.teacherName}</Text> : null}
+        </Field>
+
+        <Field label="Created By" required>
+          <SingleSelectDropdown
+            selected={createdBy}
+            options={['Teacher', 'Employee']}
+            onChange={setCreatedBy}
+            placeholder="Select creator role…"
+            title="Select Creator"
+          />
+          {errors.createdBy ? <Text style={KStyles.formError}>{errors.createdBy}</Text> : null}
         </Field>
 
         {/* ── Feedback ────────────────────────────────────────────────────── */}

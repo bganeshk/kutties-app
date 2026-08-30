@@ -21,6 +21,12 @@ interface SingleSelectDropdownProps {
   loading?: boolean;
   /** When true the trigger is non-interactive */
   disabled?: boolean;
+  /**
+   * Optional grouping map: { groupLabel → [option, …] }
+   * When provided, a course dropdown appears inside the modal.
+   * A course must be selected before the student list is shown.
+   */
+  groups?: Record<string, string[]>;
 }
 
 export default function SingleSelectDropdown({
@@ -31,14 +37,29 @@ export default function SingleSelectDropdown({
   title = 'Select an option',
   loading = false,
   disabled = false,
+  groups,
 }: SingleSelectDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [open,           setOpen]           = useState(false);
+  const [groupOpen,      setGroupOpen]      = useState(false);
+  const [search,         setSearch]         = useState('');
+  const [activeGroup,    setActiveGroup]    = useState<string>('');
+
+  const groupLabels = useMemo(
+    () => (groups ? Object.keys(groups).sort() : []),
+    [groups],
+  );
 
   const openModal = useCallback(() => {
     setSearch('');
+    // Pre-select the group of the current value when re-opening
+    if (groups && selected) {
+      const grp = Object.entries(groups).find(([, vals]) => vals.includes(selected))?.[0] ?? '';
+      setActiveGroup(grp);
+    } else {
+      setActiveGroup('');
+    }
     setOpen(true);
-  }, []);
+  }, [groups, selected]);
 
   const handleSelect = useCallback(
     (value: string) => {
@@ -48,10 +69,13 @@ export default function SingleSelectDropdown({
     [selected, onChange],
   );
 
+  // Only show students once a group is selected
   const filteredOptions = useMemo(() => {
+    if (groups && !activeGroup) return [];
+    const base = (groups && activeGroup) ? (groups[activeGroup] ?? options) : options;
     const q = search.trim().toLowerCase();
-    return q ? options.filter((o) => o.toLowerCase().includes(q)) : options;
-  }, [options, search]);
+    return q ? base.filter((o) => o.toLowerCase().includes(q)) : base;
+  }, [options, groups, activeGroup, search]);
 
   if (disabled) {
     return (
@@ -116,8 +140,81 @@ export default function SingleSelectDropdown({
             />
           </View>
 
+          {/* Course dropdown (only when groups provided) */}
+          {groupLabels.length > 0 && (
+            <View style={styles.groupRow}>
+              <Pressable
+                style={styles.groupTrigger}
+                onPress={() => setGroupOpen(true)}
+              >
+                <Text style={[styles.groupTriggerText, !activeGroup && styles.groupPlaceholder]} numberOfLines={1}>
+                  {activeGroup || 'Filter by course…'}
+                </Text>
+                <View style={styles.groupTriggerRight}>
+                  {activeGroup ? (
+                    <Pressable
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      onPress={() => { setActiveGroup(''); }}
+                    >
+                      <Ionicons name="close-circle" size={16} color="#aaa" />
+                    </Pressable>
+                  ) : (
+                    <Ionicons name="chevron-down" size={16} color="#888" />
+                  )}
+                </View>
+              </Pressable>
+
+              {/* Course picker modal */}
+              <Modal
+                visible={groupOpen}
+                animationType="slide"
+                presentationStyle="pageSheet"
+                onRequestClose={() => setGroupOpen(false)}
+              >
+                <SafeAreaView style={styles.modal}>
+                  <View style={styles.modalHeader}>
+                    <TouchableOpacity onPress={() => setGroupOpen(false)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                      <Text style={styles.cancelText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.modalTitle}>Select Course</Text>
+                    <View style={{ width: 50 }} />
+                  </View>
+                  <FlatList
+                    data={groupLabels}
+                    keyExtractor={(g) => g}
+                    keyboardShouldPersistTaps="handled"
+                    renderItem={({ item: grp }) => {
+                      const checked = grp === activeGroup;
+                      return (
+                        <Pressable
+                          onPress={() => { setActiveGroup(grp); setGroupOpen(false); }}
+                          android_ripple={{ color: Colors.lightPink }}
+                          style={({ pressed }) => [
+                            styles.optionRow,
+                            pressed && { backgroundColor: '#fafafa' },
+                          ]}
+                        >
+                          <View style={[styles.radio, checked && styles.radioChecked]}>
+                            {checked && <View style={styles.radioDot} />}
+                          </View>
+                          <Text style={[styles.optionText, checked && styles.optionTextChecked]}>
+                            {grp}
+                          </Text>
+                        </Pressable>
+                      );
+                    }}
+                  />
+                </SafeAreaView>
+              </Modal>
+            </View>
+          )}
+
           {/* Options list */}
-          {filteredOptions.length === 0 ? (
+          {groups && !activeGroup ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>Select a course above to see students</Text>
+            </View>
+          ) : filteredOptions.length === 0 ? (
             <View style={styles.empty}>
               <Text style={styles.emptyText}>No options found</Text>
             </View>
@@ -223,6 +320,26 @@ const styles = StyleSheet.create({
   optionText: { fontSize: 14, color: '#333', flex: 1 },
   optionTextChecked: { fontWeight: '600', color: '#1A1A1A' },
 
+  groupRow: {
+    marginHorizontal: 10,
+    marginBottom: 4,
+    marginTop: 2,
+  },
+  groupTrigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    minHeight: 44,
+  },
+  groupTriggerText: { flex: 1, fontSize: 14, color: '#222' },
+  groupPlaceholder: { color: '#bbb' },
+  groupTriggerRight: { marginLeft: 4 },
+
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 60 },
-  emptyText: { fontSize: 14, color: '#aaa' },
+  emptyText: { fontSize: 14, color: '#aaa', textAlign: 'center', paddingHorizontal: 24 },
 });
