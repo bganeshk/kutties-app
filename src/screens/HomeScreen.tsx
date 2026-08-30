@@ -127,20 +127,24 @@ export default function HomeScreen({ navigation }: Props) {
               style={styles.card}
               activeOpacity={0.85}
               onPress={() => {
-                if (!hasChildren && screenName !== 'Landing') {
-                  const caption = String(item.Dashcaption ?? '');
-                  navigation?.navigate(screenName, {
+                const caption = String(item.Dashcaption ?? '');
+                // Try appviewsheet first, fall back to caption if unresolved
+                let resolvedScreen = screenName;
+                if (resolvedScreen === 'Landing') resolvedScreen = resolveScreen(caption);
+
+                if (hasChildren) {
+                  navigation?.navigate('SubItems', {
+                    parentview: caption,
+                    title: caption || String(item.id),
+                  });
+                } else if (resolvedScreen !== 'Landing') {
+                  navigation?.navigate(resolvedScreen, {
                     headerTitle: caption,
                     ...(isStaffAttendanceCaption(caption) && { staffMode: true }),
                   });
-                } else if (hasChildren) {
-                  navigation?.navigate('SubItems', {
-                    parentview: String(item.Dashcaption ?? ''),
-                    title: String(item.Dashcaption ?? item.id),
-                  });
                 } else {
                   navigation?.navigate('Landing', {
-                    title: String(item.Dashcaption ?? item.id),
+                    title: caption || String(item.id),
                     appviewsheet,
                   });
                 }

@@ -23,6 +23,8 @@ import { HandbookList, HandbookForm } from '../components/handbook';
 import { FeedbackList, FeedbackForm } from '../components/feedback';
 import TeacherAttendanceLogDetailsScreen from '../screens/TeacherAttendanceLogDetailsScreen';
 import { TeacherAttendanceLogList, TeacherAttendanceLogForm } from '../components/teacherattendancelog';
+import StudentHealthDetailsScreen from '../screens/StudentHealthDetailsScreen';
+import { StudentHealthList, StudentHealthForm } from '../components/studenthealth';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -64,6 +66,9 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="TeacherAttendanceLogList"    component={TeacherAttendanceLogList} />
         <Stack.Screen name="TeacherAttendanceLogDetails" component={TeacherAttendanceLogDetailsScreen} />
         <Stack.Screen name="TeacherAttendanceLogForm"    component={TeacherAttendanceLogForm} />
+        <Stack.Screen name="StudentHealthList"           component={StudentHealthList} />
+        <Stack.Screen name="StudentHealthDetails"        component={StudentHealthDetailsScreen} />
+        <Stack.Screen name="StudentHealthForm"           component={StudentHealthForm} />
       </Stack.Navigator>
     );
   };
@@ -97,18 +102,6 @@ function CoursesTabStack() {
 
 const TeachersStack = makeTabStack('Teachers', 'Teachers');
 const StudentsStack = makeTabStack('Students', 'Students');
-
-// ── Dedicated Handbook tab ────────────────────────────────────────────────
-function HandbookTabStack() {
-  const Stack = createNativeStackNavigator<HomeStackParamList>();
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="HandbookList"    component={HandbookList} />
-      <Stack.Screen name="HandbookDetails" component={HandbookDetailsScreen} />
-      <Stack.Screen name="HandbookForm"    component={HandbookForm} />
-    </Stack.Navigator>
-  );
-}
 
 export default function TabNavigator() {
   return (
@@ -164,15 +157,6 @@ export default function TabNavigator() {
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="people" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Handbook"
-        component={HandbookTabStack}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book" size={size} color={color} />
           ),
         }}
       />

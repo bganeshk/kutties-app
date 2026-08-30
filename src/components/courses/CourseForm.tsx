@@ -69,7 +69,11 @@ export default function CourseForm({ navigation, route }: Props) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const teachers = await teacherRepository.findActive();
+      let teachers = await teacherRepository.findActive();
+      if (teachers.length === 0) {
+        await syncSheet(SHEETS.STAFF);
+        teachers = await teacherRepository.findActive();
+      }
       if (!cancelled) {
         const labelToEmail = new Map<string, string>();
         const emailToLabel = new Map<string, string>();

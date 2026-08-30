@@ -139,31 +139,40 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
         </View>
 
         {/* ── Quick actions ─────────────────────────────────────────────────── */}
-        {(item.phone || item.email) && (
-          <View style={KStyles.detailsQuickActions}>
-
-            {item.phone && (
-              <TouchableOpacity
-                style={KStyles.detailsQaBtn}
-                onPress={() => Linking.openURL(`whatsapp://send?phone=${item.phone}`)}
-                activeOpacity={0.75}
-              >
-                <Ionicons name="logo-whatsapp" size={20} color="#2E7D32" />
-                <Text style={KStyles.detailsQaBtnText}>WhatsApp</Text>
-              </TouchableOpacity>
-            )}
-            {item.email && (
-              <TouchableOpacity
-                style={KStyles.detailsQaBtn}
-                onPress={() => Linking.openURL(`mailto:${item.email}`)}
-                activeOpacity={0.75}
-              >
-                <Ionicons name="mail" size={20} color={PRIMARY} />
-                <Text style={KStyles.detailsQaBtnText}>Email</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
+        <View style={KStyles.detailsQuickActions}>
+          {item.phone && (
+            <TouchableOpacity
+              style={KStyles.detailsQaBtn}
+              onPress={() => Linking.openURL(`whatsapp://send?phone=${item.phone}`)}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="logo-whatsapp" size={20} color="#2E7D32" />
+              <Text style={KStyles.detailsQaBtnText}>WhatsApp</Text>
+            </TouchableOpacity>
+          )}
+          {item.email && (
+            <TouchableOpacity
+              style={KStyles.detailsQaBtn}
+              onPress={() => Linking.openURL(`mailto:${item.email}`)}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="mail" size={20} color={PRIMARY} />
+              <Text style={KStyles.detailsQaBtnText}>Email</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            onPress={() => navigation.navigate('StudentHealthList', {
+              studentEmail: item.email,
+              studentName:  item.fullName,
+              headerTitle:  `${item.fullName ?? 'Student'}'s Health`,
+            })}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="medkit-outline" size={20} color="#00796B" />
+            <Text style={KStyles.detailsQaBtnText}>Health</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* ── Contact ───────────────────────────────────────────────────────── */}
         <Section title="Contact" />

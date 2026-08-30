@@ -9,4 +9,5 @@ export { CourseTimeTableRepository, courseTimeTableRepository } from './courseti
 export { HandbookRepository, handbookRepository } from './handbook.repository';
 export { FeedbackRepository, feedbackRepository } from './feedback.repository';
 export { TeacherAttendanceLogRepository, teacherAttendanceLogRepository } from './teacherattendancelog.repository';
+export { StudentHealthRepository, studentHealthRepository } from './studenthealth.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

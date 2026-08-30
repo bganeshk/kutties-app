@@ -7,6 +7,7 @@ import { toCourseTimeTableModel } from './coursetimetable.model';
 import { toHandbookModel } from './handbook.model';
 import { toFeedbackModel } from './feedback.model';
 import { toTeacherAttendanceLogModel } from './teacherattendancelog.model';
+import { toStudentHealthModel } from './studenthealth.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -33,8 +34,9 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   coursetimetbl:   (raw) => toCourseTimeTableModel(raw)                 as unknown as Record<string, unknown>,
   Handbook:  (raw) => toHandbookModel(raw) as unknown as Record<string, unknown>,
   feedback:           (raw) => toFeedbackModel(raw)                as unknown as Record<string, unknown>,
-  TeacherAttendanceLog: (raw) => toTeacherAttendanceLogModel(raw)  as unknown as Record<string, unknown>,
-  reftbl:                    (raw) => toReftblRow(raw),
+  StaffAttendanceLog:      (raw) => toTeacherAttendanceLogModel(raw)  as unknown as Record<string, unknown>,
+  student_health_report:   (raw) => toStudentHealthModel(raw)         as unknown as Record<string, unknown>,
+  reftbl:                  (raw) => toReftblRow(raw),
 };
 
 /**
@@ -60,6 +62,20 @@ export function registerModel(sheet: string, transformer: RowTransformer): void 
 // keys used internally.
 
 const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
+  student_health_report: {
+    regNumber:         'Student',
+    checkupDate:       'CheckupDate',
+    height:            'height',
+    weight:            'weight',
+    prescription:      'Prescription',
+    bloodGroup:        'bloodGroup',
+    allergies:         'allergies',
+    medicalConditions: 'medicalConditions',
+    medications:       'medications',
+    remarks:           'remarks',
+    revision:          'revision',
+    lastmodified:      'lastmodified',
+  },
   coursetimetbl: {
     courseDivision: 'CourseDivision',
     day:            'Day',

@@ -106,7 +106,12 @@ export default function CourseTimeTableForm({ navigation, route }: Props) {
   // ── Load teacher options from teachers table ──────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    teacherRepository.findActive().then((teachers) => {
+    (async () => {
+      let teachers = await teacherRepository.findActive();
+      if (teachers.length === 0) {
+        await syncSheet(SHEETS.STAFF);
+        teachers = await teacherRepository.findActive();
+      }
       if (cancelled) return;
       const labelToEmail = new Map<string, string>();
       const emailToLabel = new Map<string, string>();
@@ -124,7 +129,7 @@ export default function CourseTimeTableForm({ navigation, route }: Props) {
       setTeacherEmailToLabel(emailToLabel);
       setTeacherOptions(labels);
       setLoadingTeachers(false);
-    });
+    })();
     return () => { cancelled = true; };
   }, []);
 

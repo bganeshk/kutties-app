@@ -10,7 +10,8 @@ export const SHEETS = {
   REFTBL:            'reftbl',
   HANDBOOK:          'handbook',
   FEEDBACK:          'feedback',
-  TEACATTELOG:        'StaffAttendanceLog',       
+  TEACATTELOG:          'StaffAttendanceLog',
+  STUDENT_HEALTH:       'student_health_report',
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

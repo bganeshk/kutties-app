@@ -118,21 +118,23 @@ export default function SubItemScreen({ navigation, route }: Props) {
                     title: String(item.Dashcaption ?? item.id),
                   });
                 } else {
-                   const appviewsheet = String(item.appviewsheet ?? '');
-                   const screenName = resolveScreen(appviewsheet);
-                   console.log(`[SubItems] caption="${item.Dashcaption}" appviewsheet="${appviewsheet}" → screen="${screenName}"`);
-                   if (screenName === 'Landing') {
-                   navigation.navigate('Landing', {
-                     title: String(item.Dashcaption ?? item.id),
-                     appviewsheet,
-                   });
-                 } else {
-                   const caption = String(item.Dashcaption ?? '');
-                   navigation.navigate(screenName, {
-                     headerTitle: caption,
-                     ...(isStaffAttendanceCaption(caption) && { staffMode: true }),
-                   });
-                 }
+                  const appviewsheet = String(item.appviewsheet ?? '');
+                  const caption = String(item.Dashcaption ?? '');
+                  // Try appviewsheet first, fall back to caption if unresolved
+                  let screenName = resolveScreen(appviewsheet);
+                  if (screenName === 'Landing') screenName = resolveScreen(caption);
+                  console.log(`[SubItems] caption="${caption}" appviewsheet="${appviewsheet}" → screen="${screenName}"`);
+                  if (screenName === 'Landing') {
+                    navigation.navigate('Landing', {
+                      title: caption || String(item.id),
+                      appviewsheet,
+                    });
+                  } else {
+                    navigation.navigate(screenName, {
+                      headerTitle: caption,
+                      ...(isStaffAttendanceCaption(caption) && { staffMode: true }),
+                    });
+                  }
                 }
               }}
             >

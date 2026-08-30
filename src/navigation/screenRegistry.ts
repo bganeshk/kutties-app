@@ -32,6 +32,11 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Staff Attendance View':           'TeacherAttendanceLogList',
   'Employee Attendance':             'TeacherAttendanceLogList',
   'Employee Attendance View':        'TeacherAttendanceLogList',
+  'Student Health':                  'StudentHealthList',
+  'Student Health View':             'StudentHealthList',
+  'Health Data':                     'StudentHealthList',
+  'Health Data View':                'StudentHealthList',
+  'Student Health Data':             'StudentHealthList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
