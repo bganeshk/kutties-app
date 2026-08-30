@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { SHEETS } from '../utils/constants';
 import { handbookRepository } from '../db/repositories';
 import { syncSheet } from '../sync/sync.service';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
@@ -29,7 +30,7 @@ export default function HandbookDetailsScreen({ navigation, route }: Props) {
 
   const handleDelete = useCallback(() => {
     handbookRepository.delete(item.id).then(() => {
-      syncSheet('Handbook').catch(() => {});
+      syncSheet(SHEETS.HANDBOOK).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);

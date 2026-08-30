@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { SHEETS } from '../utils/constants';
 import { courseRepository, teacherRepository, studentRepository } from '../db/repositories';
 import type { CourseModel } from '../db/models/course.model';
 import type { TeacherModel } from '../db/models/teacher.model';
@@ -69,7 +70,7 @@ export default function CourseDetailsScreen({ navigation, route }: Props) {
 
   const handleDelete = useCallback(() => {
     courseRepository.delete(item.id).then(() => {
-      syncSheet('courses').catch(() => {});
+      syncSheet(SHEETS.COURSES).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);

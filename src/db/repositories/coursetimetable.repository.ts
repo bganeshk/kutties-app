@@ -1,9 +1,10 @@
 import { BaseRepository } from './base.repository';
 import { CourseTimeTableModel, toCourseTimeTableModel } from '../models/coursetimetable.model';
+import { SHEETS } from '../../utils/constants';
 
 export class CourseTimeTableRepository extends BaseRepository<CourseTimeTableModel> {
   constructor() {
-    super('coursetimetbl');
+    super(SHEETS.COURSE_TIMETABLE);
   }
 
   protected fromRow(row: Record<string, unknown>): CourseTimeTableModel {

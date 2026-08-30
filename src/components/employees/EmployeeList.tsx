@@ -11,6 +11,7 @@ import type { EmployeeModel } from '../../db/models';
 import EmployeeRow from './EmployeeRow';
 import { GroupedList, GroupLevel } from '../shared';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { SHEETS } from '../../utils/constants';
 
 type Employee = EmployeeModel;
 
@@ -30,7 +31,7 @@ interface Props {
 }
 
 export default function EmployeeList({ navigation }: Props) {
-  const { syncing, sync } = useSheet('employees');
+  const { syncing, sync } = useSheet(SHEETS.EMPLOYEES);
   const synced = useRef(false);
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

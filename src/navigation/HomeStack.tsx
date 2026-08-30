@@ -12,6 +12,7 @@ import TeacherScheduleScreen from '../screens/TeacherScheduleScreen';
 import HandbookDetailsScreen from '../screens/HandbookDetailsScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { HandbookList, HandbookForm } from '../components/handbook';
+import { FeedbackList, FeedbackForm } from '../components/feedback';
 import { EmployeeList, EmployeeForm } from '../components/employees';
 import { StudentList, StudentForm } from '../components/students';
 import { CourseList, CourseForm } from '../components/courses';
@@ -22,6 +23,8 @@ import type { StudentModel } from '../db/models/student.model';
 import type { CourseModel } from '../db/models/course.model';
 import type { CourseTimeTableModel } from '../db/models/coursetimetable.model';
 import type { HandbookModel } from '../db/models/handbook.model';
+import type { FeedbackModel } from '../db/models/feedback.model';
+import FeedbackDetailsScreen from '../screens/FeedbackDetailsScreen';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -46,6 +49,9 @@ export type HomeStackParamList = {
   HandbookList: undefined;
   HandbookDetails: { item: HandbookModel };
   HandbookForm: { mode: 'add' | 'edit'; item?: HandbookModel };
+  FeedbackList: undefined;
+  FeedbackDetails: { item: FeedbackModel };
+  FeedbackForm: { mode: 'add' | 'edit'; item?: FeedbackModel };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -72,9 +78,12 @@ export default function HomeStack() {
       <Stack.Screen name="CourseTimeTableDetails" component={CourseTimeTableDetailsScreen} />
       <Stack.Screen name="CourseTimeTableForm"    component={CourseTimeTableForm} />
       <Stack.Screen name="TeacherSchedule"        component={TeacherScheduleScreen} />
-      <Stack.Screen name="HandbookList"            component={HandbookList} />
-      <Stack.Screen name="HandbookDetails"         component={HandbookDetailsScreen} />
-      <Stack.Screen name="HandbookForm"            component={HandbookForm} />
+      <Stack.Screen name="HandbookList"                    component={HandbookList} />
+      <Stack.Screen name="HandbookDetails"                 component={HandbookDetailsScreen} />
+      <Stack.Screen name="HandbookForm"                    component={HandbookForm} />
+      <Stack.Screen name="FeedbackList"    component={FeedbackList} />
+      <Stack.Screen name="FeedbackDetails" component={FeedbackDetailsScreen} />
+      <Stack.Screen name="FeedbackForm"    component={FeedbackForm} />
     </Stack.Navigator>
   );
 }

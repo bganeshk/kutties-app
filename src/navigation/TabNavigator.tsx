@@ -13,12 +13,14 @@ import CourseDetailsScreen from '../screens/CourseDetailsScreen';
 import CourseTimeTableDetailsScreen from '../screens/CourseTimeTableDetailsScreen';
 import TeacherScheduleScreen from '../screens/TeacherScheduleScreen';
 import HandbookDetailsScreen from '../screens/HandbookDetailsScreen';
+import FeedbackDetailsScreen from '../screens/FeedbackDetailsScreen';
 import { TeacherList, TeacherForm } from '../components/teachers';
 import { EmployeeList, EmployeeForm } from '../components/employees';
 import { StudentList, StudentForm } from '../components/students';
 import { CourseList, CourseForm } from '../components/courses';
 import { CourseTimeTableList, CourseTimeTableForm } from '../components/coursetimetable';
 import { HandbookList, HandbookForm } from '../components/handbook';
+import { FeedbackList, FeedbackForm } from '../components/feedback';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -54,6 +56,9 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="HandbookList"        component={HandbookList} />
         <Stack.Screen name="HandbookDetails"     component={HandbookDetailsScreen} />
         <Stack.Screen name="HandbookForm"        component={HandbookForm} />
+        <Stack.Screen name="FeedbackList"        component={FeedbackList} />
+        <Stack.Screen name="FeedbackDetails"     component={FeedbackDetailsScreen} />
+        <Stack.Screen name="FeedbackForm"        component={FeedbackForm} />
       </Stack.Navigator>
     );
   };

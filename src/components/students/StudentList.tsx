@@ -10,7 +10,7 @@ import { useSheet } from '../../hooks/useSheet';
 import { studentRepository } from '../../db/repositories';
 import type { StudentModel } from '../../db/models';
 import StudentRow from './StudentRow';
-import { STUDENT_STATUS_DOT, STUDENT_STATUS_BG } from '../../utils/constants';
+import { STUDENT_STATUS_DOT, STUDENT_STATUS_BG, SHEETS } from '../../utils/constants';
 import { GroupedList, GroupLevel } from '../shared';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 
@@ -38,7 +38,7 @@ interface Props {
 }
 
 export default function StudentList({ navigation, route }: Props) {
-  const { syncing, sync } = useSheet('students');
+  const { syncing, sync } = useSheet(SHEETS.STUDENTS);
   const synced = useRef(false);
   const [search, setSearch] = useState(route?.params?.initialSearch ?? '');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

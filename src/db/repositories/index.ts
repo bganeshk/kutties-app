@@ -7,4 +7,5 @@ export { ProductRepository, productRepository } from './product.repository';
 export { CourseRepository, courseRepository } from './course.repository';
 export { CourseTimeTableRepository, courseTimeTableRepository } from './coursetimetable.repository';
 export { HandbookRepository, handbookRepository } from './handbook.repository';
+export { FeedbackRepository, feedbackRepository } from './feedback.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

@@ -6,9 +6,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSheet } from '../../hooks/useSheet';
-import { handbookRepository } from '../../db/repositories';
-import type { HandbookModel } from '../../db/models/handbook.model';
-import HandbookRow from './HandbookRow';
+import { feedbackRepository } from '../../db/repositories';
+import type { FeedbackModel } from '../../db/models/feedback.model';
+import FeedbackRow from './FeedbackRow';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 import { SHEETS } from '../../utils/constants';
 
@@ -16,23 +16,22 @@ const PRIMARY = Colors.primary;
 
 interface Props {
   navigation: any;
-  // route may or may not be present depending on which stack renders this
   route?: any;
 }
 
-export default function HandbookList({ navigation, route }: Props) {
-  // Sheet name must match the Excel tab exactly — capital H
-  const { syncing, sync } = useSheet(SHEETS.HANDBOOK);
+export default function FeedbackList({ navigation, route }: Props) {
+  const { syncing, sync } = useSheet(SHEETS.FEEDBACK);
   const synced = useRef(false);
   const [search, setSearch] = useState('');
-  const [items, setItems] = useState<HandbookModel[]>([]);
+  const [items, setItems] = useState<FeedbackModel[]>([]);
 
   const loadItems = useCallback(async () => {
+ 
     const results = search.trim()
-      ? await handbookRepository.search(search)
-      : await handbookRepository.findAll();
-    // Keep display order by numeric id
-    setItems(results.sort((a, b) => Number(a.id) - Number(b.id)));
+      ? await feedbackRepository.search(search)
+      : await feedbackRepository.findAll();
+    console.log(`[FeedbackList] loadItems → ${results.length} items`);
+    setItems(results);
   }, [search]);
 
   useEffect(() => {
@@ -52,15 +51,13 @@ export default function HandbookList({ navigation, route }: Props) {
     }
   }, []);
 
-  // Only show a back arrow when there is a screen to go back to
-  // (i.e. navigated from HomeStack, not opened as a tab root)
   const canGoBack = navigation.canGoBack();
 
   const renderItem = useCallback(
-    ({ item }: { item: HandbookModel }) => (
-      <HandbookRow
+    ({ item }: { item: FeedbackModel }) => (
+      <FeedbackRow
         item={item}
-        onPress={(h) => navigation.navigate('HandbookDetails', { item: h })}
+        onPress={(f) => navigation.navigate('FeedbackDetails', { item: f })}
       />
     ),
     [navigation],
@@ -78,9 +75,9 @@ export default function HandbookList({ navigation, route }: Props) {
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
         ) : (
-          <Ionicons name="book" size={24} color="#fff" />
+          <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
         )}
-        <Text style={KStyles.headerTitle}>Handbook</Text>
+        <Text style={KStyles.headerTitle}>Feedback</Text>
         <TouchableOpacity onPress={() => sync()} style={KStyles.headerIcon}>
           {syncing ? (
             <ActivityIndicator size="small" color="#fff" />
@@ -95,7 +92,7 @@ export default function HandbookList({ navigation, route }: Props) {
         <Ionicons name="search" size={18} color="#999" style={KStyles.searchIcon} />
         <TextInput
           style={KStyles.searchInput}
-          placeholder="Search handbook entries…"
+          placeholder="Search feedback…"
           placeholderTextColor="#bbb"
           value={search}
           onChangeText={setSearch}
@@ -114,13 +111,13 @@ export default function HandbookList({ navigation, route }: Props) {
         </View>
       ) : items.length === 0 ? (
         <View style={styles.center}>
-          <Ionicons name="book-outline" size={48} color="#ccc" />
-          <Text style={KStyles.emptyText}>No handbook entries found</Text>
+          <Ionicons name="chatbubble-ellipses-outline" size={48} color="#ccc" />
+          <Text style={KStyles.emptyText}>No feedback entries found</Text>
         </View>
       ) : (
         <FlatList
           data={items}
-          keyExtractor={(h) => h.id}
+          keyExtractor={(f) => f.id}
           renderItem={renderItem}
           contentContainerStyle={{ paddingBottom: 80 }}
         />
@@ -130,7 +127,7 @@ export default function HandbookList({ navigation, route }: Props) {
       <TouchableOpacity
         style={KStyles.fab}
         activeOpacity={0.85}
-        onPress={() => navigation.navigate('HandbookForm', { mode: 'add' })}
+        onPress={() => navigation.navigate('FeedbackForm', { mode: 'add' })}
       >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>

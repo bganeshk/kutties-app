@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { SHEETS } from '../utils/constants';
 import { employeeRepository } from '../db/repositories';
 import type { EmployeeModel } from '../db/models/employee.model';
 import { syncSheet } from '../sync/sync.service';
@@ -58,7 +59,7 @@ export default function EmployeeDetailsScreen({ navigation, route }: Props) {
 
   const handleDelete = useCallback(() => {
     employeeRepository.delete(item.id).then(() => {
-      syncSheet('employees').catch(() => {});
+      syncSheet(SHEETS.EMPLOYEES).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);

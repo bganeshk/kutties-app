@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 import { studentRepository, courseRepository } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
+import { SHEETS } from '../../utils/constants';
 import type { StudentModel } from '../../db/models/student.model';
 import Snackbar, { useSnackbar } from '../shared/Snackbar';
 import AuditRow from '../shared/AuditRow';
@@ -109,7 +110,7 @@ export default function StudentForm({ navigation, route }: Props) {
         idphoto:      idphoto || undefined,
       };
       await studentRepository.save(student);
-      syncSheet('students').catch(() => {});
+      syncSheet(SHEETS.STUDENTS).catch(() => {});
       snackbar.show(isEdit ? 'Changes saved' : 'Student added', 'success');
       navigation.goBack();
     } catch (e) {
@@ -123,7 +124,7 @@ export default function StudentForm({ navigation, route }: Props) {
     setSaving(true);
     studentRepository.delete(item!.id)
       .then(() => {
-        syncSheet('students').catch(() => {});
+        syncSheet(SHEETS.STUDENTS).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {

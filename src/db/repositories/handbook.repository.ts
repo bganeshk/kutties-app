@@ -1,10 +1,11 @@
 import { BaseRepository } from './base.repository';
 import { HandbookModel, toHandbookModel } from '../models/handbook.model';
+import { SHEETS } from '../../utils/constants';
 
 export class HandbookRepository extends BaseRepository<HandbookModel> {
   constructor() {
-    // Sheet name matches the Excel tab exactly (capital H)
-    super('Handbook');
+    // Sheet name matches the Excel tab exactly (capital H) — see SHEETS.HANDBOOK
+    super(SHEETS.HANDBOOK);
   }
 
   protected fromRow(row: Record<string, unknown>): HandbookModel {

@@ -6,6 +6,7 @@ import { toProductModel } from './product.model';
 import { toCourseModel } from './course.model';
 import { toCourseTimeTableModel } from './coursetimetable.model';
 import { toHandbookModel } from './handbook.model';
+import { toFeedbackModel } from './feedback.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -31,8 +32,9 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   products:  (raw) => stripComputed(toProductModel(raw)   as unknown as Record<string, unknown>),
   courses:         (raw) => stripComputed(toCourseModel(raw)            as unknown as Record<string, unknown>),
   coursetimetbl:   (raw) => toCourseTimeTableModel(raw)                 as unknown as Record<string, unknown>,
-  Handbook:        (raw) => toHandbookModel(raw) as unknown as Record<string, unknown>,
-  reftbl:          (raw) => toReftblRow(raw),
+  Handbook:  (raw) => toHandbookModel(raw) as unknown as Record<string, unknown>,
+  feedback:  (raw) => toFeedbackModel(raw) as unknown as Record<string, unknown>,
+  reftbl:                    (raw) => toReftblRow(raw),
 };
 
 /**

@@ -8,7 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
-import { STUDENT_STATUS_COLOR, STUDENT_STATUS_BG, STUDENT_STATUS_BORDER } from '../utils/constants';
+import { STUDENT_STATUS_COLOR, STUDENT_STATUS_BG, STUDENT_STATUS_BORDER, SHEETS } from '../utils/constants';
 import { studentRepository, courseRepository, teacherRepository } from '../db/repositories';
 import type { StudentModel } from '../db/models/student.model';
 import type { TeacherModel } from '../db/models/teacher.model';
@@ -83,7 +83,7 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
 
   const handleDelete = useCallback(() => {
     studentRepository.delete(item.id).then(() => {
-      syncSheet('students').catch(() => {});
+      syncSheet(SHEETS.STUDENTS).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);

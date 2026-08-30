@@ -17,12 +17,20 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Teacher Schedule View':     'TeacherSchedule',
   'TeacherSchedule View':      'TeacherSchedule',
   'Teacher Schedule':          'TeacherSchedule',
-  'Handbook View':             'HandbookList',
-  'Handbook':                  'HandbookList',
-  'Teachers Handbook':         'HandbookList',
-  'Teacher Handbook View':     'HandbookList',
+  'Handbook View':                      'HandbookList',
+  'Handbook':                           'HandbookList',
+  'Teachers Handbook':                  'HandbookList',
+  'Teacher Handbook View':              'HandbookList',
+  'Feedback':              'FeedbackList',
+  'Feedback View':         'FeedbackList',
 };
 
+// Build a lowercase lookup for case-insensitive fallback
+const APP_SCREEN_MAP_LC: Record<string, string> = Object.fromEntries(
+  Object.entries(APP_SCREEN_MAP).map(([k, v]) => [k.toLowerCase(), v]),
+);
+
 export function resolveScreen(appviewsheet: string): string {
-  return APP_SCREEN_MAP[appviewsheet.trim()] ?? 'Landing';
+  const trimmed = appviewsheet.trim();
+  return APP_SCREEN_MAP[trimmed] ?? APP_SCREEN_MAP_LC[trimmed.toLowerCase()] ?? 'Landing';
 }

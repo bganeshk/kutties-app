@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { SHEETS } from '../utils/constants';
 import { courseTimeTableRepository, teacherRepository } from '../db/repositories';
 import type { CourseTimeTableModel } from '../db/models/coursetimetable.model';
 import type { TeacherModel } from '../db/models/teacher.model';
@@ -51,7 +52,7 @@ export default function CourseTimeTableDetailsScreen({ navigation, route }: Prop
 
   const handleDelete = useCallback(() => {
     courseTimeTableRepository.delete(item.id).then(() => {
-      syncSheet('coursetimetbl').catch(() => {});
+      syncSheet(SHEETS.COURSE_TIMETABLE).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);

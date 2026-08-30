@@ -7,6 +7,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { SHEETS } from '../../utils/constants';
 import { teacherRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
 import type { TeacherModel } from '../../db/models/teacher.model';
@@ -128,7 +129,7 @@ export default function TeacherForm({ navigation, route }: Props) {
 
       await teacherRepository.save(teacher);
 
-      syncSheet('teachers').catch(() => {/* silent — will retry on next sync */});
+      syncSheet(SHEETS.TEACHERS).catch(() => {/* silent — will retry on next sync */});
 
       snackbar.show(isRecordEdit ? 'Changes saved' : 'Teacher added', 'success');
       navigation.goBack();
@@ -145,7 +146,7 @@ export default function TeacherForm({ navigation, route }: Props) {
     teacherRepository.delete(item!.id)
       .then(() => {
         console.log('[Delete] success, going back');
-        syncSheet('teachers').catch(() => {});
+        syncSheet(SHEETS.TEACHERS).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {

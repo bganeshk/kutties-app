@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSheet } from '../../hooks/useSheet';
+import { SHEETS } from '../../utils/constants';
 import { courseRepository } from '../../db/repositories';
 import type { CourseModel } from '../../db/models';
 import CourseRow from './CourseRow';
@@ -20,7 +21,7 @@ interface Props {
 }
 
 export default function CourseList({ navigation }: Props) {
-  const { syncing, sync } = useSheet('courses');
+  const { syncing, sync } = useSheet(SHEETS.COURSES);
   const synced = useRef(false);
   const [search, setSearch]   = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

@@ -9,6 +9,7 @@ import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
 import { resolveScreen } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { SHEETS } from '../utils/constants';
 
 const PRIMARY = Colors.primary;
 const { width } = Dimensions.get('window');
@@ -54,7 +55,7 @@ function CardIcon({ caption, value }: CardIconProps) {
 interface Props { navigation?: any }
 
 export default function HomeScreen({ navigation }: Props) {
-  const { rows, syncing, error, sync } = useSheet('dashboard');
+  const { rows, syncing, error, sync } = useSheet(SHEETS.DASHBOARD);
   const synced = useRef(false);
 
   // Sync once on first mount to populate local store

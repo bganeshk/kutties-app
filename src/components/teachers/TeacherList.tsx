@@ -11,6 +11,7 @@ import type { TeacherModel } from '../../db/models';
 import TeacherRow from './TeacherRow';
 import { GroupedList, GroupLevel } from '../shared';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { SHEETS } from '../../utils/constants';
 type Teacher = TeacherModel;
 
 const PRIMARY = Colors.primary;
@@ -29,7 +30,7 @@ interface Props {
 }
 
 export default function TeacherList({ navigation }: Props) {
-  const { syncing, sync } = useSheet('teachers');
+  const { syncing, sync } = useSheet(SHEETS.TEACHERS);
   const synced = useRef(false);
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

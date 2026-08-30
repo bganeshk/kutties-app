@@ -9,6 +9,7 @@ import { useSheet } from '../../hooks/useSheet';
 import { courseTimeTableRepository } from '../../db/repositories';
 import type { CourseTimeTableModel } from '../../db/models/coursetimetable.model';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { SHEETS } from '../../utils/constants';
 
 const PRIMARY = Colors.primary;
 
@@ -142,7 +143,7 @@ interface Props {
 }
 
 export default function CourseTimeTableList({ navigation, route }: Props) {
-  const { syncing, sync } = useSheet('coursetimetbl');
+  const { syncing, sync } = useSheet(SHEETS.COURSE_TIMETABLE);
   const synced = useRef(false);
   const [all, setAll] = useState<CourseTimeTableModel[]>([]);
   const [filterDay,     setFilterDay]     = useState('');

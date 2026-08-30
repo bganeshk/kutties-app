@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 import { employeeRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
+import { SHEETS } from '../../utils/constants';
 import type { EmployeeModel } from '../../db/models/employee.model';
 import Snackbar, { useSnackbar } from '../shared/Snackbar';
 import AuditRow from '../shared/AuditRow';
@@ -126,7 +127,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
 
       await employeeRepository.save(employee);
 
-      syncSheet('employees').catch(() => {/* silent */});
+      syncSheet(SHEETS.EMPLOYEES).catch(() => {/* silent */});
 
       snackbar.show(isRecordEdit ? 'Changes saved' : 'Employee added', 'success');
       navigation.goBack();
@@ -141,7 +142,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
     setSaving(true);
     employeeRepository.delete(item!.id)
       .then(() => {
-        syncSheet('employees').catch(() => {});
+        syncSheet(SHEETS.EMPLOYEES).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {

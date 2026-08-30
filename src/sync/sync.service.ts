@@ -13,6 +13,8 @@ export type SyncResult = {
 async function pullSheet(sheet: string): Promise<number> {
   const db = getDb();
   const rows = await ExcelApi.listRows(sheet);
+  console.log(`[pullSheet] sheet="${sheet}" rows from API: ${rows.length}`);
+  if (rows.length > 0) console.log(`[pullSheet] first row keys:`, Object.keys(rows[0]));
   const now = Date.now();
 
   for (const raw of rows) {

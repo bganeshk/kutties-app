@@ -1,9 +1,10 @@
 import { BaseRepository } from './base.repository';
 import { CourseModel, toCourseModel, parseCourseSubjects } from '../models/course.model';
+import { SHEETS } from '../../utils/constants';
 
 export class CourseRepository extends BaseRepository<CourseModel> {
   constructor() {
-    super('courses');
+    super(SHEETS.COURSES);
   }
 
   protected fromRow(row: Record<string, unknown>): CourseModel {

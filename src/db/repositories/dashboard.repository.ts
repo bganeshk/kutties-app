@@ -1,9 +1,10 @@
 import { BaseRepository } from './base.repository';
 import { DashboardModel, toDashboardModel } from '../models/dashboard.model';
+import { SHEETS } from '../../utils/constants';
 
 export class DashboardRepository extends BaseRepository<DashboardModel> {
   constructor() {
-    super('dashboard');
+    super(SHEETS.DASHBOARD);
   }
 
   protected fromRow(row: Record<string, unknown>): DashboardModel {

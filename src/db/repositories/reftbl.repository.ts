@@ -1,4 +1,5 @@
 import { LocalDb, syncSheet } from '../../sync/sync.service';
+import { SHEETS } from '../../utils/constants';
 
 /**
  * reftbl sheet structure (actual):
@@ -21,7 +22,7 @@ import { LocalDb, syncSheet } from '../../sync/sync.service';
  *   getRefOptions('subject')  →  same result (matches "subject_ref")
  */
 export async function getRefOptions(ref: string): Promise<string[]> {
-  const rows = await LocalDb.getRows('reftbl');
+  const rows = await LocalDb.getRows(SHEETS.REFTBL);
 
   if (rows.length === 0) {
     console.warn('[reftbl] local table empty — calling ensureReftbl() first?');
@@ -53,5 +54,5 @@ export async function getRefOptions(ref: string): Promise<string[]> {
  * Always re-syncs so stale/empty caches are refreshed.
  */
 export async function ensureReftbl(): Promise<void> {
-  await syncSheet('reftbl');
+  await syncSheet(SHEETS.REFTBL);
 }

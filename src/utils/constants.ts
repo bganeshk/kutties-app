@@ -1,3 +1,18 @@
+// ── Sheet names ───────────────────────────────────────────────────────────────
+
+export const SHEETS = {
+  TEACHERS:          'teachers',
+  EMPLOYEES:         'employees',
+  STUDENTS:          'students',
+  COURSES:           'courses',
+  COURSE_TIMETABLE:  'coursetimetbl',
+  DASHBOARD:         'dashboard',
+  PRODUCTS:          'products',
+  REFTBL:            'reftbl',
+  HANDBOOK:          'handbook',
+  FEEDBACK:          'feedback',
+} as const;
+
 // ── Calendar ──────────────────────────────────────────────────────────────────
 
 export const MONTHS = [

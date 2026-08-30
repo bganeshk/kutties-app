@@ -11,6 +11,7 @@ import type { TeacherModel } from '../db/models/teacher.model';
 import { useSheet } from '../hooks/useSheet';
 import GroupedList, { type GroupLevel } from '../components/shared/GroupedList';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { SHEETS } from '../utils/constants';
 
 const PRIMARY = Colors.primary;
 
@@ -128,7 +129,7 @@ export default function TeacherScheduleScreen({ navigation, route }: Props) {
   const teacherEmail = route?.params?.teacherEmail?.trim();
   const teacherName  = route?.params?.teacherName?.trim();
 
-  const { syncing, sync } = useSheet('coursetimetbl');
+  const { syncing, sync } = useSheet(SHEETS.COURSE_TIMETABLE);
   const synced = useRef(false);
 
   const [all, setAll]               = useState<CourseTimeTableModel[]>([]);

@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { SHEETS } from '../../utils/constants';
 import {
   courseTimeTableRepository,
   teacherRepository,
@@ -157,7 +158,7 @@ export default function CourseTimeTableForm({ navigation, route }: Props) {
         notes:          notes.trim()     || undefined,
       };
       await courseTimeTableRepository.save(entry);
-      syncSheet('coursetimetbl').catch(() => {});
+      syncSheet(SHEETS.COURSE_TIMETABLE).catch(() => {});
       snackbar.show(isEdit ? 'Changes saved' : 'Entry added', 'success');
       navigation.goBack();
     } catch (e) {
@@ -171,7 +172,7 @@ export default function CourseTimeTableForm({ navigation, route }: Props) {
     setSaving(true);
     courseTimeTableRepository.delete(item!.id)
       .then(() => {
-        syncSheet('coursetimetbl').catch(() => {});
+        syncSheet(SHEETS.COURSE_TIMETABLE).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {

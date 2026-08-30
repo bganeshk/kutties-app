@@ -9,6 +9,7 @@ import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
 import { resolveScreen } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { SHEETS } from '../utils/constants';
 
 const PRIMARY = Colors.primary;
 const { width } = Dimensions.get('window');
@@ -57,7 +58,7 @@ interface Props {
 
 export default function SubItemScreen({ navigation, route }: Props) {
   const { parentview, title } = route.params;
-  const { rows, syncing, sync } = useSheet('dashboard');
+  const { rows, syncing, sync } = useSheet(SHEETS.DASHBOARD);
   const synced = useRef(false);
 
   useEffect(() => {
@@ -117,9 +118,10 @@ export default function SubItemScreen({ navigation, route }: Props) {
                     title: String(item.Dashcaption ?? item.id),
                   });
                 } else {
-                  const appviewsheet = String(item.appviewsheet ?? '');
-                  const screenName = resolveScreen(appviewsheet);
-                  if (screenName === 'Landing') {
+                   const appviewsheet = String(item.appviewsheet ?? '');
+                   const screenName = resolveScreen(appviewsheet);
+                   console.log(`[SubItems] caption="${item.Dashcaption}" appviewsheet="${appviewsheet}" → screen="${screenName}"`);
+                   if (screenName === 'Landing') {
                     navigation.navigate('Landing', {
                       title: String(item.Dashcaption ?? item.id),
                       appviewsheet,

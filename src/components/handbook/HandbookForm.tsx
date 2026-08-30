@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 import { handbookRepository } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
+import { SHEETS } from '../../utils/constants';
 import type { HandbookModel } from '../../db/models/handbook.model';
 import Snackbar, { useSnackbar } from '../shared/Snackbar';
 import ConfirmDialog from '../shared/ConfirmDialog';
@@ -49,7 +50,7 @@ export default function HandbookForm({ navigation, route }: Props) {
         remarks: remarks.trim() || undefined,
       };
       await handbookRepository.save(entry);
-      syncSheet('Handbook').catch(() => {/* silent */});
+      syncSheet(SHEETS.HANDBOOK).catch(() => {/* silent */});
       snackbar.show(isEdit ? 'Changes saved' : 'Entry added', 'success');
       navigation.goBack();
     } catch (e) {
@@ -64,7 +65,7 @@ export default function HandbookForm({ navigation, route }: Props) {
     setSaving(true);
     handbookRepository.delete(item!.id)
       .then(() => {
-        syncSheet('Handbook').catch(() => {});
+        syncSheet(SHEETS.HANDBOOK).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {

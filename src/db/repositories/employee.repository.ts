@@ -1,9 +1,10 @@
 import { BaseRepository } from './base.repository';
 import { EmployeeModel, toEmployeeModel } from '../models/employee.model';
+import { SHEETS } from '../../utils/constants';
 
 export class EmployeeRepository extends BaseRepository<EmployeeModel> {
   constructor() {
-    super('employees');
+    super(SHEETS.EMPLOYEES);
   }
 
   protected fromRow(row: Record<string, unknown>): EmployeeModel {

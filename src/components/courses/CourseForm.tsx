@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { SHEETS } from '../../utils/constants';
 import { courseRepository, teacherRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
 import { syncSheet } from '../../sync/sync.service';
 import type { CourseModel } from '../../db/models/course.model';
@@ -134,7 +135,7 @@ export default function CourseForm({ navigation, route }: Props) {
       };
 
       await courseRepository.save(course);
-      syncSheet('courses').catch(() => {});
+      syncSheet(SHEETS.COURSES).catch(() => {});
 
       snackbar.show(isEdit ? 'Changes saved' : 'Course added', 'success');
       navigation.goBack();
@@ -149,7 +150,7 @@ export default function CourseForm({ navigation, route }: Props) {
     setSaving(true);
     courseRepository.delete(item!.id)
       .then(() => {
-        syncSheet('courses').catch(() => {});
+        syncSheet(SHEETS.COURSES).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {

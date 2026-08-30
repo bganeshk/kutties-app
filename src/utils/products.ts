@@ -2,6 +2,7 @@ import { gt, eq, and } from 'drizzle-orm';
 import { drizzleDb } from '../db/database';
 import { products, Product } from '../db/schema';
 import { LocalDb } from '../sync/sync.service';
+import { SHEETS } from './constants';
 
 /**
  * Returns products from the local DB where price > minPrice.
@@ -25,7 +26,7 @@ export async function getProductsByMinPrice(minPrice: number): Promise<Product[]
   }
 
   // Web fallback: filter the generic JSON rows in memory
-  const rows = await LocalDb.getRows('products');
+  const rows = await LocalDb.getRows(SHEETS.PRODUCTS);
   return rows
     .filter((r) => typeof r.price === 'number' && r.price > minPrice)
     .map((r) => ({

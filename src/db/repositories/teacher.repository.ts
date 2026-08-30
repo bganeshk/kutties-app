@@ -1,9 +1,10 @@
 import { BaseRepository } from './base.repository';
 import { TeacherModel, toTeacherModel, parseSubjects } from '../models/teacher.model';
+import { SHEETS } from '../../utils/constants';
 
 export class TeacherRepository extends BaseRepository<TeacherModel> {
   constructor() {
-    super('teachers');
+    super(SHEETS.TEACHERS);
   }
 
   protected fromRow(row: Record<string, unknown>): TeacherModel {

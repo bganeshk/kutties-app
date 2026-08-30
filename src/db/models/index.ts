@@ -7,4 +7,5 @@ export * from './product.model';
 export * from './course.model';
 export * from './coursetimetable.model';
 export * from './handbook.model';
+export * from './feedback.model';
 export * from './registry';
