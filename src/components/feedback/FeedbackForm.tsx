@@ -97,7 +97,7 @@ export default function FeedbackForm({ navigation, route }: Props) {
       // Use local cache first; sync only if empty
       let rows = await teacherRepository.findAll();
       if (rows.length === 0) {
-        await syncSheet(SHEETS.TEACHERS);
+        await syncSheet(SHEETS.STAFF);
         rows = await teacherRepository.findAll();
       }
       if (!cancelled) {

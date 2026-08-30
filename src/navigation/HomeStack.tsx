@@ -25,6 +25,9 @@ import type { CourseTimeTableModel } from '../db/models/coursetimetable.model';
 import type { HandbookModel } from '../db/models/handbook.model';
 import type { FeedbackModel } from '../db/models/feedback.model';
 import FeedbackDetailsScreen from '../screens/FeedbackDetailsScreen';
+import TeacherAttendanceLogDetailsScreen from '../screens/TeacherAttendanceLogDetailsScreen';
+import { TeacherAttendanceLogList, TeacherAttendanceLogForm } from '../components/teacherattendancelog';
+import type { TeacherAttendanceLogModel } from '../db/models/teacherattendancelog.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -52,6 +55,9 @@ export type HomeStackParamList = {
   FeedbackList: undefined;
   FeedbackDetails: { item: FeedbackModel };
   FeedbackForm: { mode: 'add' | 'edit'; item?: FeedbackModel };
+  TeacherAttendanceLogList: { teacherEmail?: string; teacherName?: string; headerTitle?: string; staffMode?: boolean } | undefined;
+  TeacherAttendanceLogDetails: { item: TeacherAttendanceLogModel };
+  TeacherAttendanceLogForm: { mode: 'add' | 'edit'; item?: TeacherAttendanceLogModel; staffMode?: boolean };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -84,6 +90,9 @@ export default function HomeStack() {
       <Stack.Screen name="FeedbackList"    component={FeedbackList} />
       <Stack.Screen name="FeedbackDetails" component={FeedbackDetailsScreen} />
       <Stack.Screen name="FeedbackForm"    component={FeedbackForm} />
+      <Stack.Screen name="TeacherAttendanceLogList"    component={TeacherAttendanceLogList} />
+      <Stack.Screen name="TeacherAttendanceLogDetails" component={TeacherAttendanceLogDetailsScreen} />
+      <Stack.Screen name="TeacherAttendanceLogForm"    component={TeacherAttendanceLogForm} />
     </Stack.Navigator>
   );
 }

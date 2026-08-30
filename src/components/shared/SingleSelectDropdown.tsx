@@ -27,6 +27,8 @@ interface SingleSelectDropdownProps {
    * A course must be selected before the student list is shown.
    */
   groups?: Record<string, string[]>;
+  /** Optional function to convert a raw option value to a display label */
+  renderLabel?: (value: string) => string;
 }
 
 export default function SingleSelectDropdown({
@@ -38,6 +40,7 @@ export default function SingleSelectDropdown({
   loading = false,
   disabled = false,
   groups,
+  renderLabel,
 }: SingleSelectDropdownProps) {
   const [open,           setOpen]           = useState(false);
   const [groupOpen,      setGroupOpen]      = useState(false);
@@ -95,7 +98,7 @@ export default function SingleSelectDropdown({
         style={({ pressed }) => [styles.trigger, pressed && styles.triggerPressed]}
       >
         <Text style={[styles.triggerText, !selected && styles.placeholder]} numberOfLines={1}>
-          {selected || (loading ? 'Loading…' : placeholder)}
+          {selected ? (renderLabel ? renderLabel(selected) : selected) : (loading ? 'Loading…' : placeholder)}
         </Text>
         {selected ? (
           <Pressable
@@ -238,7 +241,7 @@ export default function SingleSelectDropdown({
                       {checked && <View style={styles.radioDot} />}
                     </View>
                     <Text style={[styles.optionText, checked && styles.optionTextChecked]}>
-                      {item}
+                      {renderLabel ? renderLabel(item) : item}
                     </Text>
                   </Pressable>
                 );

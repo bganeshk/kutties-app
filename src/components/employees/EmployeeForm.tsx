@@ -127,7 +127,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
 
       await employeeRepository.save(employee);
 
-      syncSheet(SHEETS.EMPLOYEES).catch(() => {/* silent */});
+      syncSheet(SHEETS.STAFF).catch(() => {/* silent */});
 
       snackbar.show(isRecordEdit ? 'Changes saved' : 'Employee added', 'success');
       navigation.goBack();
@@ -142,7 +142,7 @@ export default function EmployeeForm({ navigation, route }: Props) {
     setSaving(true);
     employeeRepository.delete(item!.id)
       .then(() => {
-        syncSheet(SHEETS.EMPLOYEES).catch(() => {});
+        syncSheet(SHEETS.STAFF).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {

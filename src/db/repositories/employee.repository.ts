@@ -4,7 +4,13 @@ import { SHEETS } from '../../utils/constants';
 
 export class EmployeeRepository extends BaseRepository<EmployeeModel> {
   constructor() {
-    super(SHEETS.EMPLOYEES);
+    super(SHEETS.STAFF);
+  }
+
+  /** Only rows where designation is NOT 'Teacher' are employees. */
+  async findAll(): Promise<EmployeeModel[]> {
+    const all = await super.findAll();
+    return all.filter(e => e.designation?.trim().toLowerCase() !== 'teacher');
   }
 
   protected fromRow(row: Record<string, unknown>): EmployeeModel {
@@ -39,6 +45,16 @@ export class EmployeeRepository extends BaseRepository<EmployeeModel> {
     return this.findWhere(e =>
       String(e.department ?? '').toLowerCase().includes(q)
     );
+  }
+
+  /** Returns a map of email → name for all staff (non-teacher) with an email. */
+  async emailToNameMap(): Promise<Record<string, string>> {
+    const all = await this.findAll();
+    const map: Record<string, string> = {};
+    for (const e of all) {
+      if (e.email) map[e.email.toLowerCase()] = e.name ?? e.email;
+    }
+    return map;
   }
 
   async search(query: string): Promise<EmployeeModel[]> {

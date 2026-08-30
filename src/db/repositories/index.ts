@@ -8,4 +8,5 @@ export { CourseRepository, courseRepository } from './course.repository';
 export { CourseTimeTableRepository, courseTimeTableRepository } from './coursetimetable.repository';
 export { HandbookRepository, handbookRepository } from './handbook.repository';
 export { FeedbackRepository, feedbackRepository } from './feedback.repository';
+export { TeacherAttendanceLogRepository, teacherAttendanceLogRepository } from './teacherattendancelog.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

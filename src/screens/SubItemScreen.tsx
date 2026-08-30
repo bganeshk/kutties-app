@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
 import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
-import { resolveScreen } from '../navigation/screenRegistry';
+import { resolveScreen, isStaffAttendanceCaption } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 
@@ -122,13 +122,17 @@ export default function SubItemScreen({ navigation, route }: Props) {
                    const screenName = resolveScreen(appviewsheet);
                    console.log(`[SubItems] caption="${item.Dashcaption}" appviewsheet="${appviewsheet}" → screen="${screenName}"`);
                    if (screenName === 'Landing') {
-                    navigation.navigate('Landing', {
-                      title: String(item.Dashcaption ?? item.id),
-                      appviewsheet,
-                    });
-                  } else {
-                    navigation.navigate(screenName);
-                  }
+                   navigation.navigate('Landing', {
+                     title: String(item.Dashcaption ?? item.id),
+                     appviewsheet,
+                   });
+                 } else {
+                   const caption = String(item.Dashcaption ?? '');
+                   navigation.navigate(screenName, {
+                     headerTitle: caption,
+                     ...(isStaffAttendanceCaption(caption) && { staffMode: true }),
+                   });
+                 }
                 }
               }}
             >

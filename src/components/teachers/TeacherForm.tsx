@@ -15,6 +15,7 @@ import Snackbar, { useSnackbar } from '../shared/Snackbar';
 import AuditRow from '../shared/AuditRow';
 import PhotoPicker from '../shared/PhotoPicker';
 import MultiSelectDropdown from '../shared/MultiSelectDropdown';
+import SingleSelectDropdown from '../shared/SingleSelectDropdown';
 import ConfirmDialog from '../shared/ConfirmDialog';
 import FormDatePicker from '../shared/FormDatePicker';
 import { Field, InputField } from '../shared/FormField';
@@ -33,6 +34,7 @@ export default function TeacherForm({ navigation, route }: Props) {
   // ── Form state ─────────────────────────────────────────────────────────────
   const [name, setName]               = useState(item?.name ?? '');
   const [designation, setDesignation] = useState(item?.designation ?? '');
+  const [department, setDepartment]   = useState(item?.department ?? '');
   const [email, setEmail]             = useState(item?.email ?? '');
   const [phone, setPhone]             = useState(item?.phone ?? '');
   const [address, setAddress]         = useState(item?.address ?? '');
@@ -52,14 +54,23 @@ export default function TeacherForm({ navigation, route }: Props) {
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
   const [loadingSubjects, setLoadingSubjects] = useState(true);
 
+  // ── Department options from reftbl ─────────────────────────────────────────
+  const [departmentOptions, setDepartmentOptions] = useState<string[]>([]);
+  const [loadingDepartments, setLoadingDepartments] = useState(true);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       await ensureReftbl();
-      const opts = await getRefOptions('subject');
+      const [subjects, departments] = await Promise.all([
+        getRefOptions('subject'),
+        getRefOptions('deptRef'),
+      ]);
       if (!cancelled) {
-        setSubjectOptions(opts);
+        setSubjectOptions(subjects);
         setLoadingSubjects(false);
+        setDepartmentOptions(departments);
+        setLoadingDepartments(false);
       }
     })();
     return () => { cancelled = true; };
@@ -115,6 +126,7 @@ export default function TeacherForm({ navigation, route }: Props) {
         id:           newId,
         name:         name.trim() || undefined,
         designation:  designation.trim() || undefined,
+        department:   department.trim() || undefined,
         email:        email.trim() || undefined,
         phone:        phone.trim() || undefined,
         address:      address.trim() || undefined,
@@ -129,7 +141,7 @@ export default function TeacherForm({ navigation, route }: Props) {
 
       await teacherRepository.save(teacher);
 
-      syncSheet(SHEETS.TEACHERS).catch(() => {/* silent — will retry on next sync */});
+      syncSheet(SHEETS.STAFF).catch(() => {/* silent — will retry on next sync */});
 
       snackbar.show(isRecordEdit ? 'Changes saved' : 'Teacher added', 'success');
       navigation.goBack();
@@ -138,7 +150,7 @@ export default function TeacherForm({ navigation, route }: Props) {
     } finally {
       setSaving(false);
     }
-  }, [validate, isRecordEdit, item, name, designation, email, phone, address, selectedSubjects, joiningDate, remarks, idphoto, isActive, navigation, snackbar]);
+  }, [validate, isRecordEdit, item, name, designation, department, email, phone, address, selectedSubjects, joiningDate, remarks, idphoto, isActive, navigation, snackbar]);
 
   const confirmDelete = useCallback(() => {
     console.log('[Delete] confirmed, deleting id:', item?.id);
@@ -146,7 +158,7 @@ export default function TeacherForm({ navigation, route }: Props) {
     teacherRepository.delete(item!.id)
       .then(() => {
         console.log('[Delete] success, going back');
-        syncSheet(SHEETS.TEACHERS).catch(() => {});
+        syncSheet(SHEETS.STAFF).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {
@@ -221,6 +233,18 @@ export default function TeacherForm({ navigation, route }: Props) {
             placeholder="e.g. Senior Teacher"
             autoCapitalize="words"
             editable={true}
+          />
+        </Field>
+
+        <Field label="Department">
+          <SingleSelectDropdown
+            selected={department}
+            options={departmentOptions}
+            onChange={setDepartment}
+            placeholder="Select department…"
+            title="Select Department"
+            loading={loadingDepartments}
+            disabled={false}
           />
         </Field>
 

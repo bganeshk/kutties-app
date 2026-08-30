@@ -4,7 +4,13 @@ import { SHEETS } from '../../utils/constants';
 
 export class TeacherRepository extends BaseRepository<TeacherModel> {
   constructor() {
-    super(SHEETS.TEACHERS);
+    super(SHEETS.STAFF);
+  }
+
+  /** Only rows where designation === 'Teacher' belong to teachers. */
+  async findAll(): Promise<TeacherModel[]> {
+    const all = await super.findAll();
+    return all.filter(t => t.designation?.trim().toLowerCase() === 'teacher');
   }
 
   protected fromRow(row: Record<string, unknown>): TeacherModel {
@@ -15,6 +21,7 @@ export class TeacherRepository extends BaseRepository<TeacherModel> {
     return {
       name:         item.name,
       designation:  item.designation,
+      department:   item.department,
       email:        item.email,
       phone:        item.phone,
       address:      item.address,
@@ -42,10 +49,20 @@ export class TeacherRepository extends BaseRepository<TeacherModel> {
     );
   }
 
+  /** Returns a map of email → name for all teachers with an email. */
+  async emailToNameMap(): Promise<Record<string, string>> {
+    const all = await this.findAll();
+    const map: Record<string, string> = {};
+    for (const t of all) {
+      if (t.email) map[t.email.toLowerCase()] = t.name ?? t.email;
+    }
+    return map;
+  }
+
   async search(query: string): Promise<TeacherModel[]> {
     const q = query.toLowerCase();
     return this.findWhere(t =>
-      [t.name, t.email, t.phone, t.designation, t.subjects]
+      [t.name, t.email, t.phone, t.designation, t.department, t.subjects]
         .some(v => String(v ?? '').toLowerCase().includes(q))
     );
   }

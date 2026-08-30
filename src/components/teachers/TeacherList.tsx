@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function TeacherList({ navigation }: Props) {
-  const { syncing, sync } = useSheet(SHEETS.TEACHERS);
+  const { syncing, sync } = useSheet(SHEETS.STAFF);
   const synced = useRef(false);
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

@@ -31,7 +31,7 @@ interface Props {
 }
 
 export default function EmployeeList({ navigation }: Props) {
-  const { syncing, sync } = useSheet(SHEETS.EMPLOYEES);
+  const { syncing, sync } = useSheet(SHEETS.STAFF);
   const synced = useRef(false);
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

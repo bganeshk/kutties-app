@@ -48,3 +48,59 @@ export function extractTime(raw: unknown): string | undefined {
   if (plainMatch) return plainMatch[1].padStart(5, '0');
   return undefined;
 }
+
+/**
+ * Normalises a timestamp value that carries both a date and a time.
+ * Preserves the time component as "HH:MM:SS AM/PM".
+ *
+ * Handles:
+ *  - ISO datetime: "2024-08-15T09:45:30.000Z" → "09:45:30 AM"
+ *  - Excel epoch:  "1899-12-30T09:45:00.000Z" → "09:45:00 AM"
+ *  - Already formatted: "09:45:30 AM" → "09:45:30 AM"
+ *  - Plain HH:MM:SS:  "09:45:30" → "09:45:30 AM"
+ *  - Plain HH:MM:SS AM/PM: "9:45:30 PM" → "9:45:30 PM" (pass-through)
+ *
+ * Falls back to normaliseDate if no time component is found.
+ */
+export function normaliseDateTime(raw: unknown): string | undefined {
+  if (!raw) return undefined;
+  const s = String(raw).trim();
+  if (!s) return undefined;
+
+  // Already in "H:MM:SS AM/PM" or "HH:MM AM/PM" format
+  if (/^\d{1,2}:\d{2}(:\d{2})?\s*(AM|PM)$/i.test(s)) return s;
+
+  // ISO datetime — extract time from after the T, convert to 12-hour
+  const isoMatch = s.match(/T(\d{2}):(\d{2}):(\d{2})/);
+  if (isoMatch) {
+    const h = parseInt(isoMatch[1], 10);
+    const m = isoMatch[2];
+    const sec = isoMatch[3];
+    const suffix = h < 12 ? 'AM' : 'PM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${m}:${sec} ${suffix}`;
+  }
+
+  // Plain HH:MM:SS
+  const plainMatch = s.match(/^(\d{1,2}):(\d{2}):(\d{2})$/);
+  if (plainMatch) {
+    const h = parseInt(plainMatch[1], 10);
+    const m = plainMatch[2];
+    const sec = plainMatch[3];
+    const suffix = h < 12 ? 'AM' : 'PM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${m}:${sec} ${suffix}`;
+  }
+
+  // Plain HH:MM (no seconds)
+  const shortMatch = s.match(/^(\d{1,2}):(\d{2})$/);
+  if (shortMatch) {
+    const h = parseInt(shortMatch[1], 10);
+    const m = shortMatch[2];
+    const suffix = h < 12 ? 'AM' : 'PM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${m} ${suffix}`;
+  }
+
+  return s;
+}

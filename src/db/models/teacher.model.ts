@@ -7,6 +7,7 @@ export const teachers = sqliteTable('teachers', {
   id:           text('id').primaryKey(),
   name:         text('name'),
   designation:  text('designation'),
+  department:   text('department'),
   email:        text('email'),
   phone:        text('phone'),
   address:      text('address'),
@@ -30,6 +31,7 @@ export interface TeacherModel extends AuditFields {
   id: string;
   name?: string;
   designation?: string;
+  department?: string;
   email?: string;
   phone?: string;
   address?: string;
@@ -53,6 +55,7 @@ export function toTeacherModel(row: Record<string, unknown>): TeacherModel {
     id:           String(row.id ?? ''),
     name:         row.name as string,
     designation:  row.designation as string,
+    department:   (row.department ?? row.Department) as string | undefined,
     email:        row.email as string,
     phone:        row.phone as string,
     address:      row.address as string,

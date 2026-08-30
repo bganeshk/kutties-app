@@ -60,7 +60,7 @@ export default function TeacherDetailsScreen({ navigation, route }: Props) {
 
   const handleDelete = useCallback(() => {
     teacherRepository.delete(item.id).then(() => {
-      syncSheet(SHEETS.TEACHERS).catch(() => {});
+      syncSheet(SHEETS.STAFF).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);
@@ -117,38 +117,44 @@ export default function TeacherDetailsScreen({ navigation, route }: Props) {
         </View>
 
         {/* ── Quick actions ─────────────────────────────────────────────────── */}
-        {(item.phone || item.email) && (
-          <View style={KStyles.detailsQuickActions}>
+        <View style={KStyles.detailsQuickActions}>
 
-            {item.phone && (
-              <TouchableOpacity
-                style={KStyles.detailsQaBtn}
-                onPress={() => Linking.openURL(`whatsapp://send?phone=${item.phone}`)}
-                activeOpacity={0.75}
-              >
-                <Ionicons name="logo-whatsapp" size={20} color="#2E7D32" />
-                <Text style={KStyles.detailsQaBtnText}>WhatsApp</Text>
-              </TouchableOpacity>
-            )}
-            {item.email && (
-              <TouchableOpacity
-                style={KStyles.detailsQaBtn}
-                onPress={() => Linking.openURL(`mailto:${item.email}`)}
-                activeOpacity={0.75}
-              >
-                <Ionicons name="mail" size={20} color={PRIMARY} />
-                <Text style={KStyles.detailsQaBtnText}>Email</Text>
-              </TouchableOpacity>
-            )}
+          {item.phone && (
             <TouchableOpacity
               style={KStyles.detailsQaBtn}
+              onPress={() => Linking.openURL(`whatsapp://send?phone=${item.phone}`)}
               activeOpacity={0.75}
             >
-              <Ionicons name="qr-code-outline" size={20} color="#6A1B9A" />
-              <Text style={KStyles.detailsQaBtnText}>Clear QR</Text>
+              <Ionicons name="logo-whatsapp" size={20} color="#2E7D32" />
+              <Text style={KStyles.detailsQaBtnText}>WhatsApp</Text>
             </TouchableOpacity>
-          </View>
-        )}
+          )}
+          {item.email && (
+            <TouchableOpacity
+              style={KStyles.detailsQaBtn}
+              onPress={() => Linking.openURL(`mailto:${item.email}`)}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="mail" size={20} color={PRIMARY} />
+              <Text style={KStyles.detailsQaBtnText}>Email</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="qr-code-outline" size={20} color="#6A1B9A" />
+            <Text style={KStyles.detailsQaBtnText}>Clear QR</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('TeacherAttendanceLogList', { teacherEmail: item.email, teacherName: item.name })}
+          >
+            <Ionicons name="calendar-outline" size={20} color={PRIMARY} />
+            <Text style={KStyles.detailsQaBtnText}>Attendance</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* ── Contact ───────────────────────────────────────────────────────── */}
         <Section title="Contact" />
@@ -189,6 +195,9 @@ export default function TeacherDetailsScreen({ navigation, route }: Props) {
                 </View>
               </View>
             </View>
+          ) : null}
+          {item.department ? (
+            <InfoRow icon="business-outline" label="Department" value={item.department} />
           ) : null}
           <InfoRow icon="calendar-outline" label="Joining Date" value={item.joiningDate} />
           <InfoRow icon="chatbubble-outline" label="Remarks" value={item.remarks} />

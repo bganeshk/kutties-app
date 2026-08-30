@@ -15,6 +15,8 @@ import { SHEETS } from '../utils/constants';
 
 const PRIMARY = Colors.primary;
 
+type ScheduleTab = 'teacher' | 'course';
+
 // ── Day ordering ──────────────────────────────────────────────────────────────
 const DAY_ORDER: Record<string, number> = {
   Monday: 0, Tuesday: 1, Wednesday: 2,
@@ -88,8 +90,8 @@ function teacherDisplayName(email: string, map: Map<string, string>): string {
 }
 
 // ── Group levels ──────────────────────────────────────────────────────────────
-// All-teachers mode: teacher (collapsed) → day (expanded)
-function buildAllGroupLevels(teacherMap: Map<string, string>): GroupLevel<CourseTimeTableModel>[] {
+// All-teachers view: teacher (collapsed) → day (expanded)
+function buildByTeacherLevels(teacherMap: Map<string, string>): GroupLevel<CourseTimeTableModel>[] {
   return [
     {
       keyOf: (item) => item.teacher,
@@ -107,6 +109,23 @@ function buildAllGroupLevels(teacherMap: Map<string, string>): GroupLevel<Course
     },
   ];
 }
+
+// By-course view: courseDivision (collapsed) → day (expanded)
+const buildByCourselevels = (): GroupLevel<CourseTimeTableModel>[] => [
+  {
+    keyOf: (item) => item.courseDivision || 'Unknown',
+    dotColor: '#2E7D32',
+    bgColor: '#F1F8E9',
+    defaultExpanded: false,
+  },
+  {
+    keyOf: (item) => dayKey(item.day),
+    label: dayLabel,
+    dotColor: '#1565C0',
+    bgColor: '#E3F2FD',
+    defaultExpanded: true,
+  },
+];
 
 // Single-teacher mode: day only (all expanded)
 const DAY_GROUP_LEVELS: GroupLevel<CourseTimeTableModel>[] = [
@@ -135,6 +154,8 @@ export default function TeacherScheduleScreen({ navigation, route }: Props) {
   const [all, setAll]               = useState<CourseTimeTableModel[]>([]);
   const [teacherMap, setTeacherMap] = useState<Map<string, string>>(new Map());
   const [loading, setLoading]       = useState(true);
+  // Tab only shown when not scoped to a single teacher
+  const [activeTab, setActiveTab]   = useState<ScheduleTab>('teacher');
 
   // Load timetable + teachers
   const load = useCallback(async () => {
@@ -178,10 +199,12 @@ export default function TeacherScheduleScreen({ navigation, route }: Props) {
     }
   }, []);
 
-  const groupLevels = useMemo(
-    () => teacherEmail ? DAY_GROUP_LEVELS : buildAllGroupLevels(teacherMap),
-    [teacherEmail, teacherMap],
-  );
+  const groupLevels = useMemo(() => {
+    if (teacherEmail) return DAY_GROUP_LEVELS;
+    return activeTab === 'course'
+      ? buildByCourselevels()
+      : buildByTeacherLevels(teacherMap);
+  }, [teacherEmail, activeTab, teacherMap]);
 
   const renderItem = useCallback(
     (item: CourseTimeTableModel) => <SlotRow item={item} />,
@@ -224,10 +247,51 @@ export default function TeacherScheduleScreen({ navigation, route }: Props) {
         </TouchableOpacity>
       </View>
 
+      {/* Tab bar — only when showing all teachers */}
+      {!teacherEmail && (
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'teacher' && styles.tabActive]}
+            onPress={() => setActiveTab('teacher')}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="person-outline"
+              size={15}
+              color={activeTab === 'teacher' ? PRIMARY : Colors.muted}
+              style={{ marginRight: 5 }}
+            />
+            <Text style={[styles.tabText, activeTab === 'teacher' && styles.tabTextActive]}>
+              By Teacher
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'course' && styles.tabActive]}
+            onPress={() => setActiveTab('course')}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="book-outline"
+              size={15}
+              color={activeTab === 'course' ? PRIMARY : Colors.muted}
+              style={{ marginRight: 5 }}
+            />
+            <Text style={[styles.tabText, activeTab === 'course' && styles.tabTextActive]}>
+              By Course
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Count summary */}
       {all.length > 0 ? (
         <View style={styles.summaryBar}>
-          <Ionicons name="person-outline" size={13} color={PRIMARY} />
+          <Ionicons
+            name={activeTab === 'course' && !teacherEmail ? 'book-outline' : 'person-outline'}
+            size={13}
+            color={PRIMARY}
+          />
           <Text style={styles.summaryText}>{summaryLine}</Text>
         </View>
       ) : null}
@@ -266,6 +330,32 @@ export default function TeacherScheduleScreen({ navigation, route }: Props) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: Colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 11,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  tabActive: {
+    borderBottomColor: PRIMARY,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.muted,
+  },
+  tabTextActive: {
+    color: PRIMARY,
+  },
   summaryBar: {
     flexDirection: 'row',
     alignItems: 'center',

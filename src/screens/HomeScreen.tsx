@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
 import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
-import { resolveScreen } from '../navigation/screenRegistry';
+import { resolveScreen, isStaffAttendanceCaption } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 
@@ -128,7 +128,11 @@ export default function HomeScreen({ navigation }: Props) {
               activeOpacity={0.85}
               onPress={() => {
                 if (!hasChildren && screenName !== 'Landing') {
-                  navigation?.navigate(screenName);
+                  const caption = String(item.Dashcaption ?? '');
+                  navigation?.navigate(screenName, {
+                    headerTitle: caption,
+                    ...(isStaffAttendanceCaption(caption) && { staffMode: true }),
+                  });
                 } else if (hasChildren) {
                   navigation?.navigate('SubItems', {
                     parentview: String(item.Dashcaption ?? ''),

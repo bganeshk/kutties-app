@@ -21,6 +21,8 @@ import { CourseList, CourseForm } from '../components/courses';
 import { CourseTimeTableList, CourseTimeTableForm } from '../components/coursetimetable';
 import { HandbookList, HandbookForm } from '../components/handbook';
 import { FeedbackList, FeedbackForm } from '../components/feedback';
+import TeacherAttendanceLogDetailsScreen from '../screens/TeacherAttendanceLogDetailsScreen';
+import { TeacherAttendanceLogList, TeacherAttendanceLogForm } from '../components/teacherattendancelog';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -59,6 +61,9 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="FeedbackList"        component={FeedbackList} />
         <Stack.Screen name="FeedbackDetails"     component={FeedbackDetailsScreen} />
         <Stack.Screen name="FeedbackForm"        component={FeedbackForm} />
+        <Stack.Screen name="TeacherAttendanceLogList"    component={TeacherAttendanceLogList} />
+        <Stack.Screen name="TeacherAttendanceLogDetails" component={TeacherAttendanceLogDetailsScreen} />
+        <Stack.Screen name="TeacherAttendanceLogForm"    component={TeacherAttendanceLogForm} />
       </Stack.Navigator>
     );
   };

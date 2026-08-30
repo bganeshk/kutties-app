@@ -89,50 +89,48 @@ const TeacherRow = memo(({ item, selected, onPress, onLongPress, onQrPress, onSc
       {/* Avatar */}
       <Avatar name={String(name)} photo={item.idphoto} />
 
-      {/* Info — two-column layout: left (name/designation) | right (email + subjects) */}
+      {/* Info — two-column layout: left (name) | right (email), subjects full-width below */}
       <View style={KStyles.rowInfo}>
         <View style={KStyles.rowTwoCol}>
 
-          {/* Left column */}
+          {/* Left column — name */}
           <View style={KStyles.rowLeftCol}>
             <Text style={KStyles.rowName} numberOfLines={1}>{name}</Text>
-            {item.designation ? (
-              <Text style={styles.designation} numberOfLines={1}>{String(item.designation)}</Text>
-            ) : null}
           </View>
 
-          {/* Right column — email + all subjects stacked */}
-          {(item.email || subjectList.length > 0) ? (
+          {/* Right column — email only */}
+          {item.email ? (
             <View style={KStyles.rowRightCol}>
-              {item.email ? (
-                <View style={styles.metaChip}>
-                  <Ionicons name="mail-outline" size={11} color="#555" style={styles.metaChipIcon} />
-                  <Text style={styles.metaChipText} numberOfLines={1}>{String(item.email)}</Text>
-                </View>
-              ) : null}
-              {subjectList.length > 0 && (
-                <View style={styles.subjectRow}>
-                  {subjectList.map((s, i) => {
-                    const isActive = activeSubject === s;
-                    return (
-                      <Pressable
-                        key={i}
-                        onPress={() => onSubjectPress?.(s)}
-                        style={[styles.subjectChip, isActive && styles.subjectChipActive]}
-                      >
-                        {isActive && (
-                          <Ionicons name="filter" size={9} color="#1565C0" style={{ marginRight: 2 }} />
-                        )}
-                        <Text style={styles.subjectChipText}>{s}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              )}
+              <View style={styles.metaChip}>
+                <Ionicons name="mail-outline" size={11} color="#555" style={styles.metaChipIcon} />
+                <Text style={styles.metaChipText} numberOfLines={1}>{String(item.email)}</Text>
+              </View>
             </View>
           ) : null}
 
         </View>
+
+        {/* Subjects — full-width row spanning both columns */}
+        {subjectList.length > 0 && (
+          <View style={styles.subjectRow}>
+            {subjectList.map((s, i) => {
+              const isActive = activeSubject === s;
+              return (
+               
+                <Pressable
+                  key={i}
+                  onPress={() => onSubjectPress?.(s)}
+                  style={[styles.subjectChip, isActive && styles.subjectChipActive]}
+                >
+                  {isActive && (
+                    <Ionicons name="filter" size={9} color="#1565C0" style={{ marginRight: 2 }} />
+                  )}
+                  <Text style={styles.subjectChipText}>{s}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
 
         {/* Action buttons — stopPropagation prevents the outer Pressable from swallowing the tap */}
         <View style={KStyles.rowActions} onTouchEnd={(e) => e.stopPropagation()}>
@@ -194,7 +192,7 @@ const styles = StyleSheet.create({
   metaChipText: { fontSize: 11, color: '#555', flexShrink: 1 },
   subjectRow: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 3,
-    justifyContent: 'flex-end', width: 155,
+    marginTop: 3,
   },
   subjectChip: {
     flexDirection: 'row', alignItems: 'center',

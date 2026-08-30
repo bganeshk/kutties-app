@@ -1,8 +1,7 @@
 // ── Sheet names ───────────────────────────────────────────────────────────────
 
 export const SHEETS = {
-  TEACHERS:          'teachers',
-  EMPLOYEES:         'employees',
+  STAFF:             'staff',       // merged teachers + employees (designation='Teacher' → teacher)
   STUDENTS:          'students',
   COURSES:           'courses',
   COURSE_TIMETABLE:  'coursetimetbl',
@@ -11,6 +10,7 @@ export const SHEETS = {
   REFTBL:            'reftbl',
   HANDBOOK:          'handbook',
   FEEDBACK:          'feedback',
+  TEACATTELOG:        'StaffAttendanceLog',       
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

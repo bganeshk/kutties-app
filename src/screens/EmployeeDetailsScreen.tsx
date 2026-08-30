@@ -59,7 +59,7 @@ export default function EmployeeDetailsScreen({ navigation, route }: Props) {
 
   const handleDelete = useCallback(() => {
     employeeRepository.delete(item.id).then(() => {
-      syncSheet(SHEETS.EMPLOYEES).catch(() => {});
+      syncSheet(SHEETS.STAFF).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);

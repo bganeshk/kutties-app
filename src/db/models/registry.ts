@@ -1,5 +1,4 @@
 import { toTeacherModel } from './teacher.model';
-import { toEmployeeModel } from './employee.model';
 import { toStudentModel } from './student.model';
 import { toDashboardModel } from './dashboard.model';
 import { toProductModel } from './product.model';
@@ -7,6 +6,7 @@ import { toCourseModel } from './course.model';
 import { toCourseTimeTableModel } from './coursetimetable.model';
 import { toHandbookModel } from './handbook.model';
 import { toFeedbackModel } from './feedback.model';
+import { toTeacherAttendanceLogModel } from './teacherattendancelog.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -25,15 +25,15 @@ function toReftblRow(raw: Record<string, unknown>): Record<string, unknown> {
 }
 
 const TRANSFORMERS: Record<string, RowTransformer> = {
-  teachers:  (raw) => stripComputed(toTeacherModel(raw)  as unknown as Record<string, unknown>),
-  employees: (raw) => stripComputed(toEmployeeModel(raw) as unknown as Record<string, unknown>),
+  staff:     (raw) => stripComputed(toTeacherModel(raw)  as unknown as Record<string, unknown>),
   students:  (raw) => toStudentModel(raw) as unknown as Record<string, unknown>,
   dashboard: (raw) => stripComputed(toDashboardModel(raw) as unknown as Record<string, unknown>),
   products:  (raw) => stripComputed(toProductModel(raw)   as unknown as Record<string, unknown>),
   courses:         (raw) => stripComputed(toCourseModel(raw)            as unknown as Record<string, unknown>),
   coursetimetbl:   (raw) => toCourseTimeTableModel(raw)                 as unknown as Record<string, unknown>,
   Handbook:  (raw) => toHandbookModel(raw) as unknown as Record<string, unknown>,
-  feedback:  (raw) => toFeedbackModel(raw) as unknown as Record<string, unknown>,
+  feedback:           (raw) => toFeedbackModel(raw)                as unknown as Record<string, unknown>,
+  TeacherAttendanceLog: (raw) => toTeacherAttendanceLogModel(raw)  as unknown as Record<string, unknown>,
   reftbl:                    (raw) => toReftblRow(raw),
 };
 
