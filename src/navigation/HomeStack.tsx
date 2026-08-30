@@ -31,6 +31,9 @@ import type { TeacherAttendanceLogModel } from '../db/models/teacherattendancelo
 import StudentHealthDetailsScreen from '../screens/StudentHealthDetailsScreen';
 import { StudentHealthList, StudentHealthForm } from '../components/studenthealth';
 import type { StudentHealthModel } from '../db/models/studenthealth.model';
+import StudentFeeDetailsScreen from '../screens/StudentFeeDetailsScreen';
+import { StudentFeeList, StudentFeeForm } from '../components/studentfee';
+import type { StudentFeeModel } from '../db/models/studentfee.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -64,6 +67,9 @@ export type HomeStackParamList = {
   StudentHealthList: { studentEmail?: string; studentName?: string; headerTitle?: string } | undefined;
   StudentHealthDetails: { item: StudentHealthModel };
   StudentHealthForm: { mode: 'add' | 'edit'; item?: StudentHealthModel; prefilledEmail?: string };
+  StudentFeeList: { studentRegNumber?: string; studentName?: string; headerTitle?: string; prefilledRegNumber?: string } | undefined;
+  StudentFeeDetails: { item: StudentFeeModel };
+  StudentFeeForm: { mode: 'add' | 'edit'; item?: StudentFeeModel; prefilledRegNumber?: string };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -102,6 +108,9 @@ export default function HomeStack() {
       <Stack.Screen name="StudentHealthList"           component={StudentHealthList} />
       <Stack.Screen name="StudentHealthDetails"        component={StudentHealthDetailsScreen} />
       <Stack.Screen name="StudentHealthForm"           component={StudentHealthForm} />
+      <Stack.Screen name="StudentFeeList"              component={StudentFeeList} />
+      <Stack.Screen name="StudentFeeDetails"           component={StudentFeeDetailsScreen} />
+      <Stack.Screen name="StudentFeeForm"              component={StudentFeeForm} />
     </Stack.Navigator>
   );
 }

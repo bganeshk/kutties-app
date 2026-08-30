@@ -12,6 +12,7 @@ export const SHEETS = {
   FEEDBACK:          'feedback',
   TEACATTELOG:          'StaffAttendanceLog',
   STUDENT_HEALTH:       'student_health_report',
+  STUDENT_FEE:          'stfee',
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

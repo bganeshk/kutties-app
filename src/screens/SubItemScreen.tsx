@@ -129,6 +129,9 @@ export default function SubItemScreen({ navigation, route }: Props) {
                       title: caption || String(item.id),
                       appviewsheet,
                     });
+                  } else if (screenName === 'StudentFeeForm') {
+                    // "Collect Fee" card — open the form in add mode
+                    navigation.navigate('StudentFeeForm', { mode: 'add' });
                   } else {
                     navigation.navigate(screenName, {
                       headerTitle: caption,

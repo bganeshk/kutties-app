@@ -172,6 +172,18 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
             <Ionicons name="medkit-outline" size={20} color="#00796B" />
             <Text style={KStyles.detailsQaBtnText}>Health</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            onPress={() => navigation.navigate('StudentFeeList', {
+              studentRegNumber: item.regNumber,
+              studentName:      item.fullName,
+              headerTitle:      `${item.fullName ?? 'Student'}'s Fees`,
+            })}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="cash-outline" size={20} color="#1565C0" />
+            <Text style={KStyles.detailsQaBtnText}>Fees</Text>
+          </TouchableOpacity>
         </View>
 
         {/* ── Contact ───────────────────────────────────────────────────────── */}

@@ -37,6 +37,13 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Health Data':                     'StudentHealthList',
   'Health Data View':                'StudentHealthList',
   'Student Health Data':             'StudentHealthList',
+  'Student Fee':                     'StudentFeeList',
+  'Student Fee View':                'StudentFeeList',
+  'Fee Summary':                     'StudentFeeList',
+  'Fee Summary View':                'StudentFeeList',
+  'Student Fee Summary':             'StudentFeeList',
+  'Collect Fee':                     'StudentFeeForm',
+  'Collect Fee View':                'StudentFeeForm',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
