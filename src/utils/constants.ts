@@ -13,6 +13,7 @@ export const SHEETS = {
   TEACATTELOG:          'StaffAttendanceLog',
   STUDENT_HEALTH:       'student_health_report',
   STUDENT_FEE:          'stfee',
+  STAFF_PAY:            'staffpay',
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

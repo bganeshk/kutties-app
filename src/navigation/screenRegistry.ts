@@ -48,6 +48,13 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Fee Pending View':                'FeePending',
   'Pending Fees':                    'FeePending',
   'Pending Fees View':               'FeePending',
+  'Staff Salary':                    'StaffPayList',
+  'Staff Salary View':               'StaffPayList',
+  'Staff Pay':                       'StaffPayList',
+  'Staff Pay View':                  'StaffPayList',
+  'Teacher Salary':                  'StaffPayList',
+  'Teacher Salary View':             'StaffPayList',
+  'Salary':                          'StaffPayList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback

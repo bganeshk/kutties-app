@@ -9,6 +9,7 @@ import { toFeedbackModel } from './feedback.model';
 import { toTeacherAttendanceLogModel } from './teacherattendancelog.model';
 import { toStudentHealthModel } from './studenthealth.model';
 import { toStudentFeeModel } from './studentfee.model';
+import { toStaffPayModel } from './staffpay.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -38,6 +39,7 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   StaffAttendanceLog:      (raw) => toTeacherAttendanceLogModel(raw)  as unknown as Record<string, unknown>,
   student_health_report:   (raw) => toStudentHealthModel(raw)         as unknown as Record<string, unknown>,
   stfee:                   (raw) => toStudentFeeModel(raw)            as unknown as Record<string, unknown>,
+  staffpay:                (raw) => toStaffPayModel(raw)              as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
 };
 
@@ -64,6 +66,16 @@ export function registerModel(sheet: string, transformer: RowTransformer): void 
 // keys used internally.
 
 const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
+  staffpay: {
+    recptNo:     'Recpt No',
+    payMode:     'Pay Mode',
+    payMonth:    'Pay Month',
+    amount:      'Amount',
+    payDate:     'Pay Date',
+    remarks:     'Remarks',
+    revision:    'revision',
+    lastmodified:'lastmodified',
+  },
   stfee: {
     recptNo:     'recpt_no',
     regNumber:   'student',

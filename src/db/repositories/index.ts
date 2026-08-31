@@ -11,4 +11,5 @@ export { FeedbackRepository, feedbackRepository } from './feedback.repository';
 export { TeacherAttendanceLogRepository, teacherAttendanceLogRepository } from './teacherattendancelog.repository';
 export { StudentHealthRepository, studentHealthRepository } from './studenthealth.repository';
 export { StudentFeeRepository, studentFeeRepository } from './studentfee.repository';
+export { StaffPayRepository, staffPayRepository } from './staffpay.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

@@ -135,6 +135,9 @@ export default function SubItemScreen({ navigation, route }: Props) {
                   } else if (screenName === 'FeePending') {
                     // "Fee Pending" card — open fee pending screen
                     navigation.navigate('FeePending', { headerTitle: caption || 'Fee Pending' });
+                  } else if (screenName === 'StaffPayList') {
+                    // "Salary" / "Staff Pay" card — open staff pay list
+                    navigation.navigate('StaffPayList', { headerTitle: caption || 'Staff Pay' });
                   } else {
                     navigation.navigate(screenName, {
                       headerTitle: caption,

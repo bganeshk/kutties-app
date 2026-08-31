@@ -9,4 +9,5 @@ export * from './coursetimetable.model';
 export * from './handbook.model';
 export * from './feedback.model';
 export * from './studentfee.model';
+export * from './staffpay.model';
 export * from './registry';
