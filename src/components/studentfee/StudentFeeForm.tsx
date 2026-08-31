@@ -27,7 +27,7 @@ function generateRecptNo(): string {
   const rand = Math.floor(Math.random() * 91); // 0–90
   return (
     'st/fe/' +
-    now.getFullYear() +
+    now.getFullYear().toString().slice(-2) +
     pad(now.getMonth() + 1) +
     pad(now.getDate()) +
     pad(now.getHours()) +
@@ -40,20 +40,28 @@ const STATUS_OPTIONS = ['Pending', 'Partial', 'Paid'];
 
 interface Props {
   navigation: any;
-  route: { params: { mode: 'add' | 'edit'; item?: StudentFeeModel; prefilledRegNumber?: string } };
+  route: {
+    params: {
+      mode: 'add' | 'edit';
+      item?: StudentFeeModel;
+      prefilledRegNumber?: string;
+      prefilledAmount?: number;
+      prefilledFeeType?: string;
+    };
+  };
 }
 
 export default function StudentFeeForm({ navigation, route }: Props) {
-  const { mode, item, prefilledRegNumber } = route.params;
+  const { mode, item, prefilledRegNumber, prefilledAmount, prefilledFeeType } = route.params;
   const isEdit = mode === 'edit';
 
   // ── Form state ──────────────────────────────────────────────────────────────
   const [regNumber,   setRegNumber]   = useState(item?.regNumber   ?? prefilledRegNumber ?? '');
   const [recptNo,     setRecptNo]     = useState(item?.recptNo     ?? (isEdit ? '' : generateRecptNo()));
-  const [feeType,     setFeeType]     = useState(item?.feeType     ?? '');
-  const [amount,      setAmount]      = useState(item?.amount?.toString() ?? '');
+  const [feeType,     setFeeType]     = useState(item?.feeType     ?? prefilledFeeType   ?? '');
+  const [amount,      setAmount]      = useState(item?.amount?.toString() ?? prefilledAmount?.toString() ?? '');
   const [dueDate,     setDueDate]     = useState(item?.dueDate     ?? '');
-  const [paidDate,    setPaidDate]    = useState(item?.paidDate    ?? '');
+  const [paidDate,    setPaidDate]    = useState(item?.paidDate    ?? (isEdit ? '' : new Date().toISOString().slice(0, 10)));
   const [paymentMode, setPaymentMode] = useState(item?.paymentMode ?? '');
   const [status,      setStatus]      = useState(item?.status      ?? '');
   const [remarks,     setRemarks]     = useState(item?.remarks     ?? '');
@@ -247,7 +255,7 @@ export default function StudentFeeForm({ navigation, route }: Props) {
             value={recptNo}
             onChangeText={setRecptNo}
             placeholder="Auto-generated"
-            editable={isEdit}
+            editable={false}
           />
           {errors.recptNo ? <Text style={KStyles.formError}>{errors.recptNo}</Text> : null}
         </Field>

@@ -44,6 +44,10 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Student Fee Summary':             'StudentFeeList',
   'Collect Fee':                     'StudentFeeForm',
   'Collect Fee View':                'StudentFeeForm',
+  'Fee Pending':                     'FeePending',
+  'Fee Pending View':                'FeePending',
+  'Pending Fees':                    'FeePending',
+  'Pending Fees View':               'FeePending',
 };
 
 // Build a lowercase lookup for case-insensitive fallback

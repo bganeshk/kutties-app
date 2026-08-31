@@ -132,6 +132,9 @@ export default function SubItemScreen({ navigation, route }: Props) {
                   } else if (screenName === 'StudentFeeForm') {
                     // "Collect Fee" card — open the form in add mode
                     navigation.navigate('StudentFeeForm', { mode: 'add' });
+                  } else if (screenName === 'FeePending') {
+                    // "Fee Pending" card — open fee pending screen
+                    navigation.navigate('FeePending', { headerTitle: caption || 'Fee Pending' });
                   } else {
                     navigation.navigate(screenName, {
                       headerTitle: caption,
