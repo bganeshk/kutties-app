@@ -55,6 +55,20 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Teacher Salary':                  'StaffPayList',
   'Teacher Salary View':             'StaffPayList',
   'Salary':                          'StaffPayList',
+  'My Leave':                        'TeacherAttendanceLogList',
+  'My Leave View':                   'TeacherAttendanceLogList',
+  'Staff Leave':                     'TeacherAttendanceLogList',
+  'Staff Leave View':                'TeacherAttendanceLogList',
+  'Leave':                           'TeacherAttendanceLogList',
+  'Leave View':                      'TeacherAttendanceLogList',
+  'Student Attendance':              'StudentAttendanceLogList',
+  'Student Attendance View':         'StudentAttendanceLogList',
+  'StudentAttendanceLog View':       'StudentAttendanceLogList',
+  'Student Attendance Log':          'StudentAttendanceLogList',
+  'StudentAttendanceLog':            'StudentAttendanceLogList',
+  'Attendance Log':                  'StudentAttendanceLogList',
+  'Attendance Log View':             'StudentAttendanceLogList',
+  'Student Att Log':                 'StudentAttendanceLogList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
@@ -81,4 +95,35 @@ const STAFF_ATTENDANCE_CAPTIONS = new Set([
  */
 export function isStaffAttendanceCaption(caption: string): boolean {
   return STAFF_ATTENDANCE_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that map to StudentAttendanceLogList */
+const STUDENT_ATTENDANCE_CAPTIONS = new Set([
+  'student attendance',
+  'student attendance view',
+  'studentattendancelog view',
+  'student attendance log',
+  'studentattendancelog',
+]);
+
+export function isStudentAttendanceCaption(caption: string): boolean {
+  return STUDENT_ATTENDANCE_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that should open the leave-only view (absent/non-present records for all staff). */
+const LEAVE_CAPTIONS = new Set([
+  'my leave',
+  'my leave view',
+  'staff leave',
+  'staff leave view',
+  'leave',
+  'leave view',
+]);
+
+/**
+ * Returns true when the caption refers to the leave-only variant of
+ * TeacherAttendanceLogList (shows only non-present staff records).
+ */
+export function isLeaveCaption(caption: string): boolean {
+  return LEAVE_CAPTIONS.has(caption.trim().toLowerCase());
 }

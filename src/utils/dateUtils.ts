@@ -1,5 +1,41 @@
 import { MONTHS } from './constants';
 
+// ── Display format: dd-mm-yyyy ─────────────────────────────────────────────────
+
+/**
+ * Converts any stored date to display format dd-mm-yyyy.
+ * Handles:
+ *   dd/MMM/yyyy  (internal storage, e.g. "15/Jan/2024") → "15-01-2024"
+ *   YYYY-MM-DD   (ISO, e.g. "2024-01-15")               → "15-01-2024"
+ *   DD/MM/YYYY   (e.g. "15/01/2024")                    → "15-01-2024"
+ *   DD-MM-YYYY   (already display format)               → "15-01-2024"
+ * Returns the original string unchanged for any unrecognised format.
+ */
+export function formatDisplayDate(raw: string | undefined | null): string | undefined {
+  if (!raw) return undefined;
+  const s = raw.trim();
+  if (!s) return undefined;
+
+  // dd/MMM/yyyy — internal storage format
+  const dmy = s.match(/^(\d{1,2})\/([A-Za-z]{3})\/(\d{4})$/);
+  if (dmy) {
+    const month = MONTHS.findIndex(m => m.toLowerCase() === dmy[2].toLowerCase()) + 1;
+    if (month > 0)
+      return `${dmy[1].padStart(2, '0')}-${String(month).padStart(2, '0')}-${dmy[3]}`;
+  }
+
+  // YYYY-MM-DD — ISO format
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) return `${iso[3]}-${iso[2]}-${iso[1]}`;
+
+  // DD/MM/YYYY or DD-MM-YYYY (numeric)
+  const numeric = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (numeric)
+    return `${numeric[1].padStart(2, '0')}-${numeric[2].padStart(2, '0')}-${numeric[3]}`;
+
+  return s; // unrecognised — pass through
+}
+
 // ── ISO format: YYYY-MM-DD (used by Teacher & Employee forms) ─────────────────
 
 /** Parse a 'YYYY-MM-DD' string; returns null on invalid input. */

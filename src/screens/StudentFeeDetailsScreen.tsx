@@ -8,6 +8,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
+import { formatDisplayDate } from '../utils/dateUtils';
 import { studentFeeRepository, studentRepository } from '../db/repositories';
 import type { StudentFeeModel } from '../db/models/studentfee.model';
 import type { StudentModel } from '../db/models/student.model';
@@ -146,8 +147,8 @@ export default function StudentFeeDetailsScreen({ navigation, route }: Props) {
           <InfoRow icon="cash-outline"            label="Amount"       value={fmtCurrency(item.amount)}  iconBg={PRIMARY} />
           <InfoRow icon="receipt-outline"         label="Receipt No"   value={item.recptNo}              />
           <InfoRow icon="receipt-outline"         label="Fee Type"     value={item.feeType}              />
-          <InfoRow icon="calendar-outline"        label="Due Date"     value={item.dueDate}              />
-          <InfoRow icon="calendar-number-outline" label="Paid Date"    value={item.paidDate}             />
+          <InfoRow icon="calendar-outline"        label="Due Date"     value={formatDisplayDate(item.dueDate)}   />
+          <InfoRow icon="calendar-number-outline" label="Paid Date"    value={formatDisplayDate(item.paidDate)}  />
           <InfoRow icon="card-outline"            label="Payment Mode" value={item.paymentMode}          iconBg={PRIMARY} />
         </View>
 

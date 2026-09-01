@@ -1,49 +1,36 @@
 import React, { memo } from 'react';
-import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import type { TeacherAttendanceLogModel } from '../../db/models/teacherattendancelog.model';
+import type { StudentAttendanceLogModel } from '../../db/models/studentattendancelog.model';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 import { formatDisplayDate } from '../../utils/dateUtils';
 
 const PRIMARY = Colors.primary;
 
-/**
- * Display the already-normalised time string from normaliseDateTime.
- * Values arrive as "H:MM:SS AM/PM" or "H:MM AM/PM" — pass through as-is.
- */
-function fmtTime(val?: string): string | undefined {
-  if (!val) return undefined;
-  return val;
-}
-
 const LEAVE_OPTION_COLORS: Record<string, { bg: string; text: string }> = {
-  Present:  { bg: '#F1F8E9', text: '#2E7D32' },
+  Present:    { bg: '#F1F8E9', text: '#2E7D32' },
   'Half Day': { bg: '#FFF8E1', text: '#F57F17' },
   'Full Day': { bg: '#FFEBEE', text: '#C62828' },
 };
 const DEFAULT_LEAVE_COLOR = LEAVE_OPTION_COLORS.Present;
 
 interface Props {
-  item: TeacherAttendanceLogModel;
-  teacherName?: string;
-  activeFilterEmail?: string;
-  onPress: (item: TeacherAttendanceLogModel) => void;
-  onEmailChipPress?: (email: string) => void;
+  item: StudentAttendanceLogModel;
+  /** Resolved full name for item.regNumber */
+  studentName?: string;
+  onPress: (item: StudentAttendanceLogModel) => void;
 }
 
-const TeacherAttendanceLogRow = memo(({ item, teacherName, activeFilterEmail, onPress, onEmailChipPress }: Props) => {
+const StudentAttendanceLogRow = memo(({ item, studentName, onPress }: Props) => {
   const leaveOpt   = item.leaveOption ?? 'Present';
   const leaveStyle = LEAVE_OPTION_COLORS[leaveOpt] ?? DEFAULT_LEAVE_COLOR;
-  const isApproved   = String(item.approved ?? '').toLowerCase() === 'true' || item.approved === '1';
-  const checkInTime  = fmtTime(item.checkIn);
-  const checkOutTime = fmtTime(item.checkOut);
+  const isApproved = String(item.approved ?? '').toLowerCase() === 'true' || item.approved === '1';
 
-  const displayName  = teacherName ?? item.teacherEmail ?? '—';
-  const displayEmail = item.teacherEmail;
-  const showEmail    = teacherName && displayEmail && displayEmail !== teacherName;
+  const displayName = studentName ?? item.regNumber ?? '—';
+  const showReg     = studentName && item.regNumber;
 
   const initials = displayName
-    .split(/[@.\s]/)
+    .split(/[\s]/)
     .filter(Boolean)
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? '')
@@ -52,53 +39,26 @@ const TeacherAttendanceLogRow = memo(({ item, teacherName, activeFilterEmail, on
   return (
     <Pressable
       onPress={() => onPress(item)}
-      android_ripple={{ color: 'rgba(194,24,91,0.1)' }}
-      style={({ pressed }) => [
-        KStyles.rowContainer,
-        pressed && KStyles.rowPressed,
-      ]}
+      android_ripple={{ color: 'rgba(106,27,154,0.1)' }}
+      style={({ pressed }) => [KStyles.rowContainer, pressed && KStyles.rowPressed]}
     >
       {/* Avatar */}
       <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{initials || 'T'}</Text>
+        <Text style={styles.avatarText}>{initials || 'S'}</Text>
       </View>
 
       <View style={KStyles.rowInfo}>
         <View style={KStyles.rowTwoCol}>
           <View style={KStyles.rowLeftCol}>
-            <Text style={KStyles.rowName} numberOfLines={1}>
-              {displayName}
-            </Text>
-            {showEmail ? (
-              <TouchableOpacity
-                onPress={() => onEmailChipPress?.(displayEmail!)}
-                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
-                activeOpacity={0.7}
-                style={[
-                  styles.emailChip,
-                  activeFilterEmail === displayEmail && styles.emailChipActive,
-                ]}
-              >
-                <Ionicons
-                  name="filter"
-                  size={10}
-                  color={activeFilterEmail === displayEmail ? '#fff' : PRIMARY}
-                />
-                <Text
-                  style={[
-                    styles.emailChipText,
-                    activeFilterEmail === displayEmail && styles.emailChipTextActive,
-                  ]}
-                  numberOfLines={1}
-                >
-                  {displayEmail}
-                </Text>
-              </TouchableOpacity>
+            <Text style={KStyles.rowName} numberOfLines={1}>{displayName}</Text>
+            {showReg ? (
+              <Text style={styles.regLabel} numberOfLines={1}>{item.regNumber}</Text>
             ) : null}
             {item.attendanceDate ? (
               <Text style={styles.dateLabel}>{formatDisplayDate(item.attendanceDate)}</Text>
             ) : null}
           </View>
+
           <View style={KStyles.rowRightCol}>
             {/* Leave badge */}
             <View style={[styles.statusBadge, { backgroundColor: leaveStyle.bg }]}>
@@ -117,18 +77,18 @@ const TeacherAttendanceLogRow = memo(({ item, teacherName, activeFilterEmail, on
         </View>
 
         {/* Check-in / Check-out */}
-        {(checkInTime || checkOutTime) ? (
+        {(item.checkIn || item.checkOut) ? (
           <View style={styles.timeRow}>
-            {checkInTime ? (
+            {item.checkIn ? (
               <View style={styles.timeChip}>
                 <Ionicons name="log-in-outline" size={11} color={PRIMARY} />
-                <Text style={styles.timeText}>{checkInTime}</Text>
+                <Text style={styles.timeText}>{item.checkIn}</Text>
               </View>
             ) : null}
-            {checkOutTime ? (
+            {item.checkOut ? (
               <View style={styles.timeChip}>
                 <Ionicons name="log-out-outline" size={11} color="#757575" />
-                <Text style={[styles.timeText, { color: '#757575' }]}>{checkOutTime}</Text>
+                <Text style={[styles.timeText, { color: '#757575' }]}>{item.checkOut}</Text>
               </View>
             ) : null}
           </View>
@@ -147,7 +107,7 @@ const TeacherAttendanceLogRow = memo(({ item, teacherName, activeFilterEmail, on
   );
 });
 
-export default TeacherAttendanceLogRow;
+export default StudentAttendanceLogRow;
 
 const styles = StyleSheet.create({
   avatar: {
@@ -162,24 +122,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   avatarText:    { fontSize: 16, fontWeight: '700', color: '#fff' },
-  emailChip: {
-    flexDirection:     'row',
-    alignItems:        'center',
-    gap:                3,
-    alignSelf:         'flex-start',
-    marginTop:          3,
-    paddingHorizontal:  7,
-    paddingVertical:    2,
-    borderRadius:      10,
-    borderWidth:        1,
-    borderColor:       PRIMARY,
-    backgroundColor:   Colors.lightPink,
-  },
-  emailChipActive: {
-    backgroundColor: PRIMARY,
-  },
-  emailChipText:     { fontSize: 11, color: PRIMARY, fontWeight: '600' },
-  emailChipTextActive: { color: '#fff' },
+  regLabel:      { fontSize: 11, color: PRIMARY, fontWeight: '600', marginTop: 1 },
   dateLabel:     { fontSize: 12, color: Colors.muted, marginTop: 2 },
   statusBadge: {
     paddingHorizontal: 7,

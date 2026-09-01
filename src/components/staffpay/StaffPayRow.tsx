@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import type { StaffPayModel } from '../../db/models/staffpay.model';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 const PRIMARY = Colors.primary;
 
@@ -47,7 +48,7 @@ const StaffPayRow = memo(({ item, staffName, activeMonth, onPress, onMonthPress 
             ) : null}
             {/* Pay date */}
             {item.payDate ? (
-              <Text style={styles.dateLabel}>Paid: {item.payDate}</Text>
+              <Text style={styles.dateLabel}>Paid: {formatDisplayDate(item.payDate)}</Text>
             ) : null}
           </View>
 

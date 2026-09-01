@@ -8,6 +8,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
+import { formatDisplayDate } from '../utils/dateUtils';
 import { staffPayRepository } from '../db/repositories';
 import type { StaffPayModel } from '../db/models/staffpay.model';
 import { syncSheet } from '../sync/sync.service';
@@ -104,7 +105,7 @@ export default function StaffPayDetailsScreen({ navigation, route }: Props) {
           <InfoRow icon="wallet-outline"          label="Amount"    value={fmtCurrency(item.amount)} iconBg={PRIMARY} />
           <InfoRow icon="receipt-outline"         label="Receipt No" value={item.recptNo} />
           <InfoRow icon="calendar-number-outline" label="Pay Month" value={item.payMonth} />
-          <InfoRow icon="calendar-outline"        label="Pay Date"  value={item.payDate} />
+          <InfoRow icon="calendar-outline"        label="Pay Date"  value={formatDisplayDate(item.payDate)} />
           <InfoRow icon="card-outline"            label="Pay Mode"  value={item.payMode} iconBg={PRIMARY} />
         </View>
 

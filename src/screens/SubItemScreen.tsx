@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
 import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
-import { resolveScreen, isStaffAttendanceCaption } from '../navigation/screenRegistry';
+import { resolveScreen, isStaffAttendanceCaption, isLeaveCaption, isStudentAttendanceCaption } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 
@@ -54,6 +54,10 @@ function CardIcon({ caption, value }: { caption: string | undefined; value: stri
 interface Props {
   navigation: any;
   route: { params: { parentview: string; title: string } };
+}
+
+function isStudentParentview(parentview: string): boolean {
+  return parentview.trim().toLowerCase().startsWith('student');
 }
 
 export default function SubItemScreen({ navigation, route }: Props) {
@@ -123,7 +127,12 @@ export default function SubItemScreen({ navigation, route }: Props) {
                   // Try appviewsheet first, fall back to caption if unresolved
                   let screenName = resolveScreen(appviewsheet);
                   if (screenName === 'Landing') screenName = resolveScreen(caption);
-                  console.log(`[SubItems] caption="${caption}" appviewsheet="${appviewsheet}" → screen="${screenName}"`);
+                  // Context fallback: bare "Attendance" inside a student parentview → student attendance
+                  if (screenName === 'Landing' && isStudentParentview(parentview) &&
+                      caption.trim().toLowerCase() === 'attendance') {
+                    screenName = 'StudentAttendanceLogList';
+                  }
+                  console.log(`[SubItems] parentview="${parentview}" caption="${caption}" appviewsheet="${appviewsheet}" → screen="${screenName}"`);
                   if (screenName === 'Landing') {
                     navigation.navigate('Landing', {
                       title: caption || String(item.id),
@@ -138,10 +147,15 @@ export default function SubItemScreen({ navigation, route }: Props) {
                   } else if (screenName === 'StaffPayList') {
                     // "Salary" / "Staff Pay" card — open staff pay list
                     navigation.navigate('StaffPayList', { headerTitle: caption || 'Staff Pay' });
+                  } else if (screenName === 'StudentAttendanceLogList' ||
+                             isStudentAttendanceCaption(caption) ||
+                             (isStudentParentview(parentview) && caption.trim().toLowerCase() === 'attendance')) {
+                    navigation.navigate('StudentAttendanceLogList', { headerTitle: caption });
                   } else {
                     navigation.navigate(screenName, {
                       headerTitle: caption,
                       ...(isStaffAttendanceCaption(caption) && { staffMode: true }),
+                      ...(isLeaveCaption(caption) && { leaveMode: true, staffMode: true }),
                     });
                   }
                 }

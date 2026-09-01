@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { formatDisplayDate } from '../utils/dateUtils';
 import { SHEETS } from '../utils/constants';
 import { teacherRepository } from '../db/repositories';
 import type { TeacherModel } from '../db/models/teacher.model';
@@ -199,7 +200,7 @@ export default function TeacherDetailsScreen({ navigation, route }: Props) {
           {item.department ? (
             <InfoRow icon="business-outline" label="Department" value={item.department} />
           ) : null}
-          <InfoRow icon="calendar-outline" label="Joining Date" value={item.joiningDate} />
+          <InfoRow icon="calendar-outline" label="Joining Date" value={formatDisplayDate(item.joiningDate)} />
           <InfoRow icon="chatbubble-outline" label="Remarks" value={item.remarks} />
         </View>
 

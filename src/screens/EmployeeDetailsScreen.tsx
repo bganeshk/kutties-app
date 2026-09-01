@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { formatDisplayDate } from '../utils/dateUtils';
 import { SHEETS } from '../utils/constants';
 import { employeeRepository } from '../db/repositories';
 import type { EmployeeModel } from '../db/models/employee.model';
@@ -180,7 +181,7 @@ export default function EmployeeDetailsScreen({ navigation, route }: Props) {
         <View style={KStyles.detailsCard}>
           <InfoRow icon="briefcase-outline" label="Designation" value={item.designation} />
           <InfoRow icon="business-outline"  label="Department"  value={item.department} />
-          <InfoRow icon="calendar-outline"  label="Joining Date" value={item.joiningDate} />
+          <InfoRow icon="calendar-outline"  label="Joining Date" value={formatDisplayDate(item.joiningDate)} />
         </View>
 
         {/* ── ID Photo ──────────────────────────────────────────────────────── */}

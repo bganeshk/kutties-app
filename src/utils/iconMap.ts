@@ -28,6 +28,7 @@ const iconMap: Record<string, IconEntry> = {
   'Assignments':          '📝',
   'Assingment':           '📝',
   'Attendance':           '🙋',
+  'Student Attendance':   { ionicon: 'calendar-outline', color: '#6A1B9A' },
   'Leave':                '🏖️',
   'Collect Fee':          '💵',
   'Fee Pending':          { ionicon: 'swap-horizontal', color: '#C62828' },

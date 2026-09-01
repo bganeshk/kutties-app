@@ -38,6 +38,9 @@ import type { StudentFeeModel } from '../db/models/studentfee.model';
 import StaffPayDetailsScreen from '../screens/StaffPayDetailsScreen';
 import { StaffPayList, StaffPayForm } from '../components/staffpay';
 import type { StaffPayModel } from '../db/models/staffpay.model';
+import StudentAttendanceLogDetailsScreen from '../screens/StudentAttendanceLogDetailsScreen';
+import { StudentAttendanceLogList, StudentAttendanceLogForm } from '../components/studentattendancelog';
+import type { StudentAttendanceLogModel } from '../db/models/studentattendancelog.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -65,7 +68,7 @@ export type HomeStackParamList = {
   FeedbackList: undefined;
   FeedbackDetails: { item: FeedbackModel };
   FeedbackForm: { mode: 'add' | 'edit'; item?: FeedbackModel };
-  TeacherAttendanceLogList: { teacherEmail?: string; teacherName?: string; headerTitle?: string; staffMode?: boolean } | undefined;
+  TeacherAttendanceLogList: { teacherEmail?: string; teacherName?: string; headerTitle?: string; staffMode?: boolean; leaveMode?: boolean } | undefined;
   TeacherAttendanceLogDetails: { item: TeacherAttendanceLogModel };
   TeacherAttendanceLogForm: { mode: 'add' | 'edit'; item?: TeacherAttendanceLogModel; staffMode?: boolean };
   StudentHealthList: { studentEmail?: string; studentName?: string; headerTitle?: string } | undefined;
@@ -78,6 +81,9 @@ export type HomeStackParamList = {
   StaffPayList: { staffEmail?: string; staffName?: string; headerTitle?: string } | undefined;
   StaffPayDetails: { item: StaffPayModel };
   StaffPayForm: { mode: 'add' | 'edit'; item?: StaffPayModel; prefilledStaff?: string };
+  StudentAttendanceLogList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
+  StudentAttendanceLogDetails: { item: StudentAttendanceLogModel };
+  StudentAttendanceLogForm: { mode: 'add' | 'edit'; item?: StudentAttendanceLogModel; prefilledRegNumber?: string };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -120,9 +126,12 @@ export default function HomeStack() {
       <Stack.Screen name="StudentFeeDetails"           component={StudentFeeDetailsScreen} />
       <Stack.Screen name="StudentFeeForm"              component={StudentFeeForm} />
       <Stack.Screen name="FeePending"                  component={FeePendingScreen} />
-      <Stack.Screen name="StaffPayList"                component={StaffPayList} />
-      <Stack.Screen name="StaffPayDetails"             component={StaffPayDetailsScreen} />
-      <Stack.Screen name="StaffPayForm"                component={StaffPayForm} />
+      <Stack.Screen name="StaffPayList"                    component={StaffPayList} />
+      <Stack.Screen name="StaffPayDetails"                 component={StaffPayDetailsScreen} />
+      <Stack.Screen name="StaffPayForm"                    component={StaffPayForm} />
+      <Stack.Screen name="StudentAttendanceLogList"        component={StudentAttendanceLogList} />
+      <Stack.Screen name="StudentAttendanceLogDetails"     component={StudentAttendanceLogDetailsScreen} />
+      <Stack.Screen name="StudentAttendanceLogForm"        component={StudentAttendanceLogForm} />
     </Stack.Navigator>
   );
 }

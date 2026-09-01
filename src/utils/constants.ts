@@ -11,6 +11,7 @@ export const SHEETS = {
   HANDBOOK:          'handbook',
   FEEDBACK:          'feedback',
   TEACATTELOG:          'StaffAttendanceLog',
+  STUDENT_ATT_LOG:      'StudentAttendanceLog',
   STUDENT_HEALTH:       'student_health_report',
   STUDENT_FEE:          'stfee',
   STAFF_PAY:            'staffpay',

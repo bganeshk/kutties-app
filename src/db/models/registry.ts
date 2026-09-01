@@ -10,6 +10,7 @@ import { toTeacherAttendanceLogModel } from './teacherattendancelog.model';
 import { toStudentHealthModel } from './studenthealth.model';
 import { toStudentFeeModel } from './studentfee.model';
 import { toStaffPayModel } from './staffpay.model';
+import { toStudentAttendanceLogModel } from './studentattendancelog.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -40,6 +41,7 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   student_health_report:   (raw) => toStudentHealthModel(raw)         as unknown as Record<string, unknown>,
   stfee:                   (raw) => toStudentFeeModel(raw)            as unknown as Record<string, unknown>,
   staffpay:                (raw) => toStaffPayModel(raw)              as unknown as Record<string, unknown>,
+  StudentAttendanceLog:    (raw) => toStudentAttendanceLogModel(raw)  as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
 };
 
@@ -98,6 +100,7 @@ const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
     revision:          'revision',
     lastmodified:      'lastmodified',
   },
+  // StudentAttendanceLog: all column names match camelCase keys exactly — no renames needed.
   coursetimetbl: {
     courseDivision: 'CourseDivision',
     day:            'Day',

@@ -8,6 +8,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
+import { formatDisplayDate } from '../utils/dateUtils';
 import { studentHealthRepository, studentRepository } from '../db/repositories';
 import type { StudentHealthModel } from '../db/models/studenthealth.model';
 import type { StudentModel } from '../db/models/student.model';
@@ -116,7 +117,7 @@ export default function StudentHealthDetailsScreen({ navigation, route }: Props)
             <Text style={KStyles.detailsHeroDesignation}>{item.regNumber}</Text>
           ) : null}
           {item.checkupDate ? (
-            <Text style={KStyles.detailsHeroDesignation}>{item.checkupDate}</Text>
+            <Text style={KStyles.detailsHeroDesignation}>{formatDisplayDate(item.checkupDate)}</Text>
           ) : null}
           {bloodStyle && item.bloodGroup ? (
             <View style={[styles.bloodBadge, { backgroundColor: bloodStyle.bg }]}>
@@ -137,7 +138,7 @@ export default function StudentHealthDetailsScreen({ navigation, route }: Props)
             iconBg={PRIMARY}
             onPress={studentRecord ? () => navigation.navigate('StudentDetails', { item: studentRecord }) : undefined}
           />
-          <InfoRow icon="calendar-outline" label="Checkup Date" value={item.checkupDate} iconBg={PRIMARY} />
+          <InfoRow icon="calendar-outline" label="Checkup Date" value={formatDisplayDate(item.checkupDate)} iconBg={PRIMARY} />
           <InfoRow icon="water-outline"    label="Blood Group"  value={item.bloodGroup}  iconBg={PRIMARY} />
           <InfoRow icon="resize-outline"   label="Height"       value={item.height != null ? `${item.height} cm` : undefined} />
           <InfoRow icon="barbell-outline"  label="Weight"       value={item.weight != null ? `${item.weight} kg` : undefined} />

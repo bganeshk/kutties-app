@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import type { TeacherAttendanceLogModel } from '../../db/models/teacherattendancelog.model';
 import { Colors } from '../../styles/kutties-styles';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 const PRIMARY = Colors.primary;
 
@@ -101,7 +102,7 @@ const GridRow = memo(({
       </Text>
       {showDate && (
         <Text style={[styles.dCell, { width: COL.date }]} numberOfLines={1}>
-          {item.attendanceDate ?? '—'}
+          {item.attendanceDate ? formatDisplayDate(item.attendanceDate) : '—'}
         </Text>
       )}
     </Pressable>
@@ -174,9 +175,10 @@ const SectionBlock = memo(({
           <View>
             <GridHeader firstColLabel={firstColLabel} showDate={mode === 'date'} />
             {section.rows.map((item) => {
-              const firstColValue = mode === 'teacher'
-                ? (item.attendanceDate ?? '—')
-                : (emailToName?.[item.teacherEmail?.toLowerCase() ?? ''] ?? item.teacherEmail ?? '—');
+              const _fv = mode === 'teacher'
+                ? (item.attendanceDate ? formatDisplayDate(item.attendanceDate) : '—')
+                : (emailToName?.[item.teacherEmail?.toLowerCase() ?? ''] ?? item.teacherEmail);
+              const firstColValue: string = _fv ?? '—';
               return (
                 <GridRow
                   key={item.id}

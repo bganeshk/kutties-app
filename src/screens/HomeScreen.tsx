@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
 import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
-import { resolveScreen, isStaffAttendanceCaption } from '../navigation/screenRegistry';
+import { resolveScreen, isStaffAttendanceCaption, isLeaveCaption } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 
@@ -141,6 +141,7 @@ export default function HomeScreen({ navigation }: Props) {
                   navigation?.navigate(resolvedScreen, {
                     headerTitle: caption,
                     ...(isStaffAttendanceCaption(caption) && { staffMode: true }),
+                    ...(isLeaveCaption(caption) && { leaveMode: true, staffMode: true }),
                   });
                 } else {
                   navigation?.navigate('Landing', {

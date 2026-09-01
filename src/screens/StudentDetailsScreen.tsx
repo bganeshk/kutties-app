@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
+import { formatDisplayDate } from '../utils/dateUtils';
 import { STUDENT_STATUS_COLOR, STUDENT_STATUS_BG, STUDENT_STATUS_BORDER, SHEETS } from '../utils/constants';
 import { studentRepository, courseRepository, teacherRepository } from '../db/repositories';
 import type { StudentModel } from '../db/models/student.model';
@@ -184,6 +185,18 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
             <Ionicons name="cash-outline" size={20} color="#1565C0" />
             <Text style={KStyles.detailsQaBtnText}>Fees</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            onPress={() => navigation.navigate('StudentAttendanceLogList', {
+              studentRegNumber: item.regNumber,
+              studentName:      item.fullName,
+              headerTitle:      `${item.fullName ?? 'Student'}'s Attendance`,
+            })}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="calendar-outline" size={20} color="#6A1B9A" />
+            <Text style={KStyles.detailsQaBtnText}>Attendance</Text>
+          </TouchableOpacity>
         </View>
 
         {/* ── Contact ───────────────────────────────────────────────────────── */}
@@ -218,7 +231,7 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
         <View style={KStyles.detailsCard}>
           <InfoRow icon="people-outline" label="Mother's Name" value={item.motherName} />
           <InfoRow icon="people-outline" label="Father's Name" value={item.fatherName} />
-          <InfoRow icon="calendar-outline" label="Date of Birth" value={item.dob} />
+          <InfoRow icon="calendar-outline" label="Date of Birth" value={formatDisplayDate(item.dob)} />
         </View>
 
         {/* ── Academic ──────────────────────────────────────────────────────── */}
@@ -248,7 +261,7 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
             }
             iconBg={PRIMARY}
           />
-          <InfoRow icon="calendar-outline" label="Admission Date" value={item.admissionDate} />
+          <InfoRow icon="calendar-outline" label="Admission Date" value={formatDisplayDate(item.admissionDate)} />
           <InfoRow icon="time-outline" label="After School" value={item.afterSchool} />
           <InfoRow icon="sunny-outline" label="Opt Weekend" value={item.optWeekend} />
         </View>

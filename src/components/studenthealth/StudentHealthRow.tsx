@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { StudentHealthModel } from '../../db/models/studenthealth.model';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 const PRIMARY = Colors.primary;
 
@@ -47,7 +48,7 @@ const StudentHealthRow = memo(({ item, studentName, hideStudentName, onPress }: 
             ) : null}
             {item.checkupDate ? (
               <Text style={displayName == null ? KStyles.rowName : styles.dateLabel}>
-                {item.checkupDate}
+                {formatDisplayDate(item.checkupDate)}
               </Text>
             ) : null}
           </View>

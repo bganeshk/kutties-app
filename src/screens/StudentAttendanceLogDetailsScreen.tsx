@@ -9,62 +9,63 @@ import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 import { formatDisplayDate } from '../utils/dateUtils';
-import { teacherAttendanceLogRepository, teacherRepository } from '../db/repositories';
-import type { TeacherAttendanceLogModel } from '../db/models/teacherattendancelog.model';
+import { studentAttendanceLogRepository, studentRepository } from '../db/repositories';
+import type { StudentAttendanceLogModel } from '../db/models/studentattendancelog.model';
+import type { StudentModel } from '../db/models/student.model';
 import { syncSheet } from '../sync/sync.service';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 import InfoRow from '../components/shared/InfoRow';
 
 const PRIMARY = Colors.primary;
 
-type Props = NativeStackScreenProps<HomeStackParamList, 'TeacherAttendanceLogDetails'>;
+type Props = NativeStackScreenProps<HomeStackParamList, 'StudentAttendanceLogDetails'>;
 
-/** Extract HH:MM from a full ISO timestamp */
-function fmtTime(val?: string): string | undefined {
-  if (!val) return undefined;
-  const m = val.match(/T(\d{2}:\d{2})/);
-  return m ? m[1] : val;
-}
+const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  Present:    { bg: '#F1F8E9', text: '#2E7D32' },
+  'Half Day': { bg: '#FFF8E1', text: '#F57F17' },
+  'Full Day': { bg: '#FFEBEE', text: '#C62828' },
+};
 
 function Section({ title }: { title: string }) {
   return <Text style={KStyles.detailsSection}>{title}</Text>;
 }
 
-export default function TeacherAttendanceLogDetailsScreen({ navigation, route }: Props) {
-  const [item, setItem] = useState<TeacherAttendanceLogModel>(route.params.item);
+export default function StudentAttendanceLogDetailsScreen({ navigation, route }: Props) {
+  const [item,          setItem]          = useState<StudentAttendanceLogModel>(route.params.item);
+  const [studentRecord, setStudentRecord] = useState<StudentModel | undefined>(undefined);
   const [deleteVisible, setDeleteVisible] = useState(false);
-  const [teacherName, setTeacherName] = useState<string | undefined>(undefined);
 
   useFocusEffect(
     useCallback(() => {
-      teacherAttendanceLogRepository.findById(route.params.item.id).then((fresh) => {
+      studentAttendanceLogRepository.findById(route.params.item.id).then((fresh) => {
         if (fresh) setItem(fresh);
       });
     }, [route.params.item.id]),
   );
 
-  // Resolve teacher name from email
+  // Resolve student record from regNumber
   React.useEffect(() => {
-    if (!item.teacherEmail) return;
-    teacherRepository.emailToNameMap().then((map) => {
-      setTeacherName(map[item.teacherEmail!.toLowerCase()]);
+    if (!item.regNumber) return;
+    studentRepository.findAll().then((students) => {
+      const match = students.find(
+        (s) => (s.regNumber ?? '').toLowerCase() === (item.regNumber ?? '').toLowerCase(),
+      );
+      setStudentRecord(match ?? undefined);
     });
-  }, [item.teacherEmail]);
+  }, [item.regNumber]);
 
-  const leaveOpt    = item.leaveOption ?? 'Present';
-  const isOnLeave   = leaveOpt !== 'Present';
-  const isApproved  = String(item.approved ?? '').toLowerCase() === 'true' || item.approved === '1';
-  const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-    Present:    { bg: '#F1F8E9', text: '#2E7D32' },
-    'Half Day': { bg: '#FFF8E1', text: '#F57F17' },
-    'Full Day': { bg: '#FFEBEE', text: '#C62828' },
-  };
-  const { bg: statusBg, text: statusText } = STATUS_COLORS[leaveOpt] ?? STATUS_COLORS.Present;
-  const statusLabel = leaveOpt.toUpperCase();
+  const leaveOpt   = item.leaveOption ?? 'Present';
+  const isOnLeave  = leaveOpt !== 'Present';
+  const isApproved = String(item.approved ?? '').toLowerCase() === 'true' || item.approved === '1';
+
+  const { bg: statusBg, text: statusText } =
+    STATUS_COLORS[leaveOpt] ?? STATUS_COLORS.Present;
+
+  const studentName = studentRecord?.fullName ?? studentRecord?.regNumber;
 
   const handleDelete = useCallback(() => {
-    teacherAttendanceLogRepository.delete(item.id).then(() => {
-      syncSheet(SHEETS.TEACATTELOG).catch(() => {});
+    studentAttendanceLogRepository.delete(item.id).then(() => {
+      syncSheet(SHEETS.STUDENT_ATT_LOG).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);
@@ -72,7 +73,7 @@ export default function TeacherAttendanceLogDetailsScreen({ navigation, route }:
   return (
     <SafeAreaView style={KStyles.detailsRoot}>
       {/* Header */}
-      <View style={KStyles.header}>
+      <View style={[KStyles.header, { backgroundColor: PRIMARY }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -83,7 +84,7 @@ export default function TeacherAttendanceLogDetailsScreen({ navigation, route }:
         <View style={KStyles.headerActions}>
           <TouchableOpacity
             style={KStyles.headerIcon}
-            onPress={() => navigation.navigate('TeacherAttendanceLogForm', { mode: 'edit', item })}
+            onPress={() => navigation.navigate('StudentAttendanceLogForm', { mode: 'edit', item })}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Ionicons name="create-outline" size={22} color="#fff" />
@@ -100,20 +101,37 @@ export default function TeacherAttendanceLogDetailsScreen({ navigation, route }:
 
       <ScrollView contentContainerStyle={KStyles.detailsScroll}>
 
-        {/* ── Hero card ─────────────────────────────────────────────────── */}
+        {/* ── Hero card ──────────────────────────────────────────────────── */}
         <View style={KStyles.detailsHeroCard}>
           <View style={styles.heroAvatar}>
             <Ionicons name="calendar" size={36} color={PRIMARY} />
           </View>
-          <Text style={KStyles.detailsHeroName}>{teacherName ?? item.teacherEmail ?? '—'}</Text>
-          {teacherName && item.teacherEmail ? (
-            <Text style={KStyles.detailsHeroDesignation}>{item.teacherEmail}</Text>
+
+          {/* Student name — tappable if record found */}
+          <TouchableOpacity
+            disabled={!studentRecord}
+            onPress={
+              studentRecord
+                ? () => navigation.navigate('StudentDetails', { item: studentRecord })
+                : undefined
+            }
+            activeOpacity={0.7}
+          >
+            <Text style={[KStyles.detailsHeroName, studentRecord && styles.heroNameLink]}>
+              {studentName ?? item.regNumber ?? '—'}
+            </Text>
+          </TouchableOpacity>
+          {studentName && item.regNumber ? (
+            <Text style={KStyles.detailsHeroDesignation}>{item.regNumber}</Text>
           ) : null}
           {item.attendanceDate ? (
             <Text style={KStyles.detailsHeroDesignation}>{formatDisplayDate(item.attendanceDate)}</Text>
           ) : null}
+
           <View style={styles.badgeRow}>
-            
+            <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
+              <Text style={[styles.statusText, { color: statusText }]}>{leaveOpt.toUpperCase()}</Text>
+            </View>
             {isApproved && (
               <View style={styles.approvedBadge}>
                 <Ionicons name="checkmark-circle" size={13} color="#2E7D32" />
@@ -123,26 +141,28 @@ export default function TeacherAttendanceLogDetailsScreen({ navigation, route }:
           </View>
         </View>
 
-        {/* ── Attendance ────────────────────────────────────────────────── */}
+        {/* ── Attendance ─────────────────────────────────────────────────── */}
         <Section title="Attendance" />
         <View style={KStyles.detailsCard}>
-          {teacherName ? (
-            <InfoRow icon="person-outline"   label="Teacher"     value={`${teacherName} (${item.teacherEmail})`} iconBg={PRIMARY} />
+          {studentName ? (
+            <InfoRow icon="person-outline"    label="Student"      value={`${studentName} (${item.regNumber})`} iconBg={PRIMARY} />
           ) : (
-            <InfoRow icon="mail-outline"     label="Teacher"     value={item.teacherEmail}   iconBg={PRIMARY} />
+            <InfoRow icon="person-outline"    label="Reg Number"   value={item.regNumber}          iconBg={PRIMARY} />
           )}
-          <InfoRow icon="calendar-outline"   label="Date"        value={formatDisplayDate(item.attendanceDate)} iconBg={PRIMARY} />
-          <InfoRow icon="log-in-outline"     label="Check-in"    value={fmtTime(item.checkIn)}  iconBg={PRIMARY} />
-          <InfoRow icon="log-out-outline"    label="Check-out"   value={fmtTime(item.checkOut)} iconBg={PRIMARY} />
-          <InfoRow icon="airplane-outline"   label="Leave"       value={leaveOpt} />
+          <InfoRow icon="calendar-outline"    label="Date"         value={formatDisplayDate(item.attendanceDate)} iconBg={PRIMARY} />
+          <InfoRow icon="log-in-outline"      label="Check-in"     value={item.checkIn}            iconBg={PRIMARY} />
+          <InfoRow icon="log-out-outline"     label="Check-out"    value={item.checkOut}           iconBg={PRIMARY} />
+          <InfoRow icon="airplane-outline"    label="Leave Option" value={leaveOpt} />
           {isOnLeave && (
-            <InfoRow icon="list-outline"     label="Leave Type"  value={item.leaveType} />
+            <InfoRow icon="list-outline"      label="Leave Type"   value={item.leaveType} />
           )}
+          <InfoRow icon="people-outline"      label="Accompanied By" value={item.accompaniedBy} />
+          <InfoRow icon="person-add-outline"  label="Marked By"    value={item.markedBy} />
           <InfoRow icon="checkmark-circle-outline" label="Approved" value={isApproved ? 'Yes' : 'No'} />
-          <InfoRow icon="chatbubble-outline" label="Remarks"     value={item.remarks} />
+          <InfoRow icon="chatbubble-outline"  label="Remarks"      value={item.remarks} />
         </View>
 
-        {/* ── Audit ─────────────────────────────────────────────────────── */}
+        {/* ── Audit ──────────────────────────────────────────────────────── */}
         {item.lastmodified && (
           <>
             <Section title="Audit" />
@@ -156,9 +176,9 @@ export default function TeacherAttendanceLogDetailsScreen({ navigation, route }:
       </ScrollView>
 
       <TouchableOpacity
-        style={KStyles.fab}
+        style={[KStyles.fab, { backgroundColor: PRIMARY }]}
         activeOpacity={0.85}
-        onPress={() => navigation.navigate('TeacherAttendanceLogForm', { mode: 'edit', item })}
+        onPress={() => navigation.navigate('StudentAttendanceLogForm', { mode: 'edit', item })}
       >
         <Ionicons name="create" size={26} color="#fff" />
       </TouchableOpacity>
@@ -181,11 +201,12 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.lightPink,
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
   },
+  heroNameLink: { color: PRIMARY, textDecorationLine: 'underline' },
   badgeRow: {
     flexDirection: 'row',
     alignItems: 'center',

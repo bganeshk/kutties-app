@@ -19,7 +19,7 @@ type LeaveFilter = 'all' | 'present' | 'absent';
 
 interface Props {
   navigation: any;
-  route?: { params?: { teacherEmail?: string; teacherName?: string; headerTitle?: string; staffMode?: boolean } };
+  route?: { params?: { teacherEmail?: string; teacherName?: string; headerTitle?: string; staffMode?: boolean; leaveMode?: boolean } };
 }
 
 /** "dd/MMM/yyyy" or ISO date → "Month YYYY" for grouping */
@@ -97,6 +97,7 @@ export default function TeacherAttendanceLogList({ navigation, route }: Props) {
   const filterEmail = route?.params?.teacherEmail?.trim();
   const filterName  = route?.params?.teacherName?.trim();
   const staffMode   = route?.params?.staffMode ?? false;
+  const leaveMode   = route?.params?.leaveMode ?? false;
   const { syncing, sync } = useSheet(SHEETS.TEACATTELOG);
   const { sync: syncStaff } = useSheet(SHEETS.STAFF);
   const synced = useRef(false);
@@ -104,7 +105,8 @@ export default function TeacherAttendanceLogList({ navigation, route }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('date');
   const [items, setItems] = useState<TeacherAttendanceLogModel[]>([]);
   const [emailToName, setEmailToName] = useState<Record<string, string>>({});
-  const [leaveFilter, setLeaveFilter] = useState<LeaveFilter>('all');
+  // In leave mode, default the filter to 'absent' so only leaves are shown
+  const [leaveFilter, setLeaveFilter] = useState<LeaveFilter>(leaveMode ? 'absent' : 'all');
 
   const loadItems = useCallback(async () => {
     let base: TeacherAttendanceLogModel[];
@@ -161,7 +163,9 @@ export default function TeacherAttendanceLogList({ navigation, route }: Props) {
   const resolvedFilterName = filterName
     ?? (filterEmail ? (emailToName[filterEmail.toLowerCase()] ?? filterEmail) : undefined)
     ?? '';
-  const defaultTitle = staffMode ? 'Employee Attendance' : 'Teacher Attendance';
+  const defaultTitle = leaveMode
+    ? 'Staff Leave'
+    : staffMode ? 'Employee Attendance' : 'Teacher Attendance';
   const headerTitle = resolvedFilterName
     ? `${resolvedFilterName}'s Attendance`
     : (route?.params?.headerTitle ?? defaultTitle);
@@ -208,40 +212,42 @@ export default function TeacherAttendanceLogList({ navigation, route }: Props) {
         </TouchableOpacity>
       </View>
 
-      {/* Tab bar */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'date' && styles.tabActive]}
-          onPress={() => handleTabChange('date')}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name="calendar-outline"
-            size={15}
-            color={activeTab === 'date' ? PRIMARY : Colors.muted}
-            style={{ marginRight: 5 }}
-          />
-          <Text style={[styles.tabText, activeTab === 'date' && styles.tabTextActive]}>
-            By Date
-          </Text>
-        </TouchableOpacity>
+      {/* Tab bar — hidden in leave mode */}
+      {!leaveMode && (
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'date' && styles.tabActive]}
+            onPress={() => handleTabChange('date')}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="calendar-outline"
+              size={15}
+              color={activeTab === 'date' ? PRIMARY : Colors.muted}
+              style={{ marginRight: 5 }}
+            />
+            <Text style={[styles.tabText, activeTab === 'date' && styles.tabTextActive]}>
+              By Date
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'teacher' && styles.tabActive]}
-          onPress={() => handleTabChange('teacher')}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name="person-outline"
-            size={15}
-            color={activeTab === 'teacher' ? PRIMARY : Colors.muted}
-            style={{ marginRight: 5 }}
-          />
-          <Text style={[styles.tabText, activeTab === 'teacher' && styles.tabTextActive]}>
-            By {personLabel}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'teacher' && styles.tabActive]}
+            onPress={() => handleTabChange('teacher')}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="person-outline"
+              size={15}
+              color={activeTab === 'teacher' ? PRIMARY : Colors.muted}
+              style={{ marginRight: 5 }}
+            />
+            <Text style={[styles.tabText, activeTab === 'teacher' && styles.tabTextActive]}>
+              By {personLabel}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Leave filter pills */}
       <View style={styles.filterRow}>
@@ -290,15 +296,7 @@ export default function TeacherAttendanceLogList({ navigation, route }: Props) {
           <Ionicons name="calendar-outline" size={48} color="#ccc" />
           <Text style={KStyles.emptyText}>No attendance records found</Text>
         </View>
-      ) : activeTab === 'teacher' ? (
-        <TeacherAttendanceGrid
-          sections={teacherGridSections}
-          mode="teacher"
-          emailToName={emailToName}
-          onRowPress={(r) => navigation.navigate('TeacherAttendanceLogDetails', { item: r })}
-          personLabel={personLabel}
-        />
-      ) : (
+      ) : (leaveMode || activeTab === 'date') ? (
         <TeacherAttendanceGrid
           sections={dateGridSections}
           mode="date"
@@ -306,16 +304,26 @@ export default function TeacherAttendanceLogList({ navigation, route }: Props) {
           onRowPress={(r) => navigation.navigate('TeacherAttendanceLogDetails', { item: r })}
           personLabel={personLabel}
         />
+      ) : (
+        <TeacherAttendanceGrid
+          sections={teacherGridSections}
+          mode="teacher"
+          emailToName={emailToName}
+          onRowPress={(r) => navigation.navigate('TeacherAttendanceLogDetails', { item: r })}
+          personLabel={personLabel}
+        />
       )}
 
-      {/* FAB */}
-      <TouchableOpacity
-        style={KStyles.fab}
-        activeOpacity={0.85}
-        onPress={() => navigation.navigate('TeacherAttendanceLogForm', { mode: 'add', staffMode })}
-      >
-        <Ionicons name="add" size={28} color="#fff" />
-      </TouchableOpacity>
+      {/* FAB — hidden in leave-mode (read-only leave list) */}
+      {!leaveMode && (
+        <TouchableOpacity
+          style={KStyles.fab}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('TeacherAttendanceLogForm', { mode: 'add', staffMode })}
+        >
+          <Ionicons name="add" size={28} color="#fff" />
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 }

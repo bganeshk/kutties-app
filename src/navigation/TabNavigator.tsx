@@ -28,6 +28,10 @@ import { StudentHealthList, StudentHealthForm } from '../components/studenthealt
 import StudentFeeDetailsScreen from '../screens/StudentFeeDetailsScreen';
 import FeePendingScreen from '../screens/FeePendingScreen';
 import { StudentFeeList, StudentFeeForm } from '../components/studentfee';
+import StaffPayDetailsScreen from '../screens/StaffPayDetailsScreen';
+import { StaffPayList, StaffPayForm } from '../components/staffpay';
+import StudentAttendanceLogDetailsScreen from '../screens/StudentAttendanceLogDetailsScreen';
+import { StudentAttendanceLogList, StudentAttendanceLogForm } from '../components/studentattendancelog';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -76,6 +80,12 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="StudentFeeDetails"           component={StudentFeeDetailsScreen} />
         <Stack.Screen name="StudentFeeForm"              component={StudentFeeForm} />
         <Stack.Screen name="FeePending"                  component={FeePendingScreen} />
+        <Stack.Screen name="StaffPayList"                component={StaffPayList} />
+        <Stack.Screen name="StaffPayDetails"             component={StaffPayDetailsScreen} />
+        <Stack.Screen name="StaffPayForm"                component={StaffPayForm} />
+        <Stack.Screen name="StudentAttendanceLogList"    component={StudentAttendanceLogList} />
+        <Stack.Screen name="StudentAttendanceLogDetails" component={StudentAttendanceLogDetailsScreen} />
+        <Stack.Screen name="StudentAttendanceLogForm"    component={StudentAttendanceLogForm} />
       </Stack.Navigator>
     );
   };

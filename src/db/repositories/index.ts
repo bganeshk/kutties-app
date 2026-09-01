@@ -9,6 +9,7 @@ export { CourseTimeTableRepository, courseTimeTableRepository } from './courseti
 export { HandbookRepository, handbookRepository } from './handbook.repository';
 export { FeedbackRepository, feedbackRepository } from './feedback.repository';
 export { TeacherAttendanceLogRepository, teacherAttendanceLogRepository } from './teacherattendancelog.repository';
+export { StudentAttendanceLogRepository, studentAttendanceLogRepository } from './studentattendancelog.repository';
 export { StudentHealthRepository, studentHealthRepository } from './studenthealth.repository';
 export { StudentFeeRepository, studentFeeRepository } from './studentfee.repository';
 export { StaffPayRepository, staffPayRepository } from './staffpay.repository';

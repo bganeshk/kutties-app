@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { StudentFeeModel } from '../../db/models/studentfee.model';
 import { Colors, KStyles } from '../../styles/kutties-styles';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 const PRIMARY = Colors.primary;
 
@@ -50,7 +51,7 @@ const StudentFeeRow = memo(({ item, studentName, hideStudentName, onPress }: Pro
               </Text>
             ) : null}
             {item.dueDate ? (
-              <Text style={styles.dateLabel}>Due: {item.dueDate}</Text>
+              <Text style={styles.dateLabel}>Due: {formatDisplayDate(item.dueDate)}</Text>
             ) : null}
           </View>
 
@@ -83,7 +84,7 @@ const StudentFeeRow = memo(({ item, studentName, hideStudentName, onPress }: Pro
           {item.paidDate ? (
             <View style={styles.statChip}>
               <Ionicons name="checkmark-circle-outline" size={10} color="#2E7D32" />
-              <Text style={styles.statPaid}>Paid {item.paidDate}</Text>
+              <Text style={styles.statPaid}>Paid {formatDisplayDate(item.paidDate)}</Text>
             </View>
           ) : null}
         </View>
