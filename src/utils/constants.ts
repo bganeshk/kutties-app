@@ -15,6 +15,7 @@ export const SHEETS = {
   STUDENT_HEALTH:       'student_health_report',
   STUDENT_FEE:          'stfee',
   STAFF_PAY:            'staffpay',
+  STUDENT_DIARY:        'StudentDiary',
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

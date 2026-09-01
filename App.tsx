@@ -28,8 +28,10 @@ const sleep = (ms: number): Promise<void> => {
         await syncSheet('dashboard').catch(() => {});  // best-effort; offline is fine
         await syncSheet('products').catch(() => {});
         await syncSheet('reftbl').catch(() => {});
+        await syncSheet('staff').catch(() => {});
         await syncSheet('teachers').catch(() => {});
         await syncSheet('employees').catch(() => {});
+        await syncSheet('students').catch(() => {});
         await syncSheet('courses').catch(() => {});
      
         await sleep(500)
@@ -44,7 +46,7 @@ const sleep = (ms: number): Promise<void> => {
 
   // Push pending changes when the app goes to background / inactive
   useEffect(() => {
-    const sheets = ['dashboard', 'products', 'reftbl', 'teachers', 'employees', 'courses'];
+    const sheets = ['dashboard', 'products', 'reftbl', 'staff', 'teachers', 'employees', 'students', 'courses'];
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'background' || state === 'inactive') {
         sheets.forEach(sheet => syncSheet(sheet).catch(() => {}));

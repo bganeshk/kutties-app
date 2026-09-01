@@ -69,6 +69,13 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Attendance Log':                  'StudentAttendanceLogList',
   'Attendance Log View':             'StudentAttendanceLogList',
   'Student Att Log':                 'StudentAttendanceLogList',
+  'Student Diary':                   'StudentDiaryList',
+  'Student Diary View':              'StudentDiaryList',
+  'StudentDiary View':               'StudentDiaryList',
+  'Diary':                           'StudentDiaryList',
+  'Diary View':                      'StudentDiaryList',
+  'Class Diary':                     'StudentDiaryList',
+  'Class Diary View':                'StudentDiaryList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
@@ -126,4 +133,19 @@ const LEAVE_CAPTIONS = new Set([
  */
 export function isLeaveCaption(caption: string): boolean {
   return LEAVE_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that map to StudentDiaryList */
+const STUDENT_DIARY_CAPTIONS = new Set([
+  'student diary',
+  'student diary view',
+  'studentdiary view',
+  'diary',
+  'diary view',
+  'class diary',
+  'class diary view',
+]);
+
+export function isStudentDiaryCaption(caption: string): boolean {
+  return STUDENT_DIARY_CAPTIONS.has(caption.trim().toLowerCase());
 }

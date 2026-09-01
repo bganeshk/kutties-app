@@ -10,4 +10,5 @@ export * from './handbook.model';
 export * from './feedback.model';
 export * from './studentfee.model';
 export * from './staffpay.model';
+export * from './studentdiary.model';
 export * from './registry';

@@ -199,12 +199,11 @@ export default function TeacherAttendanceLogList({ navigation, route }: Props) {
   useEffect(() => {
     if (!synced.current) {
       synced.current = true;
-      // In staff mode we need SHEETS.STAFF populated before filtering;
-      // sync both sheets in parallel then reload.
-      const syncs = staffMode
-        ? Promise.all([sync(), syncStaff()])
-        : sync();
-      syncs.then(() => loadItems());
+      // Always sync both sheets: attendance records are filtered by the STAFF
+      // sheet (teacher vs employee designation), so SHEETS.STAFF must be
+      // populated regardless of staffMode — otherwise the email set is empty
+      // and all records get filtered out.
+      Promise.all([sync(), syncStaff()]).then(() => loadItems());
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

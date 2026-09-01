@@ -41,6 +41,9 @@ import type { StaffPayModel } from '../db/models/staffpay.model';
 import StudentAttendanceLogDetailsScreen from '../screens/StudentAttendanceLogDetailsScreen';
 import { StudentAttendanceLogList, StudentAttendanceLogForm } from '../components/studentattendancelog';
 import type { StudentAttendanceLogModel } from '../db/models/studentattendancelog.model';
+import StudentDiaryDetailsScreen from '../screens/StudentDiaryDetailsScreen';
+import { StudentDiaryList, StudentDiaryForm } from '../components/studentdiary';
+import type { StudentDiaryModel } from '../db/models/studentdiary.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -84,6 +87,9 @@ export type HomeStackParamList = {
   StudentAttendanceLogList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
   StudentAttendanceLogDetails: { item: StudentAttendanceLogModel };
   StudentAttendanceLogForm: { mode: 'add' | 'edit'; item?: StudentAttendanceLogModel; prefilledRegNumber?: string };
+  StudentDiaryList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
+  StudentDiaryDetails: { item: StudentDiaryModel };
+  StudentDiaryForm: { mode: 'add' | 'edit'; item?: StudentDiaryModel; prefilledRegNumber?: string };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -132,6 +138,9 @@ export default function HomeStack() {
       <Stack.Screen name="StudentAttendanceLogList"        component={StudentAttendanceLogList} />
       <Stack.Screen name="StudentAttendanceLogDetails"     component={StudentAttendanceLogDetailsScreen} />
       <Stack.Screen name="StudentAttendanceLogForm"        component={StudentAttendanceLogForm} />
+      <Stack.Screen name="StudentDiaryList"                component={StudentDiaryList} />
+      <Stack.Screen name="StudentDiaryDetails"             component={StudentDiaryDetailsScreen} />
+      <Stack.Screen name="StudentDiaryForm"                component={StudentDiaryForm} />
     </Stack.Navigator>
   );
 }
