@@ -16,6 +16,7 @@ export const SHEETS = {
   STUDENT_FEE:          'stfee',
   STAFF_PAY:            'staffpay',
   STUDENT_DIARY:        'StudentDiary',
+  PARENT_NOTE:          'ParentNote',
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

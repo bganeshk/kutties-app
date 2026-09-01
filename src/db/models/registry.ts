@@ -12,6 +12,7 @@ import { toStudentFeeModel } from './studentfee.model';
 import { toStaffPayModel } from './staffpay.model';
 import { toStudentAttendanceLogModel } from './studentattendancelog.model';
 import { toStudentDiaryModel } from './studentdiary.model';
+import { toParentNoteModel } from './parentnote.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -44,6 +45,7 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   staffpay:                (raw) => toStaffPayModel(raw)              as unknown as Record<string, unknown>,
   StudentAttendanceLog:    (raw) => toStudentAttendanceLogModel(raw)  as unknown as Record<string, unknown>,
   StudentDiary:            (raw) => toStudentDiaryModel(raw)          as unknown as Record<string, unknown>,
+  ParentNote:              (raw) => toParentNoteModel(raw)            as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
 };
 
@@ -101,6 +103,19 @@ const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
     remarks:           'remarks',
     revision:          'revision',
     lastmodified:      'lastmodified',
+  },
+  ParentNote: {
+    regNumber:       'Student',
+    noteDate:        'NoteDate',
+    noteText:        'NoteText',
+    category:        'Category',
+    parentName:      'ParentName',
+    status:          'Status',
+    acknowledgedBy:  'AcknowledgedBy',
+    acknowledgedAt:  'AcknowledgedAt',
+    teacherReply:    'TeacherReply',
+    revision:        'revision',
+    lastmodified:    'lastmodified',
   },
   StudentDiary: {
     regNumber:    'Student',

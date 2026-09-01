@@ -76,6 +76,10 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Diary View':                      'StudentDiaryList',
   'Class Diary':                     'StudentDiaryList',
   'Class Diary View':                'StudentDiaryList',
+  'Parent Note':                     'ParentNoteList',
+  'Parent Note View':                'ParentNoteList',
+  'Parent Notes':                    'ParentNoteList',
+  'ParentNote View':                 'ParentNoteList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
@@ -133,6 +137,18 @@ const LEAVE_CAPTIONS = new Set([
  */
 export function isLeaveCaption(caption: string): boolean {
   return LEAVE_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that map to ParentNoteList */
+const PARENT_NOTE_CAPTIONS = new Set([
+  'parent note',
+  'parent note view',
+  'parent notes',
+  'parentnote view',
+]);
+
+export function isParentNoteCaption(caption: string): boolean {
+  return PARENT_NOTE_CAPTIONS.has(caption.trim().toLowerCase());
 }
 
 /** Captions that map to StudentDiaryList */

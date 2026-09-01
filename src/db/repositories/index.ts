@@ -14,4 +14,5 @@ export { StudentHealthRepository, studentHealthRepository } from './studenthealt
 export { StudentFeeRepository, studentFeeRepository } from './studentfee.repository';
 export { StaffPayRepository, staffPayRepository } from './staffpay.repository';
 export { StudentDiaryRepository, studentDiaryRepository } from './studentdiary.repository';
+export { ParentNoteRepository, parentNoteRepository } from './parentnote.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

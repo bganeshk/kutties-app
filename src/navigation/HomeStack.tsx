@@ -44,6 +44,9 @@ import type { StudentAttendanceLogModel } from '../db/models/studentattendancelo
 import StudentDiaryDetailsScreen from '../screens/StudentDiaryDetailsScreen';
 import { StudentDiaryList, StudentDiaryForm } from '../components/studentdiary';
 import type { StudentDiaryModel } from '../db/models/studentdiary.model';
+import ParentNoteDetailsScreen from '../screens/ParentNoteDetailsScreen';
+import { ParentNoteList, ParentNoteForm } from '../components/parentnote';
+import type { ParentNoteModel } from '../db/models/parentnote.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -90,6 +93,9 @@ export type HomeStackParamList = {
   StudentDiaryList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
   StudentDiaryDetails: { item: StudentDiaryModel };
   StudentDiaryForm: { mode: 'add' | 'edit'; item?: StudentDiaryModel; prefilledRegNumber?: string };
+  ParentNoteList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
+  ParentNoteDetails: { item: ParentNoteModel };
+  ParentNoteForm: { mode: 'add' | 'edit' | 'acknowledge'; item?: ParentNoteModel; prefilledRegNumber?: string };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -141,6 +147,9 @@ export default function HomeStack() {
       <Stack.Screen name="StudentDiaryList"                component={StudentDiaryList} />
       <Stack.Screen name="StudentDiaryDetails"             component={StudentDiaryDetailsScreen} />
       <Stack.Screen name="StudentDiaryForm"                component={StudentDiaryForm} />
+      <Stack.Screen name="ParentNoteList"                  component={ParentNoteList} />
+      <Stack.Screen name="ParentNoteDetails"               component={ParentNoteDetailsScreen} />
+      <Stack.Screen name="ParentNoteForm"                  component={ParentNoteForm} />
     </Stack.Navigator>
   );
 }
