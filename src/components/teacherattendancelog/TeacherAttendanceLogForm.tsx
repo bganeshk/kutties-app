@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, ScrollView, Switch,
   TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform,
@@ -7,8 +7,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../styles/kutties-styles';
 import { SHEETS } from '../../utils/constants';
+import { formatDMYDate } from '../../utils/dateUtils';
 import { teacherAttendanceLogRepository, teacherRepository, employeeRepository, getRefOptions, ensureReftbl } from '../../db/repositories';
-import { syncSheet } from '../../sync/sync.service';
+import { syncSheet, twoWeeksAgo } from '../../sync/sync.service';
 import type { TeacherAttendanceLogModel } from '../../db/models/teacherattendancelog.model';
 import Snackbar, { useSnackbar } from '../shared/Snackbar';
 import AuditRow from '../shared/AuditRow';
@@ -28,15 +29,16 @@ export default function TeacherAttendanceLogForm({ navigation, route }: Props) {
   const personLabel = staffMode ? 'Employee' : 'Teacher';
 
   // ── Form state ─────────────────────────────────────────────────────────────
+  const todayDMY = useMemo(() => formatDMYDate(new Date()), []);
   const [teacherEmail,   setTeacherEmail]   = useState(item?.teacherEmail   ?? '');
-  const [attendanceDate, setAttendanceDate] = useState(item?.attendanceDate ?? '');
+  const [attendanceDate, setAttendanceDate] = useState(item?.attendanceDate ?? todayDMY);
   const [leaveOption,    setLeaveOption]    = useState(item?.leaveOption    ?? 'Present');
   const [leaveType,      setLeaveType]      = useState(item?.leaveType      ?? '');
   const [approved, setApproved] = useState(
     item?.approved === 'true' || item?.approved === '1',
   );
-  const [checkIn,        setCheckIn]        = useState(item?.checkIn        ?? '');
-  const [checkOut,       setCheckOut]       = useState(item?.checkOut       ?? '');
+  const [checkIn,        setCheckIn]        = useState(item?.checkIn        ?? '09:00 AM');
+  const [checkOut,       setCheckOut]       = useState(item?.checkOut       ?? '03:00 PM');
   const [remarks,        setRemarks]        = useState(item?.remarks        ?? '');
 
   const [saving, setSaving] = useState(false);
@@ -104,8 +106,8 @@ export default function TeacherAttendanceLogForm({ navigation, route }: Props) {
       setLeaveOption('Present');
     } else if (leaveOption === 'Present') {
       setLeaveOption('Full Day');
-      setCheckIn('9:00:00 AM');
-      setCheckOut('7:00:00 PM');
+      setCheckIn('09:00 AM');
+      setCheckOut('03:00 PM');
     }
   }, [leaveOption]);
 
@@ -117,8 +119,8 @@ export default function TeacherAttendanceLogForm({ navigation, route }: Props) {
       setLeaveType('');
     }
     if (value === 'Full Day') {
-      setCheckIn('9:00:00 AM');
-      setCheckOut('7:00:00 PM');
+      setCheckIn('09:00 AM');
+      setCheckOut('03:00 PM');
     }
   }, []);
 
@@ -157,7 +159,7 @@ export default function TeacherAttendanceLogForm({ navigation, route }: Props) {
         remarks:        remarks.trim()        || undefined,
       };
       await teacherAttendanceLogRepository.save(entry);
-      syncSheet(SHEETS.TEACATTELOG).catch(() => {});
+      syncSheet(SHEETS.TEACATTELOG, twoWeeksAgo()).catch(() => {});
       snackbar.show(isEdit ? 'Changes saved' : 'Attendance recorded', 'success');
       navigation.goBack();
     } catch (e) {
@@ -172,7 +174,7 @@ export default function TeacherAttendanceLogForm({ navigation, route }: Props) {
     setSaving(true);
     teacherAttendanceLogRepository.delete(item!.id)
       .then(() => {
-        syncSheet(SHEETS.TEACATTELOG).catch(() => {});
+        syncSheet(SHEETS.TEACATTELOG, twoWeeksAgo()).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => {
@@ -240,7 +242,7 @@ export default function TeacherAttendanceLogForm({ navigation, route }: Props) {
         <Text style={KStyles.formSection}>Attendance</Text>
 
         <Field label="Date" required>
-          <FormDatePicker value={attendanceDate} onChange={setAttendanceDate} format="iso" />
+          <FormDatePicker value={attendanceDate} onChange={setAttendanceDate} format="dmy" />
           {errors.attendanceDate ? <Text style={KStyles.formError}>{errors.attendanceDate}</Text> : null}
         </Field>
 
@@ -273,7 +275,7 @@ export default function TeacherAttendanceLogForm({ navigation, route }: Props) {
           <InputField
             value={checkIn}
             onChangeText={setCheckIn}
-            placeholder="e.g. 9:00:00 AM"
+            placeholder="hh:mm AM/PM"
             editable
           />
           {errors.checkIn ? <Text style={KStyles.formError}>{errors.checkIn}</Text> : null}
@@ -283,7 +285,7 @@ export default function TeacherAttendanceLogForm({ navigation, route }: Props) {
           <InputField
             value={checkOut}
             onChangeText={setCheckOut}
-            placeholder="e.g. 7:00:00 PM"
+            placeholder="hh:mm AM/PM"
             editable
           />
           {errors.checkOut ? <Text style={KStyles.formError}>{errors.checkOut}</Text> : null}

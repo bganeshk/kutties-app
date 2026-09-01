@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { LocalDb, syncSheet, SyncResult } from '../sync/sync.service';
 import { v4 as uuidv4 } from 'uuid';
 
-export function useSheet(sheet: string) {
+export function useSheet(sheet: string, sinceDate?: Date) {
   const [rows, setRows] = useState<Array<{ id: string } & Record<string, unknown>>>([]);
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<number>(0);
@@ -18,7 +18,7 @@ export function useSheet(sheet: string) {
     setSyncing(true);
     setError(null);
     try {
-      const result = await syncSheet(sheet);
+      const result = await syncSheet(sheet, sinceDate);
       if (result.errors.length) setError(result.errors.join('\n'));
       await load();
       return result;

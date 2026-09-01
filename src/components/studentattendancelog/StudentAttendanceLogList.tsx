@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, ScrollView,
-  SafeAreaView, TouchableOpacity, ActivityIndicator, Pressable,
+  View, Text, TextInput, StyleSheet, ScrollView, Modal, Pressable as RNPressable,
+  SafeAreaView, TouchableOpacity, ActivityIndicator, Pressable, FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,9 +9,9 @@ import { useSheet } from '../../hooks/useSheet';
 import { studentAttendanceLogRepository, studentRepository } from '../../db/repositories';
 import type { StudentAttendanceLogModel } from '../../db/models/studentattendancelog.model';
 import type { StudentModel } from '../../db/models/student.model';
-import { syncSheet } from '../../sync/sync.service';
+import { syncSheet, twoWeeksAgo as getSyncCutoff } from '../../sync/sync.service';
 import { Colors, KStyles } from '../../styles/kutties-styles';
-import { SHEETS } from '../../utils/constants';
+import { SHEETS, MONTHS } from '../../utils/constants';
 import { formatDisplayDate } from '../../utils/dateUtils';
 
 const PRIMARY = Colors.primary;
@@ -50,6 +50,27 @@ interface Props {
   };
 }
 
+// ── Date helpers ──────────────────────────────────────────────────────────────
+
+/** Parse dd/MMM/yyyy → JS Date (midnight local). Returns null on failure. */
+function parseDMY(s?: string): Date | null {
+  if (!s) return null;
+  const m = s.match(/^(\d{1,2})\/([A-Za-z]{3})\/(\d{4})$/);
+  if (!m) return null;
+  const month = MONTHS.findIndex((mo) => mo.toLowerCase() === m[2].toLowerCase());
+  if (month === -1) return null;
+  const d = new Date(Number(m[3]), month, Number(m[1]));
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/** Returns a Date set to midnight at `daysAgo` days before today. */
+function daysAgoDate(daysAgo: number): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - daysAgo);
+  return d;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const MONTH_ORDER: Record<string, number> = {
@@ -74,6 +95,13 @@ function monthYearSortKey(label: string): number {
   const month = MONTH_ORDER[short] ?? 0;
   const year  = parseInt(m[2], 10);
   return -(year * 12 + month);
+}
+
+/** True if the attendance date is within [startDate, endDate] inclusive. */
+function isInDateRange(item: StudentAttendanceLogModel, startDate: Date, endDate: Date): boolean {
+  const d = parseDMY(item.attendanceDate);
+  if (!d) return false;
+  return d >= startDate && d <= endDate;
 }
 
 function isPresent(item: StudentAttendanceLogModel): boolean {
@@ -295,12 +323,12 @@ function CourseSectionBlock({
         />
       </TouchableOpacity>
 
-      {expanded && section.studentSections.map((ss, i) => (
+      {expanded && section.studentSections.map((ss) => (
         <StudentSectionBlock
           key={ss.regNumber || ss.studentName}
           section={ss}
           onRowPress={onRowPress}
-          defaultExpanded={i === 0}
+          defaultExpanded={false}
         />
       ))}
     </View>
@@ -339,12 +367,12 @@ function DateSectionBlock({
         />
       </TouchableOpacity>
 
-      {expanded && section.courseSections.map((cs, i) => (
+      {expanded && section.courseSections.map((cs) => (
         <CourseSectionBlock
           key={cs.course}
           section={cs}
           onRowPress={onRowPress}
-          defaultExpanded={i === 0}
+          defaultExpanded={false}
         />
       ))}
     </View>
@@ -357,13 +385,19 @@ export default function StudentAttendanceLogList({ navigation, route }: Props) {
   const filterReg  = route?.params?.studentRegNumber?.trim();
   const filterName = route?.params?.studentName?.trim();
 
-  const { syncing, sync } = useSheet(SHEETS.STUDENT_ATT_LOG);
+  const { syncing, sync } = useSheet(SHEETS.STUDENT_ATT_LOG, getSyncCutoff());
   const synced = useRef(false);
 
-  const [search,       setSearch]       = useState('');
-  const [items,        setItems]        = useState<StudentAttendanceLogModel[]>([]);
-  const [regToStudent, setRegToStudent] = useState<RegToStudent>({});
-  const [leaveFilter,  setLeaveFilter]  = useState<LeaveFilter>('all');
+  const [search,          setSearch]          = useState('');
+  const [items,           setItems]           = useState<StudentAttendanceLogModel[]>([]);
+  const [regToStudent,    setRegToStudent]    = useState<RegToStudent>({});
+  const [leaveFilter,     setLeaveFilter]     = useState<LeaveFilter>('all');
+  // Month filter: null = last 2 weeks; "MMM YYYY" = selected month
+  const [selectedMonth,    setSelectedMonth]    = useState<string | null>(null);
+  const [monthPickerOpen,  setMonthPickerOpen]  = useState(false);
+  // The 2-week window bounds (computed once on mount)
+  const twoWeeksAgo = useMemo(() => daysAgoDate(13), []); // today inclusive → 14 days total
+  const todayEnd    = useMemo(() => { const d = new Date(); d.setHours(23, 59, 59, 999); return d; }, []);
 
   const loadStudents = useCallback(async () => {
     const students = await studentRepository.findAll();
@@ -384,6 +418,13 @@ export default function StudentAttendanceLogList({ navigation, route }: Props) {
       base = await studentAttendanceLogRepository.findAll();
     }
 
+    // Date range filter — either a selected month or the last 2 weeks
+    if (selectedMonth) {
+      base = base.filter((r) => toMonthYear(r.attendanceDate) === selectedMonth);
+    } else {
+      base = base.filter((r) => isInDateRange(r, twoWeeksAgo, todayEnd));
+    }
+
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       base = base.filter((r) =>
@@ -393,7 +434,7 @@ export default function StudentAttendanceLogList({ navigation, route }: Props) {
     }
 
     setItems(base);
-  }, [filterReg, search]);
+  }, [filterReg, search, selectedMonth, twoWeeksAgo, todayEnd]);
 
   useEffect(() => { loadItems(); }, [loadItems]);
 
@@ -430,6 +471,19 @@ export default function StudentAttendanceLogList({ navigation, route }: Props) {
     [navigation],
   );
 
+  // All 12 months for the current year + previous year, newest first.
+  const allMonths = useMemo(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const months: string[] = [];
+    for (let y = currentYear; y >= currentYear - 1; y--) {
+      for (let m = 11; m >= 0; m--) {
+        months.push(`${MONTHS[m]} ${y}`);
+      }
+    }
+    return months;
+  }, []);
+
   return (
     <SafeAreaView style={KStyles.listRoot}>
       {/* Header */}
@@ -449,6 +503,50 @@ export default function StudentAttendanceLogList({ navigation, route }: Props) {
           {syncing
             ? <ActivityIndicator size="small" color="#fff" />
             : <Ionicons name="refresh" size={22} color="#fff" />}
+        </TouchableOpacity>
+      </View>
+
+      {/* Date filter bar */}
+      <View style={styles.dateFilterBar}>
+        <TouchableOpacity
+          style={[styles.dateFilterBtn, !selectedMonth && styles.dateFilterBtnActive]}
+          onPress={() => setSelectedMonth(null)}
+          activeOpacity={0.75}
+        >
+          <Ionicons
+            name="calendar-outline"
+            size={14}
+            color={!selectedMonth ? '#fff' : PRIMARY}
+            style={{ marginRight: 4 }}
+          />
+          <Text style={[styles.dateFilterBtnText, !selectedMonth && styles.dateFilterBtnTextActive]}>
+            Last 2 weeks
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.dateFilterBtn, !!selectedMonth && styles.dateFilterBtnActive]}
+          onPress={() => setMonthPickerOpen(true)}
+          activeOpacity={0.75}
+        >
+          <Ionicons
+            name="calendar-number-outline"
+            size={14}
+            color={selectedMonth ? '#fff' : PRIMARY}
+            style={{ marginRight: 4 }}
+          />
+          <Text style={[styles.dateFilterBtnText, !!selectedMonth && styles.dateFilterBtnTextActive]}>
+            {selectedMonth ?? 'Pick month'}
+          </Text>
+          {selectedMonth ? (
+            <TouchableOpacity
+              onPress={(e) => { e.stopPropagation?.(); setSelectedMonth(null); }}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              style={{ marginLeft: 6 }}
+            >
+              <Ionicons name="close-circle" size={15} color="#fff" />
+            </TouchableOpacity>
+          ) : null}
         </TouchableOpacity>
       </View>
 
@@ -490,6 +588,59 @@ export default function StudentAttendanceLogList({ navigation, route }: Props) {
         )}
       </View>
 
+      {/* Month picker modal */}
+      <Modal
+        visible={monthPickerOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setMonthPickerOpen(false)}
+      >
+        <RNPressable style={styles.modalOverlay} onPress={() => setMonthPickerOpen(false)}>
+          <RNPressable style={styles.modalSheet} onPress={() => {}}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>Select a Month</Text>
+            {allMonths.length === 0 ? (
+              <View style={styles.modalEmpty}>
+                <Text style={styles.modalEmptyText}>No months available</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={allMonths}
+                keyExtractor={(m) => m}
+                renderItem={({ item: month }) => {
+                  const isActive = month === selectedMonth;
+                  return (
+                    <TouchableOpacity
+                      style={[styles.dateOption, isActive && styles.dateOptionActive]}
+                      onPress={() => { setSelectedMonth(month); setMonthPickerOpen(false); }}
+                      activeOpacity={0.75}
+                    >
+                      <Ionicons
+                        name={isActive ? 'checkmark-circle' : 'calendar-number-outline'}
+                        size={18}
+                        color={isActive ? '#fff' : PRIMARY}
+                        style={{ marginRight: 10 }}
+                      />
+                      <Text style={[styles.dateOptionText, isActive && styles.dateOptionTextActive]}>
+                        {month}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+                style={{ maxHeight: 360 }}
+              />
+            )}
+            <TouchableOpacity
+              style={styles.modalCloseBtn}
+              onPress={() => setMonthPickerOpen(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.modalCloseBtnText}>Close</Text>
+            </TouchableOpacity>
+          </RNPressable>
+        </RNPressable>
+      </Modal>
+
       {isEmpty && syncing ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={PRIMARY} />
@@ -501,12 +652,12 @@ export default function StudentAttendanceLogList({ navigation, route }: Props) {
         </View>
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-          {sections.map((s, i) => (
+          {sections.map((s) => (
             <DateSectionBlock
               key={s.monthLabel}
               section={s}
               onRowPress={handleRowPress}
-              defaultExpanded={i === 0}
+              defaultExpanded={false}
             />
           ))}
         </ScrollView>
@@ -639,4 +790,82 @@ const styles = StyleSheet.create({
   dCell:     { fontSize: 12, color: '#1a1a1a', paddingHorizontal: 4 },
   statusBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 8 },
   statusText:  { fontSize: 10, fontWeight: '700', letterSpacing: 0.3 },
+
+  // Date filter bar
+  dateFilterBar: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  dateFilterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: PRIMARY,
+    backgroundColor: '#fff',
+  },
+  dateFilterBtnActive:     { backgroundColor: PRIMARY, borderColor: PRIMARY },
+  dateFilterBtnText:       { fontSize: 12, fontWeight: '600', color: PRIMARY },
+  dateFilterBtnTextActive: { color: '#fff' },
+
+  // Date picker modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    paddingHorizontal: 16,
+    paddingBottom: 28,
+    paddingTop: 10,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#ddd',
+    alignSelf: 'center',
+    marginBottom: 12,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalEmpty: { alignItems: 'center', paddingVertical: 24 },
+  modalEmptyText: { fontSize: 14, color: Colors.muted },
+  dateOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 13,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginBottom: 4,
+    backgroundColor: Colors.surface,
+  },
+  dateOptionActive:     { backgroundColor: PRIMARY },
+  dateOptionText:       { fontSize: 14, color: '#1a1a1a', fontWeight: '500' },
+  dateOptionTextActive: { color: '#fff', fontWeight: '700' },
+  modalCloseBtn: {
+    marginTop: 10,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  modalCloseBtnText: { fontSize: 14, fontWeight: '600', color: Colors.muted },
 });

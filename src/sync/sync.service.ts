@@ -10,11 +10,13 @@ export type SyncResult = {
   errors: string[];
 };
 
-async function pullSheet(sheet: string): Promise<number> {
+async function pullSheet(sheet: string, sinceDate?: Date): Promise<number> {
   const db = getDb();
-  const rows = await ExcelApi.listRows(sheet);
+  const sinceDateISO = sinceDate ? sinceDate.toISOString().slice(0, 10) : undefined;
+  const rows = await ExcelApi.listRows(sheet, sinceDateISO);
   console.log(`[pullSheet] sheet="${sheet}" rows from API: ${rows.length}`);
   if (rows.length > 0) console.log(`[pullSheet] first row keys:`, Object.keys(rows[0]));
+
   const now = Date.now();
 
   for (const raw of rows) {
@@ -69,7 +71,7 @@ async function pushSheet(sheet: string): Promise<{ pushed: number; errors: strin
   return { pushed, errors };
 }
 
-export async function syncSheet(sheet: string): Promise<SyncResult> {
+export async function syncSheet(sheet: string, sinceDate?: Date): Promise<SyncResult> {
   const errors: string[] = [];
   let pulled = 0;
   let pushed = 0;
@@ -83,7 +85,7 @@ export async function syncSheet(sheet: string): Promise<SyncResult> {
   }
 
   try {
-    pulled = await pullSheet(sheet);
+    pulled = await pullSheet(sheet, sinceDate);
   } catch (e) {
     errors.push(`pull failed: ${(e as Error).message}`);
   }
@@ -91,9 +93,17 @@ export async function syncSheet(sheet: string): Promise<SyncResult> {
   return { sheet, pulled, pushed, errors };
 }
 
+/** Convenience: sync the last N days only (filters by attendanceDate). */
+export function twoWeeksAgo(): Date {
+  const d = new Date();
+  d.setDate(d.getDate() - 14);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 export async function syncAllSheets(): Promise<SyncResult[]> {
   const sheets = await ExcelApi.listSheets();
-  return Promise.all(sheets.map(syncSheet));
+  return Promise.all(sheets.map((s) => syncSheet(s)));
 }
 
 export const LocalDb = {

@@ -22,8 +22,9 @@ export const ExcelApi = {
     return data.data;
   },
 
-  async listRows(sheet: string): Promise<RemoteRow[]> {
-    const { data } = await client.get<ListResponse>(`/api/${sheet}`);
+  async listRows(sheet: string, sinceDate?: string): Promise<RemoteRow[]> {
+    const params = sinceDate ? { sinceDate } : undefined;
+    const { data } = await client.get<ListResponse>(`/api/${sheet}`, { params });
     return data.data;
   },
 

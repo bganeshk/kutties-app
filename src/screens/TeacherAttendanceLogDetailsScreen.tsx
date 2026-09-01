@@ -8,10 +8,9 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
-import { formatDisplayDate } from '../utils/dateUtils';
 import { teacherAttendanceLogRepository, teacherRepository } from '../db/repositories';
 import type { TeacherAttendanceLogModel } from '../db/models/teacherattendancelog.model';
-import { syncSheet } from '../sync/sync.service';
+import { syncSheet, twoWeeksAgo } from '../sync/sync.service';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 import InfoRow from '../components/shared/InfoRow';
 
@@ -64,7 +63,7 @@ export default function TeacherAttendanceLogDetailsScreen({ navigation, route }:
 
   const handleDelete = useCallback(() => {
     teacherAttendanceLogRepository.delete(item.id).then(() => {
-      syncSheet(SHEETS.TEACATTELOG).catch(() => {});
+      syncSheet(SHEETS.TEACATTELOG, twoWeeksAgo()).catch(() => {});
       navigation.goBack();
     });
   }, [item.id, navigation]);
@@ -110,7 +109,7 @@ export default function TeacherAttendanceLogDetailsScreen({ navigation, route }:
             <Text style={KStyles.detailsHeroDesignation}>{item.teacherEmail}</Text>
           ) : null}
           {item.attendanceDate ? (
-            <Text style={KStyles.detailsHeroDesignation}>{formatDisplayDate(item.attendanceDate)}</Text>
+            <Text style={KStyles.detailsHeroDesignation}>{item.attendanceDate}</Text>
           ) : null}
           <View style={styles.badgeRow}>
             
@@ -131,10 +130,10 @@ export default function TeacherAttendanceLogDetailsScreen({ navigation, route }:
           ) : (
             <InfoRow icon="mail-outline"     label="Teacher"     value={item.teacherEmail}   iconBg={PRIMARY} />
           )}
-          <InfoRow icon="calendar-outline"   label="Date"        value={formatDisplayDate(item.attendanceDate)} iconBg={PRIMARY} />
+          <InfoRow icon="calendar-outline"   label="Date"        value={item.attendanceDate} iconBg={PRIMARY} />
           <InfoRow icon="log-in-outline"     label="Check-in"    value={fmtTime(item.checkIn)}  iconBg={PRIMARY} />
           <InfoRow icon="log-out-outline"    label="Check-out"   value={fmtTime(item.checkOut)} iconBg={PRIMARY} />
-          <InfoRow icon="airplane-outline"   label="Leave"       value={leaveOpt} />
+          <InfoRow icon="airplane-outline"   label="Option"       value={leaveOpt} />
           {isOnLeave && (
             <InfoRow icon="list-outline"     label="Leave Type"  value={item.leaveType} />
           )}

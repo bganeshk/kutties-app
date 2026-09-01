@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, Pressable,
+  ScrollView, Pressable, Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { TeacherAttendanceLogModel } from '../../db/models/teacherattendancelog.model';
@@ -57,21 +57,44 @@ function GridHeader({ firstColLabel, showDate }: { firstColLabel: string; showDa
   );
 }
 
+/** Tooltip that appears as a Modal overlay anchored below the pressed cell */
+const EmailTooltip = memo(({ email, onDismiss }: { email: string; onDismiss: () => void }) => (
+  <Modal transparent animationType="fade" visible onRequestClose={onDismiss}>
+    <Pressable style={styles.tooltipOverlay} onPress={onDismiss}>
+      <View style={styles.tooltipBubble} pointerEvents="none">
+        <Text style={styles.tooltipText} numberOfLines={1}>{email}</Text>
+      </View>
+    </Pressable>
+  </Modal>
+));
+
 /** Single data row */
 const GridRow = memo(({
   item,
-  firstColValue,
+  teacherName,
+  teacherEmail,
   showDate,
   onPress,
 }: {
   item: TeacherAttendanceLogModel;
-  firstColValue: string;
+  /** Resolved display name (for mode='date'); undefined means show email directly */
+  teacherName?: string;
+  /** Raw email (for mode='date' tooltip, or fallback when no name) */
+  teacherEmail?: string;
   showDate: boolean;
   onPress: (item: TeacherAttendanceLogModel) => void;
 }) => {
   const leaveOpt   = item.leaveOption ?? 'Present';
   const leaveStyle = LEAVE_COLORS[leaveOpt] ?? DEFAULT_LEAVE_COLOR;
   const isApproved = String(item.approved ?? '').toLowerCase() === 'true' || item.approved === '1';
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+
+  // firstColValue is the date when mode='teacher', resolved above before passing props.
+  // When this component is used in mode='date', teacherName/teacherEmail are supplied.
+  const isPersonCol = teacherName !== undefined || teacherEmail !== undefined;
+  const displayValue = isPersonCol
+    ? (teacherName ?? teacherEmail ?? '—')
+    : '—'; // date mode passes teacherName=undefined; caller sets firstColValue for date col
 
   return (
     <Pressable
@@ -79,13 +102,27 @@ const GridRow = memo(({
       android_ripple={{ color: 'rgba(194,24,91,0.08)' }}
       style={({ pressed }) => [styles.gridRow, pressed && styles.gridRowPressed]}
     >
+      {tooltipVisible && teacherEmail && (
+        <EmailTooltip email={teacherEmail} onDismiss={() => setTooltipVisible(false)} />
+      )}
       <View style={[styles.dCellRow, { width: COL.label }]}>
         <Text style={isApproved ? styles.tickGreen : styles.crossRed}>
           {isApproved ? '✓' : '✗'}
         </Text>
-        <Text style={[styles.dCell, { flex: 1 }]} numberOfLines={1}>
-          {firstColValue}
-        </Text>
+        <Pressable
+          onLongPress={isPersonCol && teacherName && teacherEmail
+            ? () => setTooltipVisible(true)
+            : undefined}
+          delayLongPress={300}
+          style={{ flex: 1 }}
+        >
+          <Text style={[styles.dCell, { flex: 1 }]} numberOfLines={1}>
+            {displayValue}
+          </Text>
+          {isPersonCol && teacherName && teacherEmail && (
+            <Text style={styles.emailHint} numberOfLines={1}>{teacherEmail}</Text>
+          )}
+        </Pressable>
       </View>
       <View style={{ width: COL.status, alignItems: 'center' }}>
         <View style={[styles.statusBadge, { backgroundColor: leaveStyle.bg }]}>
@@ -108,6 +145,7 @@ const GridRow = memo(({
     </Pressable>
   );
 });
+
 
 /** One collapsible section block */
 const SectionBlock = memo(({
@@ -175,16 +213,29 @@ const SectionBlock = memo(({
           <View>
             <GridHeader firstColLabel={firstColLabel} showDate={mode === 'date'} />
             {section.rows.map((item) => {
-              const _fv = mode === 'teacher'
-                ? (item.attendanceDate ? formatDisplayDate(item.attendanceDate) : '—')
-                : (emailToName?.[item.teacherEmail?.toLowerCase() ?? ''] ?? item.teacherEmail);
-              const firstColValue: string = _fv ?? '—';
+              if (mode === 'teacher') {
+                // By-teacher view: first col is date, no email tooltip needed
+                const dateVal = item.attendanceDate ? formatDisplayDate(item.attendanceDate) : '—';
+                return (
+                  <GridRow
+                    key={item.id}
+                    item={item}
+                    teacherName={dateVal}
+                    showDate={false}
+                    onPress={onRowPress}
+                  />
+                );
+              }
+              // By-date view: first col is teacher name with email tooltip
+              const email = item.teacherEmail ?? '';
+              const name  = emailToName?.[email.toLowerCase()];
               return (
                 <GridRow
                   key={item.id}
                   item={item}
-                  firstColValue={firstColValue}
-                  showDate={mode === 'date'}
+                  teacherName={name}
+                  teacherEmail={email || undefined}
+                  showDate
                   onPress={onRowPress}
                 />
               );
@@ -291,6 +342,30 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#1a1a1a',
     paddingHorizontal: 4,
+  },
+  emailHint: {
+    fontSize: 10,
+    color: Colors.muted,
+    paddingHorizontal: 4,
+    marginTop: 1,
+  },
+  tooltipOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tooltipBubble: {
+    backgroundColor: '#1a1a1a',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    maxWidth: 280,
+  },
+  tooltipText: {
+    fontSize: 13,
+    color: '#fff',
+    fontWeight: '500',
   },
   statusBadge: {
     paddingHorizontal: 7,
