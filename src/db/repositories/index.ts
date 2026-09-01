@@ -15,4 +15,5 @@ export { StudentFeeRepository, studentFeeRepository } from './studentfee.reposit
 export { StaffPayRepository, staffPayRepository } from './staffpay.repository';
 export { StudentDiaryRepository, studentDiaryRepository } from './studentdiary.repository';
 export { ParentNoteRepository, parentNoteRepository } from './parentnote.repository';
+export { StudentMarkSheetRepository, studentMarkSheetRepository } from './studentmarksheet.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

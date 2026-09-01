@@ -13,6 +13,7 @@ import { toStaffPayModel } from './staffpay.model';
 import { toStudentAttendanceLogModel } from './studentattendancelog.model';
 import { toStudentDiaryModel } from './studentdiary.model';
 import { toParentNoteModel } from './parentnote.model';
+import { toStudentMarkSheetModel } from './studentmarksheet.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -45,7 +46,8 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   staffpay:                (raw) => toStaffPayModel(raw)              as unknown as Record<string, unknown>,
   StudentAttendanceLog:    (raw) => toStudentAttendanceLogModel(raw)  as unknown as Record<string, unknown>,
   StudentDiary:            (raw) => toStudentDiaryModel(raw)          as unknown as Record<string, unknown>,
-  ParentNote:              (raw) => toParentNoteModel(raw)            as unknown as Record<string, unknown>,
+  ParentNote:              (raw) => toParentNoteModel(raw)             as unknown as Record<string, unknown>,
+  StudentMarkSheet:        (raw) => toStudentMarkSheetModel(raw)       as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
 };
 
@@ -128,6 +130,20 @@ const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
     createdBy:    'CreatedBy',
     revision:     'revision',
     lastmodified: 'lastmodified',
+  },
+  StudentMarkSheet: {
+    regNumber:     'Student',
+    examName:      'ExamName',
+    examDate:      'ExamDate',
+    subject:       'Subject',
+    subjTeacher:   'SubjTeacher',
+    maxMarks:      'MaxMarks',
+    marksObtained: 'MarksObtained',
+    grade:         'Grade',
+    remarks:       'Remarks',
+    recordedBy:    'RecordedBy',
+    revision:      'Revision',
+    lastmodified:  'Lastmodified',
   },
   // StudentAttendanceLog: all column names match camelCase keys exactly — no renames needed.
   coursetimetbl: {

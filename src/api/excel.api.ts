@@ -41,4 +41,17 @@ export const ExcelApi = {
   async deleteRow(sheet: string, id: string): Promise<void> {
     await client.delete(`/api/${sheet}/${id}`);
   },
+
+  /**
+   * Seed the sheet with headers if it doesn't already have them.
+   * Idempotent — safe to call on every app launch.
+   * Returns true if headers were written, false if they already existed.
+   */
+  async initSheet(sheet: string, headers: string[]): Promise<boolean> {
+    const { data } = await client.post<{ success: boolean; data: { written: boolean } }>(
+      `/api/${sheet}/init`,
+      { headers },
+    );
+    return data.data.written;
+  },
 };

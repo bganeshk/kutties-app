@@ -47,6 +47,10 @@ import type { StudentDiaryModel } from '../db/models/studentdiary.model';
 import ParentNoteDetailsScreen from '../screens/ParentNoteDetailsScreen';
 import { ParentNoteList, ParentNoteForm } from '../components/parentnote';
 import type { ParentNoteModel } from '../db/models/parentnote.model';
+import StudentMarkSheetDetailsScreen from '../screens/StudentMarkSheetDetailsScreen';
+import StudentProgressCardScreen from '../screens/StudentProgressCardScreen';
+import { StudentMarkSheetList, StudentMarkSheetForm } from '../components/studentmarksheet';
+import type { StudentMarkSheetModel } from '../db/models/studentmarksheet.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -96,6 +100,10 @@ export type HomeStackParamList = {
   ParentNoteList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
   ParentNoteDetails: { item: ParentNoteModel };
   ParentNoteForm: { mode: 'add' | 'edit' | 'acknowledge'; item?: ParentNoteModel; prefilledRegNumber?: string };
+  StudentMarkSheetList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
+  StudentMarkSheetDetails: { item: StudentMarkSheetModel };
+  StudentMarkSheetForm: { mode: 'add' | 'edit'; item?: StudentMarkSheetModel; prefilledRegNumber?: string };
+  StudentProgressCard: { regNumber: string; studentName?: string };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -150,6 +158,10 @@ export default function HomeStack() {
       <Stack.Screen name="ParentNoteList"                  component={ParentNoteList} />
       <Stack.Screen name="ParentNoteDetails"               component={ParentNoteDetailsScreen} />
       <Stack.Screen name="ParentNoteForm"                  component={ParentNoteForm} />
+      <Stack.Screen name="StudentMarkSheetList"            component={StudentMarkSheetList} />
+      <Stack.Screen name="StudentMarkSheetDetails"         component={StudentMarkSheetDetailsScreen} />
+      <Stack.Screen name="StudentMarkSheetForm"            component={StudentMarkSheetForm} />
+      <Stack.Screen name="StudentProgressCard"             component={StudentProgressCardScreen} />
     </Stack.Navigator>
   );
 }

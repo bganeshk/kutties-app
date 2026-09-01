@@ -3,6 +3,17 @@ import { ExcelApi } from '../api/excel.api';
 import { v4 as uuidv4 } from 'uuid';
 import { normalizeRow, toExcelRow } from '../db/models/registry';
 
+// ── Sheet header definitions ──────────────────────────────────────────────────
+// These are sent to the API via POST /api/:sheet/init on first launch.
+// Column names must exactly match the Excel headers the backend uses.
+const SHEET_HEADERS: Record<string, string[]> = {
+  StudentMarkSheet: [
+    'id', 'Student', 'ExamName', 'ExamDate', 'Subject', 'SubjTeacher',
+    'MaxMarks', 'MarksObtained', 'Grade', 'Remarks', 'RecordedBy',
+    'Revision', 'Lastmodified',
+  ],
+};
+
 export type SyncResult = {
   sheet: string;
   pulled: number;
@@ -99,6 +110,18 @@ export function twoWeeksAgo(): Date {
   d.setDate(d.getDate() - 14);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+/**
+ * Ensure all known sheets exist in the workbook with their correct headers.
+ * Idempotent — safe to call on every app launch before sync begins.
+ */
+export async function ensureSheets(): Promise<void> {
+  await Promise.all(
+    Object.entries(SHEET_HEADERS).map(([sheet, headers]) =>
+      ExcelApi.initSheet(sheet, headers).catch(() => {}), // never block launch
+    ),
+  );
 }
 
 export async function syncAllSheets(): Promise<SyncResult[]> {

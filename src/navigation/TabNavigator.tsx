@@ -36,6 +36,9 @@ import { StudentDiaryList, StudentDiaryForm } from '../components/studentdiary';
 import StudentDiaryDetailsScreen from '../screens/StudentDiaryDetailsScreen';
 import { ParentNoteList, ParentNoteForm } from '../components/parentnote';
 import ParentNoteDetailsScreen from '../screens/ParentNoteDetailsScreen';
+import { StudentMarkSheetList, StudentMarkSheetForm } from '../components/studentmarksheet';
+import StudentMarkSheetDetailsScreen from '../screens/StudentMarkSheetDetailsScreen';
+import StudentProgressCardScreen from '../screens/StudentProgressCardScreen';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -96,6 +99,10 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="ParentNoteList" component={ParentNoteList} />
         <Stack.Screen name="ParentNoteDetails" component={ParentNoteDetailsScreen} />
         <Stack.Screen name="ParentNoteForm" component={ParentNoteForm} />
+        <Stack.Screen name="StudentMarkSheetList"            component={StudentMarkSheetList} />
+        <Stack.Screen name="StudentMarkSheetDetails"         component={StudentMarkSheetDetailsScreen} />
+        <Stack.Screen name="StudentMarkSheetForm"            component={StudentMarkSheetForm} />
+        <Stack.Screen name="StudentProgressCard"             component={StudentProgressCardScreen} />
       </Stack.Navigator>
     );
   };

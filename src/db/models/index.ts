@@ -12,4 +12,5 @@ export * from './studentfee.model';
 export * from './staffpay.model';
 export * from './studentdiary.model';
 export * from './parentnote.model';
+export * from './studentmarksheet.model';
 export * from './registry';
