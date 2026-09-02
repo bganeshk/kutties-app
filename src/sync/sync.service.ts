@@ -12,6 +12,16 @@ const SHEET_HEADERS: Record<string, string[]> = {
     'MaxMarks', 'MarksObtained', 'Grade', 'Remarks', 'RecordedBy',
     'Revision', 'Lastmodified',
   ],
+  StudentActivity: [
+    'id', 'ActivityType', 'Category', 'Course',
+    'Assignor', 'Assignee', 'Reviewer',
+    'Title', 'Description',
+    'StartDate', 'EndDate',
+    'Status', 'IsOverdue',
+    'SubmissionAttachments', 'SubmissionNote',
+    'Rating', 'RatingNote', 'ClosedBy', 'ClosedAt',
+    'Revision', 'Lastmodified',
+  ],
 };
 
 export type SyncResult = {

@@ -22,6 +22,11 @@ interface SingleSelectDropdownProps {
   /** When true the trigger is non-interactive */
   disabled?: boolean;
   /**
+   * When false the trigger is non-interactive (inverse of disabled).
+   * Use `editable={false}` to lock the field (e.g. overdue activities).
+   */
+  editable?: boolean;
+  /**
    * Optional grouping map: { groupLabel → [option, …] }
    * When provided, a course dropdown appears inside the modal.
    * A course must be selected before the student list is shown.
@@ -39,9 +44,12 @@ export default function SingleSelectDropdown({
   title = 'Select an option',
   loading = false,
   disabled = false,
+  editable,
   groups,
   renderLabel,
 }: SingleSelectDropdownProps) {
+  // editable=false is equivalent to disabled=true
+  const isDisabled = disabled || editable === false;
   const [open,           setOpen]           = useState(false);
   const [groupOpen,      setGroupOpen]      = useState(false);
   const [search,         setSearch]         = useState('');
@@ -77,14 +85,21 @@ export default function SingleSelectDropdown({
     if (groups && !activeGroup) return [];
     const base = (groups && activeGroup) ? (groups[activeGroup] ?? options) : options;
     const q = search.trim().toLowerCase();
-    return q ? base.filter((o) => o.toLowerCase().includes(q)) : base;
-  }, [options, groups, activeGroup, search]);
+    if (!q) return base;
+    return base.filter((o) => {
+      const label = renderLabel ? renderLabel(o) : o;
+      return label.toLowerCase().includes(q) || o.toLowerCase().includes(q);
+    });
+  }, [options, groups, activeGroup, search, renderLabel]);
 
-  if (disabled) {
+  if (isDisabled) {
+    const disabledLabel = selected
+      ? (renderLabel ? renderLabel(selected) : selected)
+      : '—';
     return (
       <View style={[styles.trigger, styles.triggerDisabled]}>
-        <Text style={selected ? styles.selectedText : styles.placeholder}>
-          {selected || '—'}
+        <Text style={selected ? styles.selectedText : styles.placeholder} numberOfLines={1}>
+          {disabledLabel}
         </Text>
       </View>
     );

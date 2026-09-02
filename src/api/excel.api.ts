@@ -43,6 +43,36 @@ export const ExcelApi = {
   },
 
   /**
+   * Upload a single file attachment for an activity.
+   * POST /api/:sheet/:id/attachments (multipart/form-data)
+   * Returns the stored URL.
+   */
+  async uploadAttachment(
+    sheet: string,
+    id: string,
+    fileUri: string,
+    fileName: string,
+    mimeType: string,
+  ): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', { uri: fileUri, name: fileName, type: mimeType } as any);
+    const { data } = await client.post<{ success: boolean; data: { url: string } }>(
+      `/api/${sheet}/${id}/attachments`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 30000 },
+    );
+    return data.data.url;
+  },
+
+  /**
+   * Remove one attachment URL from an activity's SubmissionAttachments.
+   * DELETE /api/:sheet/:id/attachments  body: { url }
+   */
+  async removeAttachment(sheet: string, id: string, url: string): Promise<void> {
+    await client.delete(`/api/${sheet}/${id}/attachments`, { data: { url } });
+  },
+
+  /**
    * Seed the sheet with headers if it doesn't already have them.
    * Idempotent — safe to call on every app launch.
    * Returns true if headers were written, false if they already existed.

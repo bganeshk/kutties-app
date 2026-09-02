@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
 import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
-import { resolveScreen, isStaffAttendanceCaption, isLeaveCaption, isStudentAttendanceCaption, isStudentDiaryCaption, isParentNoteCaption } from '../navigation/screenRegistry';
+import { resolveScreen, isStaffAttendanceCaption, isLeaveCaption, isStudentAttendanceCaption, isStudentDiaryCaption, isParentNoteCaption, isStudentActivityCaption } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 
@@ -155,6 +155,8 @@ export default function SubItemScreen({ navigation, route }: Props) {
                     navigation.navigate('StudentDiaryList', { headerTitle: caption });
                   } else if (screenName === 'ParentNoteList' || isParentNoteCaption(caption)) {
                     navigation.navigate('ParentNoteList', { headerTitle: caption });
+                  } else if (screenName === 'StudentActivityList' || isStudentActivityCaption(caption)) {
+                    navigation.navigate('StudentActivityList', { headerTitle: caption });
                   } else {
                     navigation.navigate(screenName, {
                       headerTitle: caption,

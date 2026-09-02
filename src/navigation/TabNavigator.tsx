@@ -39,6 +39,8 @@ import ParentNoteDetailsScreen from '../screens/ParentNoteDetailsScreen';
 import { StudentMarkSheetList, StudentMarkSheetForm } from '../components/studentmarksheet';
 import StudentMarkSheetDetailsScreen from '../screens/StudentMarkSheetDetailsScreen';
 import StudentProgressCardScreen from '../screens/StudentProgressCardScreen';
+import { StudentActivityList, StudentActivityForm } from '../components/activity';
+import StudentActivityDetailsScreen from '../screens/StudentActivityDetailsScreen';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -103,6 +105,9 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="StudentMarkSheetDetails"         component={StudentMarkSheetDetailsScreen} />
         <Stack.Screen name="StudentMarkSheetForm"            component={StudentMarkSheetForm} />
         <Stack.Screen name="StudentProgressCard"             component={StudentProgressCardScreen} />
+        <Stack.Screen name="StudentActivityList"             component={StudentActivityList} />
+        <Stack.Screen name="StudentActivityDetails"          component={StudentActivityDetailsScreen} />
+        <Stack.Screen name="StudentActivityForm"             component={StudentActivityForm} />
       </Stack.Navigator>
     );
   };
@@ -162,8 +167,9 @@ export default function TabNavigator() {
           ),
         }}
         listeners={({ navigation }) => ({
-          tabPress: () => {
-            navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('Home', { screen: 'HomeMain' });
           },
         })}
       />

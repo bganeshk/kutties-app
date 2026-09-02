@@ -87,6 +87,18 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'StudentMarkSheet View':           'StudentMarkSheetList',
   'Student Marks':                   'StudentMarkSheetList',
   'Student Marks View':              'StudentMarkSheetList',
+  'Student Activity':                'StudentActivityList',
+  'Student Activity View':           'StudentActivityList',
+  'StudentActivity View':            'StudentActivityList',
+  'Assignments':                     'StudentActivityList',
+  'Assignments View':                'StudentActivityList',
+  'Assignment View':                 'StudentActivityList',
+  'Student Assignments':             'StudentActivityList',
+  'Student Assignments View':        'StudentActivityList',
+  'Tasks':                           'StudentActivityList',
+  'Tasks View':                      'StudentActivityList',
+  'Student Tasks':                   'StudentActivityList',
+  'Student Tasks View':              'StudentActivityList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
@@ -186,4 +198,24 @@ const STUDENT_DIARY_CAPTIONS = new Set([
 
 export function isStudentDiaryCaption(caption: string): boolean {
   return STUDENT_DIARY_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that map to StudentActivityList */
+const STUDENT_ACTIVITY_CAPTIONS = new Set([
+  'student activity',
+  'student activity view',
+  'studentactivity view',
+  'assignments',
+  'assignments view',
+  'assignment view',
+  'student assignments',
+  'student assignments view',
+  'tasks',
+  'tasks view',
+  'student tasks',
+  'student tasks view',
+]);
+
+export function isStudentActivityCaption(caption: string): boolean {
+  return STUDENT_ACTIVITY_CAPTIONS.has(caption.trim().toLowerCase());
 }

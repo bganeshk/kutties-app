@@ -51,6 +51,9 @@ import StudentMarkSheetDetailsScreen from '../screens/StudentMarkSheetDetailsScr
 import StudentProgressCardScreen from '../screens/StudentProgressCardScreen';
 import { StudentMarkSheetList, StudentMarkSheetForm } from '../components/studentmarksheet';
 import type { StudentMarkSheetModel } from '../db/models/studentmarksheet.model';
+import StudentActivityDetailsScreen from '../screens/StudentActivityDetailsScreen';
+import { StudentActivityList, StudentActivityForm } from '../components/activity';
+import type { StudentActivityModel } from '../db/models/studentactivity.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -104,6 +107,20 @@ export type HomeStackParamList = {
   StudentMarkSheetDetails: { item: StudentMarkSheetModel };
   StudentMarkSheetForm: { mode: 'add' | 'edit'; item?: StudentMarkSheetModel; prefilledRegNumber?: string };
   StudentProgressCard: { regNumber: string; studentName?: string };
+  StudentActivityList: {
+    studentRegNumber?: string;
+    studentName?: string;
+    course?: string;
+    headerTitle?: string;
+    currentUserEmail?: string;
+  } | undefined;
+  StudentActivityDetails: { item: StudentActivityModel };
+  StudentActivityForm: {
+    mode: 'add' | 'edit' | 'submit' | 'review';
+    item?: StudentActivityModel;
+    prefilledRegNumber?: string;
+    prefilledCourse?: string;
+  };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -162,6 +179,9 @@ export default function HomeStack() {
       <Stack.Screen name="StudentMarkSheetDetails"         component={StudentMarkSheetDetailsScreen} />
       <Stack.Screen name="StudentMarkSheetForm"            component={StudentMarkSheetForm} />
       <Stack.Screen name="StudentProgressCard"             component={StudentProgressCardScreen} />
+      <Stack.Screen name="StudentActivityList"             component={StudentActivityList} />
+      <Stack.Screen name="StudentActivityDetails"          component={StudentActivityDetailsScreen} />
+      <Stack.Screen name="StudentActivityForm"             component={StudentActivityForm} />
     </Stack.Navigator>
   );
 }

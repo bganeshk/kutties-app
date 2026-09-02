@@ -141,16 +141,7 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
 
         {/* ── Quick actions ─────────────────────────────────────────────────── */}
         <View style={KStyles.detailsQuickActions}>
-          {item.phone && (
-            <TouchableOpacity
-              style={KStyles.detailsQaBtn}
-              onPress={() => Linking.openURL(`whatsapp://send?phone=${item.phone}`)}
-              activeOpacity={0.75}
-            >
-              <Ionicons name="logo-whatsapp" size={20} color="#2E7D32" />
-              <Text style={KStyles.detailsQaBtnText}>WhatsApp</Text>
-            </TouchableOpacity>
-          )}
+        
           {item.email && (
             <TouchableOpacity
               style={KStyles.detailsQaBtn}
@@ -161,18 +152,7 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
               <Text style={KStyles.detailsQaBtnText}>Email</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            style={KStyles.detailsQaBtn}
-            onPress={() => navigation.navigate('StudentHealthList', {
-              studentEmail: item.email,
-              studentName:  item.fullName,
-              headerTitle:  `${item.fullName ?? 'Student'}'s Health`,
-            })}
-            activeOpacity={0.75}
-          >
-            <Ionicons name="medkit-outline" size={20} color="#00796B" />
-            <Text style={KStyles.detailsQaBtnText}>Health</Text>
-          </TouchableOpacity>
+  
           <TouchableOpacity
             style={KStyles.detailsQaBtn}
             onPress={() => navigation.navigate('StudentFeeList', {
@@ -196,6 +176,18 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
           >
             <Ionicons name="calendar-outline" size={20} color="#6A1B9A" />
             <Text style={KStyles.detailsQaBtnText}>Attendance</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            onPress={() => navigation.navigate('StudentActivityList', {
+              studentRegNumber: item.regNumber,
+              studentName:      item.fullName,
+              headerTitle:      `${item.fullName ?? 'Student'}'s Assignments`,
+            })}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="document-text-outline" size={20} color="#1565C0" />
+            <Text style={KStyles.detailsQaBtnText}>Assignments</Text>
           </TouchableOpacity>
           {/* <TouchableOpacity
             style={KStyles.detailsQaBtn}
