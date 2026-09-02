@@ -260,13 +260,13 @@ export default function StudentMarkSheetList({ navigation, route }: Props) {
             })
           }
         >
-          <Ionicons name="person-circle-outline" size={14} color="#6B7280" style={{ marginRight: 6 }} />
+          <Ionicons name="person-circle-outline" size={15} color={PRIMARY} style={{ marginRight: 6 }} />
           <Text style={styles.studentHeaderText} numberOfLines={1}>{entry.name}</Text>
           {entry.name !== entry.reg && (
             <Text style={styles.studentHeaderReg} numberOfLines={1}> · {entry.reg}</Text>
           )}
           {entry.avg != null && (
-            <View style={[styles.avgBadge, { backgroundColor: avgPctColor(entry.avg) + '22' }]}>
+            <View style={[styles.avgBadge, { borderColor: avgPctColor(entry.avg) }]}>
               <Text style={[styles.avgBadgeText, { color: avgPctColor(entry.avg) }]}>{entry.avg}%</Text>
             </View>
           )}
@@ -276,7 +276,7 @@ export default function StudentMarkSheetList({ navigation, route }: Props) {
           <Ionicons
             name={isCollapsed ? 'chevron-forward' : 'chevron-down'}
             size={13}
-            color="#6B7280"
+            color={PRIMARY}
             style={{ marginLeft: 'auto' }}
           />
         </TouchableOpacity>
@@ -562,27 +562,27 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // Subject header (level 1)
-  subjectHeader: {
+  // Student header (level 0 — outermost group)
+  studentHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: Colors.lightPink,
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#C7D2FE',
+    borderColor: Colors.primary + '55',
     marginTop: 6,
   },
   subjectHeaderText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#3730A3',
+    color: Colors.primary,
     flex: 1,
   },
 
-  // Student header (level 2)
-  studentHeader: {
+  // Subject header (level 1 — nested under student)
+  subjectHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F9FAFB',
@@ -592,17 +592,17 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e7eb',
   },
   studentHeaderText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#374151',
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.primary,
     flex: 1,
   },
   studentHeaderReg: {
     fontSize: 11,
-    color: '#9CA3AF',
+    color: Colors.primary + 'AA',
   },
   studentCountBadge: {
-    backgroundColor: '#6B7280',
+    backgroundColor: Colors.primary,
     borderRadius: 9,
     paddingHorizontal: 6,
     paddingVertical: 1,
@@ -616,6 +616,8 @@ const styles = StyleSheet.create({
 
   avgBadge: {
     borderRadius: 8,
+    borderWidth: 1,
+    backgroundColor: '#fff',
     paddingHorizontal: 7,
     paddingVertical: 2,
     marginLeft: 6,
