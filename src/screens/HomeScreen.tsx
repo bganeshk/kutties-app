@@ -80,7 +80,7 @@ export default function HomeScreen({ navigation }: Props) {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+        <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => navigation?.getParent('Drawer')?.openDrawer()}>
           <Ionicons name="reorder-three" size={30} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Home</Text>

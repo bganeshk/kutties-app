@@ -3,9 +3,10 @@ import { AppState, AppStateStatus, Text, StyleSheet, ScrollView } from 'react-na
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { initDb } from './src/db/database';
 import { syncSheet } from './src/sync/sync.service';
-import TabNavigator from './src/navigation/TabNavigator';
+import AppDrawer from './src/navigation/AppDrawer';
 import AppSplashScreen from './src/screens/AppSplashScreen';
 
 type Phase = 'db' | 'sync' | 'ready' | 'error';
@@ -68,12 +69,14 @@ const sleep = (ms: number): Promise<void> => {
   }
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="light" />
-      <NavigationContainer>
-        <TabNavigator />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        <NavigationContainer>
+          <AppDrawer />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
