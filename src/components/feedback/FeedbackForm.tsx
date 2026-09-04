@@ -65,7 +65,7 @@ export default function FeedbackForm({ navigation, route }: Props) {
       }
       if (!cancelled) {
         const mapped = rows
-          .filter(s => s.fullName)
+          .filter(s => s.fullName && s.status === 'active')
           .map(s => ({ fullName: s.fullName!, course: s.course ?? '' }));
 
         // All names sorted (used by the dropdown when no chip is active)

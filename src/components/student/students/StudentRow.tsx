@@ -9,6 +9,25 @@ import { Colors, KStyles } from '../../../styles/kutties-styles';
 
 const PRIMARY = Colors.primary;
 
+// ── Birthday helper ───────────────────────────────────────────────────────────
+// Returns how many days until the student's next birthday (day+month only).
+// Returns null if dob is absent or unparseable.
+function daysUntilBirthday(dob: string | undefined | null): number | null {
+  if (!dob) return null;
+  const d = new Date(dob);
+  if (isNaN(d.getTime())) return null;
+
+  const today = new Date();
+  const thisYear = today.getFullYear();
+
+  // Next occurrence of the birthday (day+month) this year or next
+  let next = new Date(thisYear, d.getMonth(), d.getDate());
+  if (next < today) next = new Date(thisYear + 1, d.getMonth(), d.getDate());
+
+  const diffMs = next.getTime() - today.getTime();
+  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+}
+
 interface StudentRowProps {
   item: StudentModel;
   selected?: boolean;
@@ -88,9 +107,21 @@ const StudentRow = memo(({ item, selected, onPress, onLongPress, activeCourse, o
       <View style={KStyles.rowInfo}>
         <View style={KStyles.rowTwoCol}>
 
-          {/* Left: name + parent */}
+          {/* Left: name + parent + birthday chip */}
           <View style={KStyles.rowLeftCol}>
-            <Text style={KStyles.rowName} numberOfLines={1}>{name}</Text>
+            <View style={styles.nameRow}>
+              <Text style={[KStyles.rowName, styles.nameText]} numberOfLines={1}>{name}</Text>
+              {(() => {
+                const days = daysUntilBirthday(item.dob);
+                if (days === null || days > 3) return null;
+                const label = days === 0 ? '🎂 Today!' : `🎂 in ${days}d`;
+                return (
+                  <View style={styles.bdayChip}>
+                    <Text style={styles.bdayChipText}>{label}</Text>
+                  </View>
+                );
+              })()}
+            </View>
             {(item.motherName || item.fatherName) ? (
               <Text style={styles.parentName} numberOfLines={1}>
                 <Ionicons name="people-outline" size={10} color="#888" />{' '}
@@ -162,6 +193,19 @@ const StudentRow = memo(({ item, selected, onPress, onLongPress, activeCourse, o
 export default StudentRow;
 
 const styles = StyleSheet.create({
+  nameRow:       { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  nameText:      { flexShrink: 1 },
+  bdayChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#FFB74D',
+  },
+  bdayChipText:  { fontSize: 10, color: '#E65100', fontWeight: '700' },
   parentName: { fontSize: 12, color: '#666', marginTop: 2 },
   regChip: {
     backgroundColor: '#EDE7F6',

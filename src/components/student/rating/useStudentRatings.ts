@@ -153,6 +153,9 @@ export function useStudentRatings() {
       const q = search.toLowerCase().trim();
 
       const filtered = ratings.filter((r) => {
+        // Only active students
+        if ((r.student.status ?? 'active') !== 'active') return false;
+
         // Exclude students with no mark sheet AND no activity records
         if (r.academicRating == null && r.activityRating == null) return false;
 

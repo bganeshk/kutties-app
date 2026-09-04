@@ -85,7 +85,7 @@ export default function StudentAttendanceLogForm({ navigation, route }: Props) {
         setRegToName(map);
         setStudentOptions(
           rows
-            .filter((s) => s.regNumber)
+            .filter((s) => s.regNumber && s.status === 'active')
             .map((s) => s.regNumber!)
             .sort(),
         );

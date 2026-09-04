@@ -147,12 +147,12 @@ export default function StudentActivityForm({ navigation, route }: Props) {
         const map: Record<string, string> = {};
         rows.forEach((s) => { if (s.regNumber) map[s.regNumber] = s.fullName ?? s.regNumber; });
         setRegToName(map);
-        setStudentOptions(rows.filter((s) => s.regNumber).map((s) => s.regNumber!).sort());
+        setStudentOptions(rows.filter((s) => s.regNumber && s.status === 'active').map((s) => s.regNumber!).sort());
 
         const groupMap: Record<string, string[]> = {};
         courses.forEach((c) => { if (c.courseName) groupMap[c.courseName] = []; });
         rows.forEach((s) => {
-          if (!s.regNumber) return;
+          if (!s.regNumber || s.status !== 'active') return;
           const c = s.course?.trim() ?? '';
           if (!c) return;
           if (!groupMap[c]) groupMap[c] = [];

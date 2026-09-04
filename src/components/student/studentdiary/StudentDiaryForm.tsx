@@ -88,13 +88,13 @@ export default function StudentDiaryForm({ navigation, route }: Props) {
         const map: Record<string, string> = {};
         rows.forEach((s) => { if (s.regNumber) map[s.regNumber] = s.fullName ?? s.regNumber; });
         setRegToName(map);
-        setStudentOptions(rows.filter((s) => s.regNumber).map((s) => s.regNumber!).sort());
+        setStudentOptions(rows.filter((s) => s.regNumber && s.status === 'active').map((s) => s.regNumber!).sort());
 
         const courseNames = courses.map((c) => c.courseName ?? '').filter(Boolean);
         const groupMap: Record<string, string[]> = {};
         courseNames.forEach((name) => { groupMap[name] = []; });
         rows.forEach((s) => {
-          if (!s.regNumber) return;
+          if (!s.regNumber || s.status !== 'active') return;
           const course = s.course?.trim() ?? '';
           if (!course) return;
           if (!groupMap[course]) groupMap[course] = [];

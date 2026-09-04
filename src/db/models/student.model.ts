@@ -42,7 +42,7 @@ export interface StudentModel extends AuditFields {
   phone2?: string;
   dob?: string;
   email?: string;
-  status?: 'active' | 'inactive' | 'Alumini' | 'Graduated';
+  status?: 'active' | 'inactive' | 'Alumini' | 'Graduated' | undefined;
   course?: string;
   afterSchool?: string;
   optWeekend?: string;
@@ -66,7 +66,7 @@ export function toStudentModel(row: Record<string, unknown>): StudentModel {
     email:        (row.emailId ?? row.email)  as string | undefined,
     status:       (['active', 'inactive', 'alumini', 'graduated'].includes(status)
       ? (status === 'alumini' ? 'Alumini' : status === 'graduated' ? 'Graduated' : status)
-      : 'active') as 'active' | 'inactive' | 'Alumini' | 'Graduated',
+      : undefined) as 'active' | 'inactive' | 'Alumini' | 'Graduated' | undefined,
     course:       (row.Course ?? row.course)  as string | undefined,
     afterSchool:  (row.AfterSchool ?? row.afterSchool) as string | undefined,
     optWeekend:   (row['Opt Weekend'] ?? row.optWeekend) as string | undefined,
