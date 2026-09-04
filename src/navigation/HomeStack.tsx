@@ -59,6 +59,8 @@ import type { TeacherActivityModel } from '../db/models/teacheractivity.model';
 import { StudentRatingList, StudentRatingDetail } from '../components/student/rating';
 import { StudentObservationList, StudentObservationForm } from '../components/student/observation';
 import type { StudentObservationTrackModel } from '../db/models/studentobservationtrack.model';
+import { TeacherStudentMarkList } from '../components/teachers/studentmark';
+import TeacherStudentMarkDetailsScreen from '../screens/TeacherStudentMarkDetailsScreen';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -142,6 +144,8 @@ export type HomeStackParamList = {
   StudentRatingDetail: { student: StudentModel };
   StudentObservationList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
   StudentObservationForm: { mode: 'add' | 'edit' | 'view'; sessionRecords?: StudentObservationTrackModel[]; prefilledRegNumber?: string };
+  TeacherStudentMarkList: { teacherEmail?: string; teacherName?: string; headerTitle?: string };
+  TeacherStudentMarkDetails: { teacherEmail: string; regNumber: string; studentName?: string };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -210,6 +214,8 @@ export default function HomeStack() {
       <Stack.Screen name="StudentRatingDetail"             component={StudentRatingDetail} />
       <Stack.Screen name="StudentObservationList"          component={StudentObservationList} />
       <Stack.Screen name="StudentObservationForm"          component={StudentObservationForm} />
+      <Stack.Screen name="TeacherStudentMarkList"          component={TeacherStudentMarkList} />
+      <Stack.Screen name="TeacherStudentMarkDetails"       component={TeacherStudentMarkDetailsScreen} />
     </Stack.Navigator>
   );
 }

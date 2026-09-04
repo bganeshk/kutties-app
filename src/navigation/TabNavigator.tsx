@@ -44,6 +44,8 @@ import TeacherActivityDetailsScreen from '../screens/TeacherActivityDetailsScree
 import { TeacherActivityList, TeacherActivityForm } from '../components/teachers/activity';
 import { StudentRatingList, StudentRatingDetail } from '../components/student/rating';
 import { StudentObservationList, StudentObservationForm } from '../components/student/observation';
+import { TeacherStudentMarkList } from '../components/teachers/studentmark';
+import TeacherStudentMarkDetailsScreen from '../screens/TeacherStudentMarkDetailsScreen';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -118,6 +120,8 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="StudentRatingDetail"             component={StudentRatingDetail} />
         <Stack.Screen name="StudentObservationList"          component={StudentObservationList} />
         <Stack.Screen name="StudentObservationForm"          component={StudentObservationForm} />
+        <Stack.Screen name="TeacherStudentMarkList"          component={TeacherStudentMarkList} />
+        <Stack.Screen name="TeacherStudentMarkDetails"       component={TeacherStudentMarkDetailsScreen} />
       </Stack.Navigator>
     );
   };
