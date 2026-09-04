@@ -15,6 +15,8 @@ import { toStudentDiaryModel } from './studentdiary.model';
 import { toParentNoteModel } from './parentnote.model';
 import { toStudentMarkSheetModel } from './studentmarksheet.model';
 import { toStudentActivityModel } from './studentactivity.model';
+import { toStudentObservationQnModel } from './studentobservationqn.model';
+import { toStudentObservationTrackModel } from './studentobservationtrack.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -49,7 +51,9 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   StudentDiary:            (raw) => toStudentDiaryModel(raw)          as unknown as Record<string, unknown>,
   ParentNote:              (raw) => toParentNoteModel(raw)             as unknown as Record<string, unknown>,
   StudentMarkSheet:        (raw) => toStudentMarkSheetModel(raw)       as unknown as Record<string, unknown>,
-  StudentActivity:         (raw) => toStudentActivityModel(raw)        as unknown as Record<string, unknown>,
+  StudentActivity:         (raw) => toStudentActivityModel(raw)              as unknown as Record<string, unknown>,
+  student_Observation_Qn:  (raw) => toStudentObservationQnModel(raw)         as unknown as Record<string, unknown>,
+  student_Observation_track:(raw) => toStudentObservationTrackModel(raw)     as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
 };
 
@@ -147,6 +151,23 @@ const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
     norm_rating:   'norm_rating',
     revision:      'Revision',
     lastmodified:  'Lastmodified',
+  },
+  student_Observation_Qn: {
+    question:  'Question',
+    category:  'Category',
+    sortOrder: 'SortOrder',
+    active:    'Active',
+    // 'course' matches the Excel column name exactly — no rename needed
+  },
+  student_Observation_track: {
+    regNumber:    'Student',
+    obsDate:      'ObsDate',
+    questionId:   'QuestionId',
+    answer:       'Answer',
+    remark:       'Remark',
+    recordedBy:   'RecordedBy',
+    revision:     'revision',
+    lastmodified: 'lastmodified',
   },
   StudentActivity: {
     activityType:          'ActivityType',

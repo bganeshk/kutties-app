@@ -18,7 +18,9 @@ export const SHEETS = {
   STUDENT_DIARY:        'StudentDiary',
   PARENT_NOTE:          'ParentNote',
   STUDENT_MARK_SHEET:   'StudentMarkSheet',
-  STUDENT_ACTIVITY:     'StudentActivity',
+  STUDENT_ACTIVITY:          'StudentActivity',
+  STUDENT_OBSERVATION_QN:    'student_Observation_Qn',
+  STUDENT_OBSERVATION_TRACK: 'student_Observation_track',
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

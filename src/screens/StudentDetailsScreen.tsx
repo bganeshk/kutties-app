@@ -197,6 +197,18 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
             <Ionicons name="star-outline" size={20} color="#F57F17" />
             <Text style={KStyles.detailsQaBtnText}>Rating</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            onPress={() => navigation.navigate('StudentObservationList', {
+              studentRegNumber: item.regNumber,
+              studentName:      item.fullName,
+              headerTitle:      `${item.fullName ?? 'Student'}'s Observations`,
+            })}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="eye-outline" size={20} color="#00796B" />
+            <Text style={KStyles.detailsQaBtnText}>Observation</Text>
+          </TouchableOpacity>
           {/* <TouchableOpacity
             style={KStyles.detailsQaBtn}
             onPress={() => navigation.navigate('StudentDiaryList', {

@@ -102,6 +102,15 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Student Rating':                  'StudentRatingList',
   'Student Rating View':             'StudentRatingList',
   'Rating View':                     'StudentRatingList',
+  'Student Observation':             'StudentObservationList',
+  'Student Observation View':        'StudentObservationList',
+  'Observation':                     'StudentObservationList',
+  'Observation View':                'StudentObservationList',
+  'Observation Qn':                  'StudentObservationList',
+  'Observation Qn View':             'StudentObservationList',
+  'Student Observation Qn':          'StudentObservationList',
+  'Student Observation Qn View':     'StudentObservationList',
+  'ObservationQn':                   'StudentObservationList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback

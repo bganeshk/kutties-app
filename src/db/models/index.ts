@@ -13,4 +13,6 @@ export * from './staffpay.model';
 export * from './studentdiary.model';
 export * from './parentnote.model';
 export * from './studentmarksheet.model';
+export * from './studentobservationqn.model';
+export * from './studentobservationtrack.model';
 export * from './registry';

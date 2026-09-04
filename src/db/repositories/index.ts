@@ -17,4 +17,6 @@ export { StudentDiaryRepository, studentDiaryRepository } from './studentdiary.r
 export { ParentNoteRepository, parentNoteRepository } from './parentnote.repository';
 export { StudentMarkSheetRepository, studentMarkSheetRepository } from './studentmarksheet.repository';
 export { StudentActivityRepository, studentActivityRepository } from './studentactivity.repository';
+export { StudentObservationQnRepository, studentObservationQnRepository } from './studentobservationqn.repository';
+export { StudentObservationTrackRepository, studentObservationTrackRepository } from './studentobservationtrack.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

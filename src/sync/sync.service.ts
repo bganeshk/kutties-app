@@ -24,6 +24,11 @@ const SHEET_HEADERS: Record<string, string[]> = {
     'Rating', 'RatingNote', 'ClosedBy', 'ClosedAt',
     'norm_rating', 'Revision', 'Lastmodified',
   ],
+  student_Observation_track: [
+    'id', 'Student', 'ObsDate', 'QuestionId',
+    'Answer', 'Remark', 'RecordedBy',
+    'revision', 'lastmodified',
+  ],
 };
 
 export type SyncResult = {
