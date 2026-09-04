@@ -15,4 +15,5 @@ export * from './parentnote.model';
 export * from './studentmarksheet.model';
 export * from './studentobservationqn.model';
 export * from './studentobservationtrack.model';
+export * from './teacheractivity.model';
 export * from './registry';

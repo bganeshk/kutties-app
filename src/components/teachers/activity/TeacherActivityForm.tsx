@@ -1,23 +1,26 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  ActivityIndicator, KeyboardAvoidingView, Platform, Switch,
+  ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { v4 as uuidv4 } from 'uuid';
 import { Colors, KStyles } from '../../../styles/kutties-styles';
 import { SHEETS, MONTHS } from '../../../utils/constants';
 import {
-  studentActivityRepository,
-  studentRepository,
-  courseRepository,
+  teacherActivityRepository,
   teacherRepository,
+  employeeRepository,
+  courseRepository,
   getRefOptions,
   ensureReftbl,
 } from '../../../db/repositories';
 import { syncSheet } from '../../../sync/sync.service';
+import { computeActivityNormRating } from '../../../db/models/studentactivity.model';
 import type {
-  StudentActivityModel,
+  TeacherActivityModel,
+} from '../../../db/models/teacheractivity.model';
+import type {
   ActivityType,
   ActivityStatus,
 } from '../../../db/models/studentactivity.model';
@@ -37,8 +40,8 @@ interface Props {
   route: {
     params: {
       mode: FormMode;
-      item?: StudentActivityModel;
-      prefilledRegNumber?: string;
+      item?: TeacherActivityModel;
+      prefilledEmail?: string;
       prefilledCourse?: string;
     };
   };
@@ -48,8 +51,8 @@ const ACTIVITY_TYPES: ActivityType[]   = ['Assignment', 'Task', 'Notification'];
 const STATUS_OPTIONS: ActivityStatus[]              = ['open', 'in-progress', 'in-review'];
 const STATUS_OPTIONS_NOTIFICATION: ActivityStatus[] = ['open', 'closed'];
 
-export default function StudentActivityForm({ navigation, route }: Props) {
-  const { mode, item, prefilledRegNumber, prefilledCourse } = route.params;
+export default function TeacherActivityForm({ navigation, route }: Props) {
+  const { mode, item, prefilledEmail, prefilledCourse } = route.params;
   const isEdit   = mode === 'edit';
   const isSubmit = mode === 'submit';
   const isReview = mode === 'review';
@@ -62,13 +65,11 @@ export default function StudentActivityForm({ navigation, route }: Props) {
   }, []);
 
   // ── Form state ────────────────────────────────────────────────────────────
-  const [activityType, setActivityType] = useState<ActivityType>(
-    item?.activityType ?? 'Assignment',
-  );
+  const [activityType, setActivityType] = useState<ActivityType>(item?.activityType ?? 'Assignment');
   const [category,     setCategory]     = useState(item?.category     ?? '');
   const [course,       setCourse]       = useState(item?.course       ?? prefilledCourse ?? '');
   const [assignor,     setAssignor]     = useState(item?.assignor     ?? '');
-  const [assignee,     setAssignee]     = useState(item?.assignee     ?? prefilledRegNumber ?? '');
+  const [assignee,     setAssignee]     = useState(item?.assignee     ?? prefilledEmail  ?? '');
   const [reviewer,     setReviewer]     = useState(item?.reviewer     ?? '');
   const [title,        setTitle]        = useState(item?.title        ?? '');
   const [description,  setDescription]  = useState(item?.description  ?? '');
@@ -85,7 +86,7 @@ export default function StudentActivityForm({ navigation, route }: Props) {
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const snackbar = useSnackbar();
 
-  // ── Overdue flag — true when endDate is before today ──────────────────────
+  // ── Overdue flag ──────────────────────────────────────────────────────────
   const isOverdue = useMemo(() => {
     const raw = isAddEdit ? endDate : item?.endDate;
     if (!raw) return false;
@@ -114,9 +115,9 @@ export default function StudentActivityForm({ navigation, route }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  // ── Staff options ─────────────────────────────────────────────────────────
-  const [staffOptions,  setStaffOptions]  = useState<string[]>([]);
-  const [loadingStaff,  setLoadingStaff]  = useState(true);
+  // ── Staff (assignee / assignor — teachers only) ───────────────────────────
+  const [staffOptions, setStaffOptions] = useState<string[]>([]);
+  const [loadingStaff, setLoadingStaff] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,60 +132,76 @@ export default function StudentActivityForm({ navigation, route }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  // ── Student options (grouped by course) ───────────────────────────────────
-  const [studentOptions,  setStudentOptions]  = useState<string[]>([]);
-  const [regToName,       setRegToName]       = useState<Record<string, string>>({});
-  const [studentGroups,   setStudentGroups]   = useState<Record<string, string[]>>({});
-  const [loadingStudents, setLoadingStudents] = useState(true);
+  // ── All-staff options (reviewer — teachers + employees) ───────────────────
+  const [allStaffOptions, setAllStaffOptions] = useState<string[]>([]);
+  const [loadingAllStaff, setLoadingAllStaff] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      let rows = await studentRepository.findAll();
-      if (rows.length === 0) { await syncSheet(SHEETS.STUDENTS); rows = await studentRepository.findAll(); }
-      const courses = await courseRepository.findAll();
+      const [teachers, employees] = await Promise.all([
+        teacherRepository.findAll(),
+        employeeRepository.findAll(),
+      ]);
       if (!cancelled) {
-        const map: Record<string, string> = {};
-        rows.forEach((s) => { if (s.regNumber) map[s.regNumber] = s.fullName ?? s.regNumber; });
-        setRegToName(map);
-        setStudentOptions(rows.filter((s) => s.regNumber && s.status === 'active').map((s) => s.regNumber!).sort());
-
-        const groupMap: Record<string, string[]> = {};
-        courses.forEach((c) => { if (c.courseName) groupMap[c.courseName] = []; });
-        rows.forEach((s) => {
-          if (!s.regNumber || s.status !== 'active') return;
-          const c = s.course?.trim() ?? '';
-          if (!c) return;
-          if (!groupMap[c]) groupMap[c] = [];
-          groupMap[c].push(s.regNumber);
-        });
-        const filtered: Record<string, string[]> = {};
-        for (const [c, regs] of Object.entries(groupMap)) {
-          if (regs.length === 0) continue;
-          filtered[c] = regs.sort((a, b) => (map[a] ?? a).localeCompare(map[b] ?? b));
-        }
-        setStudentGroups(filtered);
-        setLoadingStudents(false);
+        const emails = [
+          ...teachers.map((t) => t.email ?? t.name ?? ''),
+          ...employees.map((e) => e.email ?? e.name ?? ''),
+        ].filter(Boolean);
+        setAllStaffOptions([...new Set(emails)].sort());
+        setLoadingAllStaff(false);
       }
     })();
     return () => { cancelled = true; };
   }, []);
 
-  // ── Course options derived from selected assignee ─────────────────────────
-  const [courseOptions, setCourseOptions] = useState<string[]>([]);
+  // ── Course options (courseName – division) ────────────────────────────────
+  // courseOptions: labels shown in the picker  ("Std 1 – A")
+  // courseValues:  values stored in the model  ("Std 1")
+  // courseClassTeachers: classTeacher email per sorted course row
+  // We store just courseName so existing data is not broken.
+  const [courseOptions,       setCourseOptions]       = useState<string[]>([]);
+  const [courseValues,        setCourseValues]        = useState<string[]>([]);
+  const [courseClassTeachers, setCourseClassTeachers] = useState<(string | undefined)[]>([]);
+  const [loadingCourses,      setLoadingCourses]      = useState(true);
 
   useEffect(() => {
-    if (!assignee) { setCourseOptions([]); return; }
-    studentRepository.findAll().then((rows) => {
-      const student = rows.find((s) => s.regNumber?.toLowerCase() === assignee.toLowerCase());
-      if (student?.course) {
-        setCourseOptions([student.course]);
-        setCourse((prev) => prev || student.course!);
-      } else {
-        setCourseOptions([]);
+    let cancelled = false;
+    courseRepository.findAll().then((rows) => {
+      if (!cancelled) {
+        const sorted = rows
+          .filter((c) => c.courseName)
+          .sort((a, b) => (a.courseName ?? '').localeCompare(b.courseName ?? ''));
+        const labels       = sorted.map((c) =>
+          c.division ? `${c.courseName} – ${c.division}` : (c.courseName ?? ''),
+        );
+        const values       = sorted.map((c) => c.courseName ?? '');
+        const classTeachers = sorted.map((c) => c.classTeacher);
+        setCourseOptions(labels);
+        setCourseValues(values);
+        setCourseClassTeachers(classTeachers);
+        setLoadingCourses(false);
       }
     });
-  }, [assignee]);
+    return () => { cancelled = true; };
+  }, []);
+
+  // Derive the label currently shown for the selected course value
+  const selectedCourseLabel = useMemo(() => {
+    const idx = courseValues.indexOf(course);
+    return idx >= 0 ? courseOptions[idx] : course;
+  }, [course, courseValues, courseOptions]);
+
+  // ── Course change handler — auto-fill assignee with class teacher ──────────
+  const handleCourseChange = useCallback((label: string) => {
+    const idx = courseOptions.indexOf(label);
+    const newCourse = idx >= 0 ? courseValues[idx] : label;
+    setCourse(newCourse);
+    if (idx >= 0) {
+      const ct = courseClassTeachers[idx];
+      if (ct) setAssignee(ct);
+    }
+  }, [courseOptions, courseValues, courseClassTeachers]);
 
   // ── Validation ────────────────────────────────────────────────────────────
   const isNotification = activityType === 'Notification';
@@ -212,9 +229,6 @@ export default function StudentActivityForm({ navigation, route }: Props) {
         errs.reviewer = 'Reviewer is required for Assignment / Task';
       }
     }
-    if (isSubmit && activityType === 'Assignment') {
-      // Attachment validation is handled by the upload flow; note required here
-    }
     if (isReview && !isOverdue) {
       const r = Number(ratingRaw);
       if (!ratingRaw.trim() || isNaN(r) || r < 1 || r > 5) {
@@ -223,7 +237,7 @@ export default function StudentActivityForm({ navigation, route }: Props) {
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
-  }, [isAddEdit, isSubmit, isReview, activityType, assignee, title, startDate, endDate, assignor, reviewer, ratingRaw, isOverdue]);
+  }, [isAddEdit, isReview, activityType, assignee, title, startDate, endDate, assignor, reviewer, ratingRaw, isOverdue]);
 
   // ── Save ──────────────────────────────────────────────────────────────────
   const handleSave = useCallback(async () => {
@@ -237,7 +251,11 @@ export default function StudentActivityForm({ navigation, route }: Props) {
       if (isSubmit) nextStatus = 'in-review';
       if (isReview) { nextStatus = 'closed'; closedBy = assignor || item?.assignor; }
 
-      const entry: StudentActivityModel = {
+      const resolvedRating = isReview
+        ? (isOverdue ? -1 : (Number(ratingRaw) || undefined))
+        : item?.rating;
+
+      const entry: TeacherActivityModel = {
         id:           isEdit || isSubmit || isReview ? item!.id : uuidv4(),
         activityType: isAddEdit ? activityType : item?.activityType,
         category:     isAddEdit ? (category.trim() || undefined) : item?.category,
@@ -253,14 +271,19 @@ export default function StudentActivityForm({ navigation, route }: Props) {
         isOverdue:    isReview ? isOverdue : item?.isOverdue,
         submissionAttachments: item?.submissionAttachments,
         submissionNote: isSubmit ? (submissionNote.trim() || undefined) : item?.submissionNote,
-        rating: isReview
-          ? (isOverdue ? -1 : (Number(ratingRaw) || undefined))
-          : item?.rating,
+        rating:       resolvedRating,
+        ratingNote:   item?.ratingNote,
         closedBy,
+        closedAt:     isReview ? new Date().toISOString() : item?.closedAt,
         revision:     nextRevision,
+        norm_rating:  computeActivityNormRating(
+          isAddEdit ? activityType : item?.activityType,
+          resolvedRating,
+        ),
       };
-      await studentActivityRepository.save(entry);
-      syncSheet(SHEETS.STUDENT_ACTIVITY).catch(() => {});
+
+      await teacherActivityRepository.save(entry);
+      syncSheet(SHEETS.TEACHER_ACTIVITY).catch(() => {});
       const successMsg =
         isReview ? 'Activity closed' :
         isSubmit ? 'Submitted for review' :
@@ -272,20 +295,20 @@ export default function StudentActivityForm({ navigation, route }: Props) {
     } finally {
       setSaving(false);
     }
-  }, [validate, isEdit, isSubmit, isReview, isAddEdit, item, activityType, category, course, assignor, assignee, reviewer, title, description, startDate, endDate, status, submissionNote, ratingRaw, navigation, snackbar]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [validate, isEdit, isSubmit, isReview, isAddEdit, item, activityType, category, course, assignor, assignee, reviewer, title, description, startDate, endDate, status, submissionNote, ratingRaw, navigation, snackbar, isOverdue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Delete ────────────────────────────────────────────────────────────────
   const confirmDelete = useCallback(() => {
     setSaving(true);
-    studentActivityRepository.delete(item!.id)
+    teacherActivityRepository.delete(item!.id)
       .then(() => {
-        syncSheet(SHEETS.STUDENT_ACTIVITY).catch(() => {});
+        syncSheet(SHEETS.TEACHER_ACTIVITY).catch(() => {});
         navigation.goBack();
       })
       .catch((e: Error) => { setSaving(false); snackbar.show(`Delete failed: ${e.message}`, 'error'); });
   }, [item, navigation, snackbar]);
 
-  // ── Header label ──────────────────────────────────────────────────────────
+  // ── Header / save labels ──────────────────────────────────────────────────
   const headerLabel =
     mode === 'add'    ? 'New Activity' :
     mode === 'edit'   ? 'Edit Activity' :
@@ -329,7 +352,6 @@ export default function StudentActivityForm({ navigation, route }: Props) {
         {/* ══ add / edit fields ══════════════════════════════════════════════ */}
         {isAddEdit && (
           <>
-            {/* Activity type */}
             <Text style={KStyles.formSection}>Activity</Text>
             <Field label="Type" required>
               <SingleSelectDropdown
@@ -353,7 +375,6 @@ export default function StudentActivityForm({ navigation, route }: Props) {
               />
             </Field>
 
-            {/* Title / Description */}
             <Text style={KStyles.formSection}>Details</Text>
             <Field label="Title" required>
               <InputField value={title} onChangeText={setTitle} placeholder="Short title…" editable />
@@ -366,18 +387,26 @@ export default function StudentActivityForm({ navigation, route }: Props) {
               />
             </Field>
 
-            {/* People */}
+            <Field label="Course" required={false}>
+              <SingleSelectDropdown
+                selected={selectedCourseLabel}
+                options={courseOptions}
+                onChange={handleCourseChange}
+                placeholder="Select course…"
+                title="Course"
+                loading={loadingCourses}
+              />
+            </Field>
+
             <Text style={KStyles.formSection}>People</Text>
-            <Field label="Assignee (Student)" required>
+            <Field label="Assignee (Teacher)" required>
               <SingleSelectDropdown
                 selected={assignee}
-                options={studentOptions}
+                options={staffOptions}
                 onChange={setAssignee}
-                placeholder="Select student…"
+                placeholder="Select teacher…"
                 title="Select Assignee"
-                loading={loadingStudents}
-                groups={Object.keys(studentGroups).length > 0 ? studentGroups : undefined}
-                renderLabel={(reg) => regToName[reg] ? `${regToName[reg]} (${reg})` : reg}
+                loading={loadingStaff}
               />
               {errors.assignee ? <Text style={KStyles.formError}>{errors.assignee}</Text> : null}
             </Field>
@@ -398,17 +427,16 @@ export default function StudentActivityForm({ navigation, route }: Props) {
               <Field label="Reviewer" required>
                 <SingleSelectDropdown
                   selected={reviewer}
-                  options={staffOptions}
+                  options={allStaffOptions}
                   onChange={setReviewer}
                   placeholder="Select reviewer…"
                   title="Select Reviewer"
-                  loading={loadingStaff}
+                  loading={loadingAllStaff}
                 />
                 {errors.reviewer ? <Text style={KStyles.formError}>{errors.reviewer}</Text> : null}
               </Field>
             )}
 
-            {/* Dates */}
             <Text style={KStyles.formSection}>Dates</Text>
             <Field label="Start Date" required>
               <FormDatePicker value={startDate} onChange={setStartDate} format="dmy" />
@@ -421,7 +449,6 @@ export default function StudentActivityForm({ navigation, route }: Props) {
               </Field>
             )}
 
-            {/* Status (edit only) */}
             {isEdit && (
               <>
                 <Text style={KStyles.formSection}>Status</Text>
@@ -463,7 +490,7 @@ export default function StudentActivityForm({ navigation, route }: Props) {
             <Text style={KStyles.formSection}>Rating</Text>
             {isOverdue ? (
               <Text style={[KStyles.formError, { marginBottom: 8 }]}>
-                Activity is overdue — negative rating will be applied automatically.
+                Activity is overdue — negative rating (-1) will be applied automatically.
               </Text>
             ) : (
               <Field label="Rating (1–5)" required>
@@ -539,8 +566,8 @@ export default function StudentActivityForm({ navigation, route }: Props) {
 const starStyles = StyleSheet.create({
   row: {
     flexDirection: 'row',
+    justifyContent: 'center',
     gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
+    paddingVertical: 12,
   },
 });

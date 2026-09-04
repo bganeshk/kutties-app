@@ -40,6 +40,8 @@ import StudentMarkSheetDetailsScreen from '../screens/StudentMarkSheetDetailsScr
 import StudentProgressCardScreen from '../screens/StudentProgressCardScreen';
 import { StudentActivityList, StudentActivityForm } from '../components/student/studactivity';
 import StudentActivityDetailsScreen from '../screens/StudentActivityDetailsScreen';
+import TeacherActivityDetailsScreen from '../screens/TeacherActivityDetailsScreen';
+import { TeacherActivityList, TeacherActivityForm } from '../components/teachers/activity';
 import { StudentRatingList, StudentRatingDetail } from '../components/student/rating';
 import { StudentObservationList, StudentObservationForm } from '../components/student/observation';
 
@@ -109,6 +111,9 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="StudentActivityList"             component={StudentActivityList} />
         <Stack.Screen name="StudentActivityDetails"          component={StudentActivityDetailsScreen} />
         <Stack.Screen name="StudentActivityForm"             component={StudentActivityForm} />
+        <Stack.Screen name="TeacherActivityList"             component={TeacherActivityList} />
+        <Stack.Screen name="TeacherActivityDetails"          component={TeacherActivityDetailsScreen} />
+        <Stack.Screen name="TeacherActivityForm"             component={TeacherActivityForm} />
         <Stack.Screen name="StudentRatingList"               component={StudentRatingList} />
         <Stack.Screen name="StudentRatingDetail"             component={StudentRatingDetail} />
         <Stack.Screen name="StudentObservationList"          component={StudentObservationList} />

@@ -87,6 +87,13 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'StudentMarkSheet View':           'StudentMarkSheetList',
   'Student Marks':                   'StudentMarkSheetList',
   'Student Marks View':              'StudentMarkSheetList',
+  'Teacher Activity':                'TeacherActivityList',
+  'Teacher Activity View':           'TeacherActivityList',
+  'TeacherActivity View':            'TeacherActivityList',
+  'Teacher Assignments':             'TeacherActivityList',
+  'Teacher Assignments View':        'TeacherActivityList',
+  'Teacher Tasks':                   'TeacherActivityList',
+  'Teacher Tasks View':              'TeacherActivityList',
   'Student Activity':                'StudentActivityList',
   'Student Activity View':           'StudentActivityList',
   'StudentActivity View':            'StudentActivityList',
@@ -230,4 +237,19 @@ const STUDENT_ACTIVITY_CAPTIONS = new Set([
 
 export function isStudentActivityCaption(caption: string): boolean {
   return STUDENT_ACTIVITY_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that map to TeacherActivityList */
+const TEACHER_ACTIVITY_CAPTIONS = new Set([
+  'teacher activity',
+  'teacher activity view',
+  'teacheractivity view',
+  'teacher assignments',
+  'teacher assignments view',
+  'teacher tasks',
+  'teacher tasks view',
+]);
+
+export function isTeacherActivityCaption(caption: string): boolean {
+  return TEACHER_ACTIVITY_CAPTIONS.has(caption.trim().toLowerCase());
 }

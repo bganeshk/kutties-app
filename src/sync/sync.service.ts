@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { normalizeRow, toExcelRow } from '../db/models/registry';
 import { computeNormRating } from '../db/models/studentmarksheet.model';
 import { computeActivityNormRating } from '../db/models/studentactivity.model';
+import type { ActivityType } from '../db/models/studentactivity.model';
 
 // ── Sheet header definitions ──────────────────────────────────────────────────
 // These are sent to the API via POST /api/:sheet/init on first launch.
@@ -15,6 +16,16 @@ const SHEET_HEADERS: Record<string, string[]> = {
     'norm_rating', 'Revision', 'Lastmodified',
   ],
   StudentActivity: [
+    'id', 'ActivityType', 'Category', 'Course',
+    'Assignor', 'Assignee', 'Reviewer',
+    'Title', 'Description',
+    'StartDate', 'EndDate',
+    'Status', 'IsOverdue',
+    'SubmissionAttachments', 'SubmissionNote',
+    'Rating', 'RatingNote', 'ClosedBy', 'ClosedAt',
+    'norm_rating', 'Revision', 'Lastmodified',
+  ],
+  TeacherActivity: [
     'id', 'ActivityType', 'Category', 'Course',
     'Assignor', 'Assignee', 'Reviewer',
     'Title', 'Description',
@@ -134,6 +145,7 @@ export function twoWeeksAgo(): Date {
 const REQUIRED_COLUMNS: Record<string, string[]> = {
   StudentMarkSheet: ['norm_rating'],
   StudentActivity:  ['norm_rating'],
+  TeacherActivity:  ['norm_rating'],
 };
 
 /**
@@ -166,7 +178,7 @@ export async function syncAllSheets(): Promise<SyncResult[]> {
  * that were synced before the norm_rating column was added.
  * Marks each affected row as pending_update so it gets pushed on the next sync.
  */
-export async function backfillNormRating(): Promise<{ marksheet: number; activity: number }> {
+export async function backfillNormRating(): Promise<{ marksheet: number; activity: number; teacherActivity: number }> {
   const db = getDb();
   let marksheet = 0;
   let activity = 0;
@@ -209,7 +221,27 @@ export async function backfillNormRating(): Promise<{ marksheet: number; activit
     activity++;
   }
 
-  return { marksheet, activity };
+  // ── TeacherActivity ───────────────────────────────────────────────────────
+  let teacherActivity = 0;
+  const taRows = await db.getRows('TeacherActivity');
+  for (const row of taRows) {
+    if (row.syncStatus === 'pending_delete') continue;
+    const data = JSON.parse(row.data) as Record<string, unknown>;
+    const computed = computeActivityNormRating(
+      data.activityType as ActivityType | undefined,
+      data.rating != null ? Number(data.rating) : undefined,
+    );
+    if (computed === data.norm_rating) continue; // already correct
+    await db.upsertRow({
+      ...row,
+      data: JSON.stringify({ ...data, norm_rating: computed }),
+      updatedAt: Date.now(),
+      syncStatus: row.syncStatus === 'pending_create' ? 'pending_create' : 'pending_update',
+    });
+    teacherActivity++;
+  }
+
+  return { marksheet, activity, teacherActivity };
 }
 
 export const LocalDb = {

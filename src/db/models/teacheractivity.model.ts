@@ -1,7 +1,11 @@
 import type { AuditFields } from './audit.model';
 import { normaliseDate } from './date.utils';
+import { computeActivityNormRating } from './studentactivity.model';
 
-// ── Excel sheet: StudentActivity ──────────────────────────────────────────────
+// Re-export shared types so consumers can import from either model file.
+export type { ActivityType, ActivityStatus } from './studentactivity.model';
+
+// ── Excel sheet: TeacherActivity ──────────────────────────────────────────────
 // Columns: id, ActivityType, Category, Course,
 //          Assignor, Assignee, Reviewer,
 //          Title, Description,
@@ -9,24 +13,21 @@ import { normaliseDate } from './date.utils';
 //          Status, IsOverdue,
 //          SubmissionAttachments, SubmissionNote,
 //          Rating, RatingNote, ClosedBy, ClosedAt,
-//          Revision, Lastmodified
+//          norm_rating, Revision, Lastmodified
 
-export type ActivityType   = 'Assignment' | 'Task' | 'Notification';
-export type ActivityStatus = 'open' | 'in-progress' | 'in-review' | 'closed';
-
-export interface StudentActivityModel extends AuditFields {
+export interface TeacherActivityModel extends AuditFields {
   id: string;
-  activityType?: ActivityType;     // Excel: ActivityType
+  activityType?: import('./studentactivity.model').ActivityType;   // Excel: ActivityType
   category?: string;               // Excel: Category
   course?: string;                 // Excel: Course
   assignor?: string;               // Excel: Assignor   — staff email (creator)
-  assignee?: string;               // Excel: Assignee   — student reg number
+  assignee?: string;               // Excel: Assignee   — teacher email (assignee)
   reviewer?: string;               // Excel: Reviewer   — staff email (Assignment / Task)
   title?: string;                  // Excel: Title
   description?: string;            // Excel: Description
   startDate?: string;              // Excel: StartDate  — dd/MMM/yyyy
   endDate?: string;                // Excel: EndDate    — dd/MMM/yyyy
-  status?: ActivityStatus;         // Excel: Status
+  status?: import('./studentactivity.model').ActivityStatus; // Excel: Status
   isOverdue?: boolean;             // Excel: IsOverdue  — computed; stored on close
   submissionAttachments?: string[];// Excel: SubmissionAttachments — pipe-separated → array
   submissionNote?: string;         // Excel: SubmissionNote
@@ -35,58 +36,36 @@ export interface StudentActivityModel extends AuditFields {
   closedBy?: string;               // Excel: ClosedBy
   closedAt?: string;               // Excel: ClosedAt   — ISO timestamp
   revision?: number;               // Excel: Revision
-  norm_rating?: number;            // Excel: norm_rating — activityType weight × rating
+  // norm_rating: overdue (rating < 0) → exact rating (no multiplier)
+  //              Assignment → 3 × rating | Task → 2 × rating | else → rating
+  norm_rating?: number;            // Excel: norm_rating
 }
 
-// ── Norm-rating helper ────────────────────────────────────────────────────────
-// Normal (rating 1–5):
-//   Assignment → 3 × rating  |  Task → 2 × rating  |  anything else → rating
-// Overdue sentinel (rating < 0):
-//   Any type → exact rating (no multiplier), so overdue always yields -1.
-// Returns undefined when rating is absent.
-export function computeActivityNormRating(
-  activityType?: ActivityType,
-  rating?: number,
-): number | undefined {
-  if (rating == null) return undefined;
-  if (rating < 0)    return rating;           // overdue sentinel — no multiplier
-  if (activityType === 'Assignment') return 3 * rating;
-  if (activityType === 'Task')       return 2 * rating;
-  return rating;
-}
-
-// ── Computed helper ───────────────────────────────────────────────────────────
-export function isActivityOverdue(activity: StudentActivityModel): boolean {
-  if (!activity.endDate || activity.status === 'closed') return false;
-  return new Date() > new Date(activity.endDate);
-}
-
-// ── Pipe-separated attachment helpers ────────────────────────────────────────
-export function parseAttachments(raw?: unknown): string[] {
+// ── Pipe-separated attachment helpers (mirrors studentactivity.model) ─────────
+export function parseTeacherAttachments(raw?: unknown): string[] {
   if (!raw) return [];
-  // Already an array (round-trip through model mapper)
   if (Array.isArray(raw)) return (raw as unknown[]).map(String).filter(Boolean);
-  // Non-string primitive — nothing useful
   if (typeof raw !== 'string') return [];
   return raw.split('|').map((u) => u.trim()).filter(Boolean);
 }
 
-export function serializeAttachments(urls?: string[]): string | undefined {
+export function serializeTeacherAttachments(urls?: string[]): string | undefined {
   if (!urls || urls.length === 0) return undefined;
   return urls.join('|');
 }
 
 // ── Mapper — handles both raw Excel PascalCase keys and local DB camelCase ───
-export function toStudentActivityModel(
+export function toTeacherActivityModel(
   row: Record<string, unknown>,
-): StudentActivityModel {
+): TeacherActivityModel {
   const rawAttachments =
     (row.SubmissionAttachments ?? row.submissionAttachments) as string | undefined;
-  const rawRating = row.Rating ?? row.rating;
-  const rawRevision = row.Revision ?? row.revision;
+  const rawRating   = row.Rating    ?? row.rating;
+  const rawRevision = row.Revision  ?? row.revision;
   const rawIsOverdue = row.IsOverdue ?? row.isOverdue;
 
-  const resolvedActivityType = (row.ActivityType ?? row.activityType) as ActivityType | undefined;
+  const resolvedActivityType = (row.ActivityType ?? row.activityType) as
+    import('./studentactivity.model').ActivityType | undefined;
   const resolvedRating = rawRating != null ? Number(rawRating) : undefined;
 
   return {
@@ -101,9 +80,10 @@ export function toStudentActivityModel(
     description:  (row.Description ?? row.description)  as string | undefined,
     startDate:    normaliseDate(row.StartDate ?? row.startDate),
     endDate:      normaliseDate(row.EndDate   ?? row.endDate),
-    status:       (row.Status      ?? row.status)       as ActivityStatus | undefined,
+    status:       (row.Status      ?? row.status) as
+      import('./studentactivity.model').ActivityStatus | undefined,
     isOverdue:    rawIsOverdue === 'true' || rawIsOverdue === true,
-    submissionAttachments: parseAttachments(rawAttachments),
+    submissionAttachments: parseTeacherAttachments(rawAttachments),
     submissionNote: (row.SubmissionNote ?? row.submissionNote) as string | undefined,
     rating:       resolvedRating,
     ratingNote:   (row.RatingNote  ?? row.ratingNote)   as string | undefined,

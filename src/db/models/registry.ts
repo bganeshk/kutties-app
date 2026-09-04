@@ -15,6 +15,7 @@ import { toStudentDiaryModel } from './studentdiary.model';
 import { toParentNoteModel } from './parentnote.model';
 import { toStudentMarkSheetModel } from './studentmarksheet.model';
 import { toStudentActivityModel } from './studentactivity.model';
+import { toTeacherActivityModel } from './teacheractivity.model';
 import { toStudentObservationQnModel } from './studentobservationqn.model';
 import { toStudentObservationTrackModel } from './studentobservationtrack.model';
 
@@ -51,8 +52,9 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   StudentDiary:            (raw) => toStudentDiaryModel(raw)          as unknown as Record<string, unknown>,
   ParentNote:              (raw) => toParentNoteModel(raw)             as unknown as Record<string, unknown>,
   StudentMarkSheet:        (raw) => toStudentMarkSheetModel(raw)       as unknown as Record<string, unknown>,
-  StudentActivity:         (raw) => toStudentActivityModel(raw)              as unknown as Record<string, unknown>,
-  student_Observation_Qn:  (raw) => toStudentObservationQnModel(raw)         as unknown as Record<string, unknown>,
+  StudentActivity:         (raw) => toStudentActivityModel(raw)   as unknown as Record<string, unknown>,
+  TeacherActivity:         (raw) => toTeacherActivityModel(raw)   as unknown as Record<string, unknown>,
+  student_Observation_Qn:  (raw) => toStudentObservationQnModel(raw) as unknown as Record<string, unknown>,
   student_Observation_track:(raw) => toStudentObservationTrackModel(raw)     as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
 };
@@ -170,6 +172,29 @@ const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
     lastmodified: 'lastmodified',
   },
   StudentActivity: {
+    activityType:          'ActivityType',
+    category:              'Category',
+    course:                'Course',
+    assignor:              'Assignor',
+    assignee:              'Assignee',
+    reviewer:              'Reviewer',
+    title:                 'Title',
+    description:           'Description',
+    startDate:             'StartDate',
+    endDate:               'EndDate',
+    status:                'Status',
+    isOverdue:             'IsOverdue',
+    submissionAttachments: 'SubmissionAttachments',
+    submissionNote:        'SubmissionNote',
+    rating:                'Rating',
+    ratingNote:            'RatingNote',
+    closedBy:              'ClosedBy',
+    closedAt:              'ClosedAt',
+    norm_rating:           'norm_rating',
+    revision:              'Revision',
+    lastmodified:          'Lastmodified',
+  },
+  TeacherActivity: {
     activityType:          'ActivityType',
     category:              'Category',
     course:                'Course',
