@@ -99,9 +99,11 @@ export default function StudentMarkSheetForm({ navigation, route }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  // ── Staff options ──────────────────────────────────────────────────────────
-  const [staffOptions,  setStaffOptions]  = useState<string[]>([]);
-  const [loadingStaff,  setLoadingStaff]  = useState(true);
+  // ── Staff options (value = email, label = name) ────────────────────────────
+  // subjTeacher and recordedBy store the teacher's email (unique key).
+  const [staffOptions,    setStaffOptions]    = useState<string[]>([]);
+  const [staffEmailToName, setStaffEmailToName] = useState<Record<string, string>>({});
+  const [loadingStaff,    setLoadingStaff]    = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,7 +114,17 @@ export default function StudentMarkSheetForm({ navigation, route }: Props) {
         rows = await teacherRepository.findAll();
       }
       if (!cancelled) {
-        setStaffOptions(rows.map((t) => t.name ?? t.email ?? '').filter(Boolean).sort());
+        const emailToName: Record<string, string> = {};
+        const emails: string[] = [];
+        rows
+          .filter((t) => t.email)
+          .sort((a, b) => (a.name ?? a.email ?? '').localeCompare(b.name ?? b.email ?? ''))
+          .forEach((t) => {
+            emailToName[t.email!] = t.name ?? t.email!;
+            emails.push(t.email!);
+          });
+        setStaffEmailToName(emailToName);
+        setStaffOptions(emails);
         setLoadingStaff(false);
       }
     })();
@@ -320,6 +332,7 @@ export default function StudentMarkSheetForm({ navigation, route }: Props) {
             placeholder="Select teacher…"
             title="Select Subject Teacher"
             loading={loadingStaff}
+            renderLabel={(email) => staffEmailToName[email] ?? email}
           />
         </Field>
 
@@ -370,6 +383,7 @@ export default function StudentMarkSheetForm({ navigation, route }: Props) {
             placeholder="Select teacher…"
             title="Select Recorded By"
             loading={loadingStaff}
+            renderLabel={(email) => staffEmailToName[email] ?? email}
           />
         </Field>
 

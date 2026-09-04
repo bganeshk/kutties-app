@@ -120,16 +120,7 @@ export default function TeacherDetailsScreen({ navigation, route }: Props) {
         {/* ── Quick actions ─────────────────────────────────────────────────── */}
         <View style={KStyles.detailsQuickActions}>
 
-          {item.phone && (
-            <TouchableOpacity
-              style={KStyles.detailsQaBtn}
-              onPress={() => Linking.openURL(`whatsapp://send?phone=${item.phone}`)}
-              activeOpacity={0.75}
-            >
-              <Ionicons name="logo-whatsapp" size={20} color="#2E7D32" />
-              <Text style={KStyles.detailsQaBtnText}>WhatsApp</Text>
-            </TouchableOpacity>
-          )}
+         
           {item.email && (
             <TouchableOpacity
               style={KStyles.detailsQaBtn}
@@ -154,6 +145,14 @@ export default function TeacherDetailsScreen({ navigation, route }: Props) {
           >
             <Ionicons name="calendar-outline" size={20} color={PRIMARY} />
             <Text style={KStyles.detailsQaBtnText}>Attendance</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            onPress={() => navigation.navigate('TeacherRatingDetail', { teacher: item })}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="star-outline" size={20} color="#F57F17" />
+            <Text style={KStyles.detailsQaBtnText}>Rating</Text>
           </TouchableOpacity>
         </View>
 

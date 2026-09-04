@@ -10,6 +10,7 @@ import {
   studentMarkSheetRepository,
   studentRepository,
   courseRepository,
+  teacherRepository,
 } from '../../../db/repositories';
 import type { StudentMarkSheetModel } from '../../../db/models/studentmarksheet.model';
 import type { StudentModel } from '../../../db/models/student.model';
@@ -80,6 +81,8 @@ export default function StudentMarkSheetList({ navigation, route }: Props) {
   const [search, setSearch]             = useState('');
   const [items,  setItems]              = useState<StudentMarkSheetModel[]>([]);
   const [regToStudent, setRegToStudent] = useState<Record<string, StudentModel>>({});
+  // emailToTeacherName: subjTeacher email → display name
+  const [emailToTeacherName, setEmailToTeacherName] = useState<Record<string, string>>({});
   const [courseFilter,    setCourseFilter]    = useState<string | null>(null);
   const [teacherFilter,   setTeacherFilter]   = useState<string | null>(null);
   const [coursePickerOpen, setCoursePickerOpen] = useState(false);
@@ -88,13 +91,21 @@ export default function StudentMarkSheetList({ navigation, route }: Props) {
 
   // ── Data load ─────────────────────────────────────────────────────────────
   const loadItems = useCallback(async () => {
-    const [marks, students, courses] = await Promise.all([
+    const [marks, students, courses, teachers] = await Promise.all([
       filterRegNumber
         ? studentMarkSheetRepository.findByStudent(filterRegNumber)
         : studentMarkSheetRepository.findAll(),
       studentRepository.findAll(),
       courseRepository.findAll(),
+      teacherRepository.findAll(),
     ]);
+
+    // Build email → name map for resolving subjTeacher display
+    const e2n: Record<string, string> = {};
+    for (const t of teachers) {
+      if (t.email) e2n[t.email.trim().toLowerCase()] = t.name ?? t.email;
+    }
+    setEmailToTeacherName(e2n);
 
     const sMap: Record<string, StudentModel> = {};
     students.forEach((s) => {
@@ -116,7 +127,10 @@ export default function StudentMarkSheetList({ navigation, route }: Props) {
       const q = search.trim().toLowerCase();
       base = base.filter((r) => {
         const sName = sMap[(r.regNumber ?? '').trim().toLowerCase()]?.fullName ?? '';
-        return [r.regNumber, r.examName, r.subject, r.grade, r.subjTeacher, sName]
+        // resolve teacher email → name for search
+        const teacherEmail = (r.subjTeacher ?? '').trim().toLowerCase();
+        const teacherName  = e2n[teacherEmail] ?? r.subjTeacher ?? '';
+        return [r.regNumber, r.examName, r.subject, r.grade, teacherName, sName]
           .some((v) => String(v ?? '').toLowerCase().includes(q));
       });
     }
@@ -320,9 +334,14 @@ export default function StudentMarkSheetList({ navigation, route }: Props) {
 
     // DataRow
     const { item } = entry;
-    const teacher  = item.subjTeacher?.trim() || '—';
+    // teacher is stored as email; resolve to display name
+    const teacherEmail = item.subjTeacher?.trim() || '';
+    const teacherLabel = teacherEmail
+      ? (emailToTeacherName[teacherEmail.toLowerCase()] ?? teacherEmail)
+      : '—';
     const grade    = item.grade?.trim() || '—';
-    const isActive = teacherFilter === teacher;
+    // filter key is the raw email value (unique)
+    const isActive = teacherFilter === teacherEmail;
 
     return (
       <TouchableOpacity
@@ -344,7 +363,7 @@ export default function StudentMarkSheetList({ navigation, route }: Props) {
         <TouchableOpacity
           style={[styles.teacherChip, isActive && styles.teacherChipActive]}
           activeOpacity={0.75}
-          onPress={() => setTeacherFilter(isActive ? null : teacher)}
+          onPress={() => setTeacherFilter(isActive ? null : (teacherEmail || null))}
           hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
         >
           <Ionicons
@@ -357,7 +376,7 @@ export default function StudentMarkSheetList({ navigation, route }: Props) {
             style={[styles.teacherChipText, isActive && styles.teacherChipTextActive]}
             numberOfLines={1}
           >
-            {teacher}
+            {teacherLabel}
           </Text>
           {isActive && (
             <Ionicons name="close" size={11} color="#fff" style={{ marginLeft: 2 }} />

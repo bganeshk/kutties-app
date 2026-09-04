@@ -9,7 +9,7 @@ import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 import { formatDisplayDate } from '../utils/dateUtils';
-import { studentMarkSheetRepository, studentRepository } from '../db/repositories';
+import { studentMarkSheetRepository, studentRepository, teacherRepository } from '../db/repositories';
 import type { StudentMarkSheetModel } from '../db/models/studentmarksheet.model';
 import type { StudentModel } from '../db/models/student.model';
 import { syncSheet } from '../sync/sync.service';
@@ -34,9 +34,10 @@ function Section({ title }: { title: string }) {
 }
 
 export default function StudentMarkSheetDetailsScreen({ navigation, route }: Props) {
-  const [item,          setItem]          = useState<StudentMarkSheetModel>(route.params.item);
-  const [deleteVisible, setDeleteVisible] = useState(false);
-  const [student,       setStudent]       = useState<StudentModel | undefined>(undefined);
+  const [item,              setItem]              = useState<StudentMarkSheetModel>(route.params.item);
+  const [deleteVisible,     setDeleteVisible]     = useState(false);
+  const [student,           setStudent]           = useState<StudentModel | undefined>(undefined);
+  const [emailToTeacherName, setEmailToTeacherName] = useState<Record<string, string>>({});
 
   useFocusEffect(
     useCallback(() => {
@@ -55,6 +56,16 @@ export default function StudentMarkSheetDetailsScreen({ navigation, route }: Pro
       setStudent(match ?? undefined);
     });
   }, [item.regNumber]);
+
+  React.useEffect(() => {
+    teacherRepository.findAll().then((teachers) => {
+      const map: Record<string, string> = {};
+      for (const t of teachers) {
+        if (t.email) map[t.email.trim().toLowerCase()] = t.name ?? t.email;
+      }
+      setEmailToTeacherName(map);
+    });
+  }, []);
 
   const studentName = student?.fullName ?? student?.regNumber;
   const gradeStyle  = (item.grade ? GRADE_COLORS[item.grade] : null) ?? null;
@@ -148,7 +159,13 @@ export default function StudentMarkSheetDetailsScreen({ navigation, route }: Pro
           <InfoRow icon="clipboard-outline"   label="Exam Type"   value={item.examName}                    iconBg={PRIMARY} />
           <InfoRow icon="calendar-outline"    label="Exam Date"   value={formatDisplayDate(item.examDate)} iconBg={PRIMARY} />
           <InfoRow icon="book-outline"        label="Subject"     value={item.subject}                     iconBg={PRIMARY} />
-          <InfoRow icon="person-outline"      label="Subj. Teacher" value={item.subjTeacher} />
+          <InfoRow
+            icon="person-outline"
+            label="Subj. Teacher"
+            value={item.subjTeacher
+              ? (emailToTeacherName[item.subjTeacher.trim().toLowerCase()] ?? item.subjTeacher)
+              : undefined}
+          />
         </View>
 
         {/* ── Marks ─────────────────────────────────────────────────────────── */}
@@ -172,7 +189,13 @@ export default function StudentMarkSheetDetailsScreen({ navigation, route }: Pro
             iconBg={PRIMARY}
             onPress={student ? () => navigation.navigate('StudentDetails', { item: student }) : undefined}
           />
-          <InfoRow icon="person-add-outline" label="Recorded By" value={item.recordedBy} />
+          <InfoRow
+            icon="person-add-outline"
+            label="Recorded By"
+            value={item.recordedBy
+              ? (emailToTeacherName[item.recordedBy.trim().toLowerCase()] ?? item.recordedBy)
+              : undefined}
+          />
         </View>
 
         {/* ── Remarks ───────────────────────────────────────────────────────── */}

@@ -7,22 +7,19 @@ import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../../../navigation/HomeStack';
 import { Colors, KStyles } from '../../../styles/kutties-styles';
-import {
-  STUDENT_STATUS_BG,
-  STUDENT_STATUS_COLOR,
-  STUDENT_STATUS_BORDER,
-} from '../../../utils/constants';
-import { useStudentRatings } from './useStudentRatings';
+import { useTeacherRatings } from './useTeacherRatings';
 import {
   RatingBanner,
   AcademicSection,
   AssignmentSection,
   TaskSection,
+  CollapsibleCard,
+  ratingStyles,
 } from '../../shared/rating/RatingShared';
 
 const PRIMARY = Colors.primary;
 
-type Props = NativeStackScreenProps<HomeStackParamList, 'StudentRatingDetail'>;
+type Props = NativeStackScreenProps<HomeStackParamList, 'TeacherRatingDetail'>;
 
 // ── Avatar helper ─────────────────────────────────────────────────────────────
 
@@ -30,32 +27,36 @@ function Avatar({ name, photo }: { name: string; photo?: string }) {
   if (photo) {
     return <Image source={{ uri: photo }} style={styles.avatar} />;
   }
-  const letter = name.trim()[0]?.toUpperCase() ?? '?';
+  const initials = name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
   return (
     <View style={styles.avatarPlaceholder}>
-      <Text style={styles.avatarText}>{letter}</Text>
+      <Text style={styles.avatarText}>{initials || '?'}</Text>
     </View>
   );
 }
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function StudentRatingDetail({ navigation, route }: Props) {
-  const { student } = route.params;
-  const { loading, ratings } = useStudentRatings();
+export default function TeacherRatingDetail({ navigation, route }: Props) {
+  const { teacher } = route.params;
+  const { loading, ratings } = useTeacherRatings();
 
   const data = useMemo(
     () =>
       ratings.find(
         (r) =>
-          r.student.regNumber === student.regNumber ||
-          r.student.id === student.id,
+          r.teacher.email === teacher.email ||
+          r.teacher.id === teacher.id,
       ) ?? null,
-    [ratings, student],
+    [ratings, teacher],
   );
 
-  const name   = student.fullName ?? student.id;
-  const status = student.status ?? 'active';
+  const name   = teacher.name ?? teacher.id;
+  const status = teacher.status ?? 'active';
 
   if (loading) {
     return (
@@ -64,7 +65,7 @@ export default function StudentRatingDetail({ navigation, route }: Props) {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text style={KStyles.headerTitle}>Student Rating</Text>
+          <Text style={KStyles.headerTitle}>Teacher Rating</Text>
         </View>
         <View style={KStyles.center}>
           <ActivityIndicator size="large" color={PRIMARY} />
@@ -77,6 +78,9 @@ export default function StudentRatingDetail({ navigation, route }: Props) {
     ? data.subjectRatings.reduce((s, r) => s + r.examCount, 0)
     : 0;
 
+  const showNotifications =
+    data != null && data.notificationTotal > 0;
+
   return (
     <SafeAreaView style={KStyles.detailsRoot}>
       {/* Header */}
@@ -87,38 +91,32 @@ export default function StudentRatingDetail({ navigation, route }: Props) {
         >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={KStyles.headerTitle} numberOfLines={1}>Student Rating</Text>
+        <Text style={KStyles.headerTitle} numberOfLines={1}>Teacher Rating</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
 
-        {/* ── Section 1: Student header card ─────────────────────────────── */}
+        {/* ── Section 1: Teacher header card ─────────────────────────────── */}
         <TouchableOpacity
           style={styles.heroCard}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate('StudentDetails', { item: student })}
+          onPress={() => navigation.navigate('TeacherDetails', { item: teacher })}
         >
           <View style={styles.heroAvatarWrap}>
-            <Avatar name={String(name)} photo={student.idphoto} />
+            <Avatar name={String(name)} photo={teacher.idphoto} />
           </View>
           <View style={styles.heroInfo}>
             <Text style={styles.heroName} numberOfLines={1}>{name}</Text>
-            {student.regNumber ? (
-              <View style={styles.heroRegRow}>
-                <Ionicons name="id-card-outline" size={12} color="rgba(255,255,255,0.75)" />
-                <Text style={styles.heroReg}> {student.regNumber}</Text>
+            {teacher.email ? (
+              <View style={styles.heroEmailRow}>
+                <Ionicons name="mail-outline" size={12} color="rgba(255,255,255,0.75)" />
+                <Text style={styles.heroEmail} numberOfLines={1}> {teacher.email}</Text>
               </View>
             ) : null}
-            <View style={styles.heroCourseRow}>
-              <Ionicons name="school-outline" size={12} color="rgba(255,255,255,0.7)" />
-              <Text style={styles.heroCourse} numberOfLines={1}> {student.course ?? '—'}</Text>
-            </View>
-            <View style={[
-              KStyles.detailsStatusBadge,
-              { backgroundColor: STUDENT_STATUS_BG[status] ?? '#F5F5F5', borderColor: STUDENT_STATUS_BORDER[status] ?? '#BDBDBD', alignSelf: 'flex-start', marginTop: 6 },
-            ]}>
-              <Text style={[KStyles.detailsStatusBadgeText, { color: STUDENT_STATUS_COLOR[status] ?? '#757575' }]}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+            <View style={styles.heroDeptRow}>
+              <Ionicons name="business-outline" size={12} color="rgba(255,255,255,0.7)" />
+              <Text style={styles.heroDept} numberOfLines={1}>
+                {' '}{teacher.department ?? '—'} · {status.charAt(0).toUpperCase() + status.slice(1)}
               </Text>
             </View>
           </View>
@@ -134,7 +132,7 @@ export default function StudentRatingDetail({ navigation, route }: Props) {
 
         {data == null ? (
           <Text style={[KStyles.emptyText, { textAlign: 'center', marginTop: 24 }]}>
-            No rating data found for this student.
+            No rating data found for this teacher.
           </Text>
         ) : (
           <>
@@ -143,7 +141,7 @@ export default function StudentRatingDetail({ navigation, route }: Props) {
               academicRating={data.academicRating}
               subjectRatings={data.subjectRatings}
               totalExams={totalExams}
-              emptyMessage="No mark sheet records found for this student."
+              emptyMessage="No mark sheet records found for this teacher."
             />
 
             {/* ── Section 4: Assignments ───────────────────────────────── */}
@@ -153,7 +151,7 @@ export default function StudentRatingDetail({ navigation, route }: Props) {
               overdue={data.assignmentOverdue}
               total={data.assignmentTotal}
               categories={data.assignmentCategories}
-              emptyMessage="No assignments recorded for this student."
+              emptyMessage="No assignments recorded for this teacher."
             />
 
             {/* ── Section 5: Tasks ─────────────────────────────────────── */}
@@ -163,8 +161,37 @@ export default function StudentRatingDetail({ navigation, route }: Props) {
               overdue={data.taskOverdue}
               total={data.taskTotal}
               categories={data.taskCategories}
-              emptyMessage="No tasks recorded for this student."
+              emptyMessage="No tasks recorded for this teacher."
             />
+
+            {/* ── Section 6: Notifications ─────────────────────────────── */}
+            {showNotifications && (
+              <CollapsibleCard
+                header={
+                  <View>
+                    <Text style={ratingStyles.cardTitle}>🔔 Notifications</Text>
+                    <View style={ratingStyles.cardMeta}>
+                      <Text style={ratingStyles.cardMetaItem}>
+                        Total <Text style={ratingStyles.cardMetaVal}>{data.notificationTotal}</Text>
+                      </Text>
+                      <Text style={ratingStyles.cardMetaSep}>|</Text>
+                      <Text style={ratingStyles.cardMetaItem}>
+                        Open <Text style={ratingStyles.cardMetaVal}>{data.notificationOpen}</Text>
+                      </Text>
+                      <Text style={ratingStyles.cardMetaSep}>|</Text>
+                      <Text style={ratingStyles.cardMetaItem}>
+                        Closed <Text style={ratingStyles.cardMetaVal}>{data.notificationClosed}</Text>
+                      </Text>
+                    </View>
+                  </View>
+                }
+                defaultOpen={false}
+              >
+                <Text style={ratingStyles.emptyText}>
+                  Notifications are informational and do not affect the rating score.
+                </Text>
+              </CollapsibleCard>
+            )}
           </>
         )}
 
@@ -205,8 +232,8 @@ const styles = StyleSheet.create({
   avatarText:    { fontSize: 30, fontWeight: '700', color: '#fff' },
   heroInfo:      { flex: 1 },
   heroName:      { fontSize: 17, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  heroRegRow:    { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
-  heroReg:       { fontSize: 12, color: 'rgba(255,255,255,0.75)', fontWeight: '600' },
-  heroCourseRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
-  heroCourse:    { fontSize: 12, color: 'rgba(255,255,255,0.7)' },
+  heroEmailRow:  { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
+  heroEmail:     { fontSize: 12, color: 'rgba(255,255,255,0.75)', fontWeight: '600' },
+  heroDeptRow:   { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
+  heroDept:      { fontSize: 12, color: 'rgba(255,255,255,0.7)' },
 });

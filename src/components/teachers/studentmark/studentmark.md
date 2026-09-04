@@ -22,9 +22,10 @@ Entry points:
 | `StudentMarkSheetModel` | `regNumber`, `subject`, `subjTeacher`, `examName`, `marksObtained`, `maxMarks`, `grade`, `norm_rating` |
 | `StudentModel` | `regNumber`, `fullName`, `course` |
 
-`subjTeacher` stores the **teacher's name** (not email). No timetable join is needed.
-`recordedBy` is **not used** for grouping or filtering — teacher ownership is derived
-exclusively from `subjTeacher`.
+`subjTeacher` stores the **teacher's email** (unique key). No timetable join is needed.
+Display resolves the email to the teacher's name via a lookup map built from the `teachers`
+table. `recordedBy` similarly stores the teacher's email.
+Teacher ownership for grouping is derived exclusively from `subjTeacher` (email value).
 
 ---
 

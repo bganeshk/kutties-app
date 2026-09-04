@@ -46,6 +46,7 @@ import { StudentRatingList, StudentRatingDetail } from '../components/student/ra
 import { StudentObservationList, StudentObservationForm } from '../components/student/observation';
 import { TeacherStudentMarkList } from '../components/teachers/studentmark';
 import TeacherStudentMarkDetailsScreen from '../screens/TeacherStudentMarkDetailsScreen';
+import { TeacherRatingList, TeacherRatingDetail } from '../components/teachers/rating';
 
 const Tab = createBottomTabNavigator();
 const PRIMARY = '#C2185B';
@@ -122,6 +123,8 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="StudentObservationForm"          component={StudentObservationForm} />
         <Stack.Screen name="TeacherStudentMarkList"          component={TeacherStudentMarkList} />
         <Stack.Screen name="TeacherStudentMarkDetails"       component={TeacherStudentMarkDetailsScreen} />
+        <Stack.Screen name="TeacherRatingList"               component={TeacherRatingList} />
+        <Stack.Screen name="TeacherRatingDetail"             component={TeacherRatingDetail} />
       </Stack.Navigator>
     );
   };
@@ -195,6 +198,12 @@ export default function TabNavigator() {
             <Ionicons name="person" size={size} color={color} />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('Teachers', { screen: 'SubItems' });
+          },
+        })}
       />
       <Tab.Screen
         name="Courses"
@@ -204,6 +213,12 @@ export default function TabNavigator() {
             <Ionicons name="school" size={size} color={color} />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('Courses', { screen: 'SubItems' });
+          },
+        })}
       />
       <Tab.Screen
         name="Students"
@@ -213,6 +228,12 @@ export default function TabNavigator() {
             <MaterialIcons name="people" size={size} color={color} />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('Students', { screen: 'SubItems' });
+          },
+        })}
       />
     </Tab.Navigator>
   );

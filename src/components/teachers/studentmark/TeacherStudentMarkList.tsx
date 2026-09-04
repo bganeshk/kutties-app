@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
   TextInput, SafeAreaView, ActivityIndicator,
@@ -9,6 +9,7 @@ import type { HomeStackParamList } from '../../../navigation/HomeStack';
 import { Colors, KStyles } from '../../../styles/kutties-styles';
 import { useTeacherStudentMarks, type TeacherMarkRow } from './useTeacherStudentMarks';
 import { GRADE_SCORE } from '../../../db/models/studentmarksheet.model';
+import { teacherRepository } from '../../../db/repositories';
 
 const PRIMARY = Colors.primary;
 
@@ -204,7 +205,7 @@ function TableHeaderBySubject() {
 // ── List item types ───────────────────────────────────────────────────────────
 
 type ListItem =
-  | { type: 'teacher';   key: string; teacher: string; count: number; teacherKey: string; avgRating: number | null }
+  | { type: 'teacher';   key: string; teacher: string; teacherLabel: string; count: number; teacherKey: string; avgRating: number | null }
   | { type: 'student';   key: string; studentName: string; regNumber: string; courseDivision: string; count: number; studentKey: string; teacherKey: string; avgGrade?: string }
   | { type: 'tableHead'; key: string; mode: 'student' | 'subject' }
   | { type: 'markRow';   key: string; row: TeacherMarkRow; mode: 'student' | 'subject' };
@@ -223,6 +224,18 @@ export default function TeacherStudentMarkList({ navigation, route }: Props) {
   const [search, setSearch]     = useState('');
   const [expandedTeachers, setExpandedTeachers] = useState<Set<string>>(new Set());
   const [expandedStudents, setExpandedStudents] = useState<Set<string>>(new Set());
+  // email → display name for resolving subjTeacher
+  const [emailToTeacherName, setEmailToTeacherName] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    teacherRepository.findAll().then((teachers) => {
+      const map: Record<string, string> = {};
+      for (const t of teachers) {
+        if (t.email) map[t.email.trim().toLowerCase()] = t.name ?? t.email;
+      }
+      setEmailToTeacherName(map);
+    });
+  }, []);
 
   const title = headerTitle ?? 'Student Marks';
   const searchActive = search.trim().length > 0;
@@ -251,7 +264,7 @@ export default function TeacherStudentMarkList({ navigation, route }: Props) {
   }, []);
 
   // ── Build flat list for "By Student" ─────────────────────────────────────
-  // teacher → student → marks
+  // teacher (email) → student → marks
   const byStudentList = useMemo<ListItem[]>(() => {
     const teacherMap = new Map<string, Map<string, TeacherMarkRow[]>>();
     for (const row of filteredRows) {
@@ -266,11 +279,12 @@ export default function TeacherStudentMarkList({ navigation, route }: Props) {
     const items: ListItem[] = [];
     for (const [teacher, studMap] of Array.from(teacherMap.entries()).sort(([a], [b]) => a.localeCompare(b))) {
       const teacherKey  = `teacher::${teacher}`;
+      const teacherLabel = emailToTeacherName[teacher.toLowerCase()] ?? teacher;
       const allTeacherRows = Array.from(studMap.values()).flat();
       const teacherCount  = allTeacherRows.length;
       const ratingVals    = allTeacherRows.map((r) => r.mark.norm_rating).filter((v): v is number => v != null);
       const avgRating     = ratingVals.length > 0 ? ratingVals.reduce((a, b) => a + b, 0) / ratingVals.length : null;
-      items.push({ type: 'teacher', key: teacherKey, teacher, count: teacherCount, teacherKey, avgRating });
+      items.push({ type: 'teacher', key: teacherKey, teacher, teacherLabel, count: teacherCount, teacherKey, avgRating });
 
       const isTeacherOpen = searchActive || expandedTeachers.has(teacherKey);
       if (!isTeacherOpen) continue;
@@ -295,10 +309,10 @@ export default function TeacherStudentMarkList({ navigation, route }: Props) {
       }
     }
     return items;
-  }, [filteredRows, expandedTeachers, expandedStudents, searchActive]);
+  }, [filteredRows, expandedTeachers, expandedStudents, searchActive, emailToTeacherName]);
 
   // ── Build flat list for "By Subject" ─────────────────────────────────────
-  // teacher → subject → course → student → marks
+  // teacher (email) → subject → course → student → marks
   const bySubjectList = useMemo<ListItem[]>(() => {
     // Group: teacher → subject → course → student
     const teacherMap = new Map<string, Map<string, Map<string, Map<string, TeacherMarkRow[]>>>>();
@@ -320,13 +334,14 @@ export default function TeacherStudentMarkList({ navigation, route }: Props) {
     const items: ListItem[] = [];
     for (const [teacher, subjMap] of Array.from(teacherMap.entries()).sort(([a], [b]) => a.localeCompare(b))) {
       const teacherKey     = `teacher::${teacher}`;
+      const teacherLabel   = emailToTeacherName[teacher.toLowerCase()] ?? teacher;
       const allTeacherRows = Array.from(subjMap.values()).flatMap((sm) =>
         Array.from(sm.values()).flatMap((cm) => Array.from(cm.values()).flat()),
       );
       const teacherCount   = allTeacherRows.length;
       const ratingVals     = allTeacherRows.map((r) => r.mark.norm_rating).filter((v): v is number => v != null);
       const avgRating      = ratingVals.length > 0 ? ratingVals.reduce((a, b) => a + b, 0) / ratingVals.length : null;
-      items.push({ type: 'teacher', key: teacherKey, teacher, count: teacherCount, teacherKey, avgRating });
+      items.push({ type: 'teacher', key: teacherKey, teacher, teacherLabel, count: teacherCount, teacherKey, avgRating });
 
       const isTeacherOpen = searchActive || expandedTeachers.has(teacherKey);
       if (!isTeacherOpen) continue;
@@ -380,7 +395,7 @@ export default function TeacherStudentMarkList({ navigation, route }: Props) {
       }
     }
     return items;
-  }, [filteredRows, expandedTeachers, expandedStudents, searchActive]);
+  }, [filteredRows, expandedTeachers, expandedStudents, searchActive, emailToTeacherName]);
 
   const listData = mode === 'student' ? byStudentList : bySubjectList;
 
@@ -388,7 +403,7 @@ export default function TeacherStudentMarkList({ navigation, route }: Props) {
     if (item.type === 'teacher') {
       return (
         <TeacherHeader
-          teacher={item.teacher}
+          teacher={item.teacherLabel}
           count={item.count}
           expanded={searchActive || expandedTeachers.has(item.teacherKey)}
           onPress={() => toggleTeacher(item.teacherKey)}

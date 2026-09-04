@@ -10,7 +10,7 @@ import type { HomeStackParamList } from '../navigation/HomeStack';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 import { formatDisplayDate } from '../utils/dateUtils';
-import { studentMarkSheetRepository } from '../db/repositories';
+import { studentMarkSheetRepository, teacherRepository } from '../db/repositories';
 import type { StudentMarkSheetModel } from '../db/models/studentmarksheet.model';
 import { syncSheet } from '../sync/sync.service';
 
@@ -100,6 +100,17 @@ export default function StudentProgressCardScreen({ navigation, route }: Props) 
   const [loading,  setLoading] = useState(true);
   const [syncing,  setSyncing] = useState(false);
   const [activeExam, setActiveExam] = useState<string | null>(null);
+  const [emailToTeacherName, setEmailToTeacherName] = useState<Record<string, string>>({});
+
+  React.useEffect(() => {
+    teacherRepository.findAll().then((teachers) => {
+      const map: Record<string, string> = {};
+      for (const t of teachers) {
+        if (t.email) map[t.email.trim().toLowerCase()] = t.name ?? t.email;
+      }
+      setEmailToTeacherName(map);
+    });
+  }, []);
 
   const loadData = useCallback(async () => {
     const data = await studentMarkSheetRepository.findByStudent(regNumber);
@@ -263,7 +274,9 @@ export default function StudentProgressCardScreen({ navigation, route }: Props) 
                           <View style={[styles.subjectCell, styles.subjectColWide]}>
                             <Text style={styles.subjectName} numberOfLines={1}>{r.subject ?? '—'}</Text>
                             {r.subjTeacher ? (
-                              <Text style={styles.subjectTeacher} numberOfLines={1}>{r.subjTeacher}</Text>
+                              <Text style={styles.subjectTeacher} numberOfLines={1}>
+                                {emailToTeacherName[r.subjTeacher.trim().toLowerCase()] ?? r.subjTeacher}
+                              </Text>
                             ) : null}
                           </View>
                           <Text style={[styles.subjectCell, styles.subjectColNarrow, styles.subjectValue]}>
