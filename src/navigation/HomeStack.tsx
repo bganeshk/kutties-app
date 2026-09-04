@@ -102,7 +102,7 @@ export type HomeStackParamList = {
   StaffPayList: { staffEmail?: string; staffName?: string; headerTitle?: string } | undefined;
   StaffPayDetails: { item: StaffPayModel };
   StaffPayForm: { mode: 'add' | 'edit'; item?: StaffPayModel; prefilledStaff?: string };
-  StudentAttendanceLogList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;
+  StudentAttendanceLogList: { studentRegNumber?: string; studentName?: string; filterCourse?: string; headerTitle?: string } | undefined;
   StudentAttendanceLogDetails: { item: StudentAttendanceLogModel };
   StudentAttendanceLogForm: { mode: 'add' | 'edit'; item?: StudentAttendanceLogModel; prefilledRegNumber?: string };
   StudentDiaryList: { studentRegNumber?: string; studentName?: string; headerTitle?: string } | undefined;

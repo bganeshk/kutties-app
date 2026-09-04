@@ -174,6 +174,19 @@ export default function CourseDetailsScreen({ navigation, route }: Props) {
             })}
             iconBg={PRIMARY}
           />
+          <InfoRow
+            icon="calendar-outline"
+            label="Attendance"
+            value="View course attendance"
+            onPress={() => {
+              const courseKey = `${item.courseName}: ${item.division}`;
+              navigation.navigate('StudentAttendanceLogList', {
+                filterCourse: courseKey,
+                headerTitle:  `${courseKey} Attendance`,
+              });
+            }}
+            iconBg="#6A1B9A"
+          />
         </View>
 
         {/* ── Audit ─────────────────────────────────────────────────────── */}

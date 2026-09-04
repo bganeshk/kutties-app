@@ -69,6 +69,8 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Attendance Log':                  'StudentAttendanceLogList',
   'Attendance Log View':             'StudentAttendanceLogList',
   'Student Att Log':                 'StudentAttendanceLogList',
+  'Course Attendance':               'StudentAttendanceLogList',
+  'Course Attendance View':          'StudentAttendanceLogList',
   'Student Diary':                   'StudentDiaryList',
   'Student Diary View':              'StudentDiaryList',
   'StudentDiary View':               'StudentDiaryList',

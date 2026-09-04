@@ -45,6 +45,7 @@ interface Props {
     params?: {
       studentRegNumber?: string;
       studentName?: string;
+      filterCourse?: string;   // pre-filter by course (e.g. from CourseDetailsScreen)
       headerTitle?: string;
     };
   };
@@ -117,7 +118,11 @@ function buildSections(
   items: StudentAttendanceLogModel[],
   regToStudent: RegToStudent,
   leaveFilter: LeaveFilter,
+  filterCourse?: string,
 ): DateSection[] {
+  // Don't build sections while student lookup table hasn't loaded yet
+  if (Object.keys(regToStudent).length === 0 && items.length > 0) return [];
+
   const filtered =
     leaveFilter === 'present' ? items.filter(isPresent) :
     leaveFilter === 'absent'  ? items.filter((r) => !isPresent(r)) :
@@ -139,6 +144,8 @@ function buildSections(
       const reg     = item.regNumber?.trim().toLowerCase() ?? '';
       const student = regToStudent[reg];
       const course  = student?.course?.trim() || 'Unknown';
+      // Skip records not in the requested course when filterCourse is set
+      if (filterCourse && course !== filterCourse) continue;
       if (!byCourse.has(course)) byCourse.set(course, []);
       byCourse.get(course)!.push(item);
     }
@@ -382,8 +389,9 @@ function DateSectionBlock({
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function StudentAttendanceLogList({ navigation, route }: Props) {
-  const filterReg  = route?.params?.studentRegNumber?.trim();
-  const filterName = route?.params?.studentName?.trim();
+  const filterReg    = route?.params?.studentRegNumber?.trim();
+  const filterName   = route?.params?.studentName?.trim();
+  const filterCourse = route?.params?.filterCourse?.trim();
 
   const { syncing, sync } = useSheet(SHEETS.STUDENT_ATT_LOG, getSyncCutoff());
   const synced = useRef(false);
@@ -457,11 +465,13 @@ export default function StudentAttendanceLogList({ navigation, route }: Props) {
     ?? '';
   const headerTitle = resolvedFilterName
     ? `${resolvedFilterName}'s Attendance`
-    : (route?.params?.headerTitle ?? 'Student Attendance');
+    : filterCourse
+      ? `${filterCourse} Attendance`
+      : (route?.params?.headerTitle ?? 'Student Attendance');
 
   const sections = useMemo(
-    () => buildSections(items, regToStudent, leaveFilter),
-    [items, regToStudent, leaveFilter],
+    () => buildSections(items, regToStudent, leaveFilter, filterCourse),
+    [items, regToStudent, leaveFilter, filterCourse],
   );
 
   const isEmpty = items.length === 0;

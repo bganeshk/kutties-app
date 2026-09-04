@@ -148,10 +148,62 @@ function CoursesTabStack() {
       <Stack.Screen name="CourseTimeTableList" component={CourseTimeTableList} />
       <Stack.Screen name="CourseTimeTableDetails" component={CourseTimeTableDetailsScreen} />
       <Stack.Screen name="CourseTimeTableForm" component={CourseTimeTableForm} />
+      <Stack.Screen name="TeacherSchedule" component={TeacherScheduleScreen} />
+      <Stack.Screen name="TeacherList" component={TeacherList} />
+      <Stack.Screen name="TeacherDetails" component={TeacherDetailsScreen} />
+      <Stack.Screen name="TeacherForm" component={TeacherForm} />
       <Stack.Screen name="StudentList" component={StudentList} />
       <Stack.Screen name="StudentDetails" component={StudentDetailsScreen} />
       <Stack.Screen name="StudentForm" component={StudentForm} />
-      <Stack.Screen name="TeacherDetails" component={TeacherDetailsScreen} />
+      <Stack.Screen name="StudentAttendanceLogList"    component={StudentAttendanceLogList} />
+      <Stack.Screen name="StudentAttendanceLogDetails" component={StudentAttendanceLogDetailsScreen} />
+      <Stack.Screen name="StudentAttendanceLogForm"    component={StudentAttendanceLogForm} />
+      <Stack.Screen name="StudentMarkSheetList"        component={StudentMarkSheetList} />
+      <Stack.Screen name="StudentMarkSheetDetails"     component={StudentMarkSheetDetailsScreen} />
+      <Stack.Screen name="StudentMarkSheetForm"        component={StudentMarkSheetForm} />
+      <Stack.Screen name="StudentProgressCard"         component={StudentProgressCardScreen} />
+      <Stack.Screen name="StudentFeeList"              component={StudentFeeList} />
+      <Stack.Screen name="StudentFeeDetails"           component={StudentFeeDetailsScreen} />
+      <Stack.Screen name="StudentFeeForm"              component={StudentFeeForm} />
+      <Stack.Screen name="FeePending"                  component={FeePendingScreen} />
+      <Stack.Screen name="StudentDiaryList"            component={StudentDiaryList} />
+      <Stack.Screen name="StudentDiaryDetails"         component={StudentDiaryDetailsScreen} />
+      <Stack.Screen name="StudentDiaryForm"            component={StudentDiaryForm} />
+      <Stack.Screen name="StudentActivityList"         component={StudentActivityList} />
+      <Stack.Screen name="StudentActivityDetails"      component={StudentActivityDetailsScreen} />
+      <Stack.Screen name="StudentActivityForm"         component={StudentActivityForm} />
+      <Stack.Screen name="StudentHealthList"           component={StudentHealthList} />
+      <Stack.Screen name="StudentHealthDetails"        component={StudentHealthDetailsScreen} />
+      <Stack.Screen name="StudentHealthForm"           component={StudentHealthForm} />
+      <Stack.Screen name="StudentObservationList"      component={StudentObservationList} />
+      <Stack.Screen name="StudentObservationForm"      component={StudentObservationForm} />
+      <Stack.Screen name="StudentRatingList"           component={StudentRatingList} />
+      <Stack.Screen name="StudentRatingDetail"         component={StudentRatingDetail} />
+      <Stack.Screen name="ParentNoteList"              component={ParentNoteList} />
+      <Stack.Screen name="ParentNoteDetails"           component={ParentNoteDetailsScreen} />
+      <Stack.Screen name="ParentNoteForm"              component={ParentNoteForm} />
+      <Stack.Screen name="TeacherAttendanceLogList"    component={TeacherAttendanceLogList} />
+      <Stack.Screen name="TeacherAttendanceLogDetails" component={TeacherAttendanceLogDetailsScreen} />
+      <Stack.Screen name="TeacherAttendanceLogForm"    component={TeacherAttendanceLogForm} />
+      <Stack.Screen name="TeacherStudentMarkList"      component={TeacherStudentMarkList} />
+      <Stack.Screen name="TeacherStudentMarkDetails"   component={TeacherStudentMarkDetailsScreen} />
+      <Stack.Screen name="TeacherRatingList"           component={TeacherRatingList} />
+      <Stack.Screen name="TeacherRatingDetail"         component={TeacherRatingDetail} />
+      <Stack.Screen name="TeacherActivityList"         component={TeacherActivityList} />
+      <Stack.Screen name="TeacherActivityDetails"      component={TeacherActivityDetailsScreen} />
+      <Stack.Screen name="TeacherActivityForm"         component={TeacherActivityForm} />
+      <Stack.Screen name="StaffPayList"                component={StaffPayList} />
+      <Stack.Screen name="StaffPayDetails"             component={StaffPayDetailsScreen} />
+      <Stack.Screen name="StaffPayForm"                component={StaffPayForm} />
+      <Stack.Screen name="HandbookList"                component={HandbookList} />
+      <Stack.Screen name="HandbookDetails"             component={HandbookDetailsScreen} />
+      <Stack.Screen name="HandbookForm"                component={HandbookForm} />
+      <Stack.Screen name="FeedbackList"                component={FeedbackList} />
+      <Stack.Screen name="FeedbackDetails"             component={FeedbackDetailsScreen} />
+      <Stack.Screen name="FeedbackForm"                component={FeedbackForm} />
+      <Stack.Screen name="EmployeeList"                component={EmployeeList} />
+      <Stack.Screen name="EmployeeDetails"             component={EmployeeDetailsScreen} />
+      <Stack.Screen name="EmployeeForm"                component={EmployeeForm} />
     </Stack.Navigator>
   );
 }
