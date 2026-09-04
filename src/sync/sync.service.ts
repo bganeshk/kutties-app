@@ -2,6 +2,8 @@ import { getDb, DbRow } from '../db/database';
 import { ExcelApi } from '../api/excel.api';
 import { v4 as uuidv4 } from 'uuid';
 import { normalizeRow, toExcelRow } from '../db/models/registry';
+import { computeNormRating } from '../db/models/studentmarksheet.model';
+import { computeActivityNormRating } from '../db/models/studentactivity.model';
 
 // ── Sheet header definitions ──────────────────────────────────────────────────
 // These are sent to the API via POST /api/:sheet/init on first launch.
@@ -10,7 +12,7 @@ const SHEET_HEADERS: Record<string, string[]> = {
   StudentMarkSheet: [
     'id', 'Student', 'ExamName', 'ExamDate', 'Subject', 'SubjTeacher',
     'MaxMarks', 'MarksObtained', 'Grade', 'Remarks', 'RecordedBy',
-    'Revision', 'Lastmodified',
+    'norm_rating', 'Revision', 'Lastmodified',
   ],
   StudentActivity: [
     'id', 'ActivityType', 'Category', 'Course',
@@ -20,7 +22,7 @@ const SHEET_HEADERS: Record<string, string[]> = {
     'Status', 'IsOverdue',
     'SubmissionAttachments', 'SubmissionNote',
     'Rating', 'RatingNote', 'ClosedBy', 'ClosedAt',
-    'Revision', 'Lastmodified',
+    'norm_rating', 'Revision', 'Lastmodified',
   ],
 };
 
@@ -122,8 +124,16 @@ export function twoWeeksAgo(): Date {
   return d;
 }
 
+// Columns that must exist in each sheet but may be missing from older workbooks.
+// ensureSheets() calls addColumn for each — idempotent (no-op if already present).
+const REQUIRED_COLUMNS: Record<string, string[]> = {
+  StudentMarkSheet: ['norm_rating'],
+  StudentActivity:  ['norm_rating'],
+};
+
 /**
- * Ensure all known sheets exist in the workbook with their correct headers.
+ * Ensure all known sheets exist in the workbook with their correct headers,
+ * and that any new columns have been added to pre-existing sheets.
  * Idempotent — safe to call on every app launch before sync begins.
  */
 export async function ensureSheets(): Promise<void> {
@@ -132,11 +142,69 @@ export async function ensureSheets(): Promise<void> {
       ExcelApi.initSheet(sheet, headers).catch(() => {}), // never block launch
     ),
   );
+
+  // Add any missing columns to sheets that already existed (initSheet is a no-op on them)
+  await Promise.all(
+    Object.entries(REQUIRED_COLUMNS).flatMap(([sheet, cols]) =>
+      cols.map((col) => ExcelApi.addColumn(sheet, col).catch(() => {})),
+    ),
+  );
 }
 
 export async function syncAllSheets(): Promise<SyncResult[]> {
   const sheets = await ExcelApi.listSheets();
   return Promise.all(sheets.map((s) => syncSheet(s)));
+}
+
+/**
+ * Backfill norm_rating for all existing rows in StudentMarkSheet and StudentActivity
+ * that were synced before the norm_rating column was added.
+ * Marks each affected row as pending_update so it gets pushed on the next sync.
+ */
+export async function backfillNormRating(): Promise<{ marksheet: number; activity: number }> {
+  const db = getDb();
+  let marksheet = 0;
+  let activity = 0;
+
+  // ── StudentMarkSheet ──────────────────────────────────────────────────────
+  const msRows = await db.getRows('StudentMarkSheet');
+  for (const row of msRows) {
+    if (row.syncStatus === 'pending_delete') continue;
+    const data = JSON.parse(row.data) as Record<string, unknown>;
+    const computed = computeNormRating(
+      data.examName as string | undefined,
+      data.grade    as string | undefined,
+    );
+    if (computed === data.norm_rating) continue; // already correct
+    await db.upsertRow({
+      ...row,
+      data: JSON.stringify({ ...data, norm_rating: computed }),
+      updatedAt: Date.now(),
+      syncStatus: row.syncStatus === 'pending_create' ? 'pending_create' : 'pending_update',
+    });
+    marksheet++;
+  }
+
+  // ── StudentActivity ───────────────────────────────────────────────────────
+  const actRows = await db.getRows('StudentActivity');
+  for (const row of actRows) {
+    if (row.syncStatus === 'pending_delete') continue;
+    const data = JSON.parse(row.data) as Record<string, unknown>;
+    const computed = computeActivityNormRating(
+      data.activityType as any,
+      data.rating != null ? Number(data.rating) : undefined,
+    );
+    if (computed === data.norm_rating) continue; // already correct
+    await db.upsertRow({
+      ...row,
+      data: JSON.stringify({ ...data, norm_rating: computed }),
+      updatedAt: Date.now(),
+      syncStatus: row.syncStatus === 'pending_create' ? 'pending_create' : 'pending_update',
+    });
+    activity++;
+  }
+
+  return { marksheet, activity };
 }
 
 export const LocalDb = {

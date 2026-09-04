@@ -10,7 +10,7 @@ import type { IconEntry } from '../utils/iconMap';
 import { resolveScreen, isStaffAttendanceCaption, isLeaveCaption } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
-import { ensureSheets } from '../sync/sync.service';
+import { ensureSheets, backfillNormRating } from '../sync/sync.service';
 
 const PRIMARY = Colors.primary;
 const { width } = Dimensions.get('window');
@@ -59,11 +59,15 @@ export default function HomeScreen({ navigation }: Props) {
   const { rows, syncing, error, sync } = useSheet(SHEETS.DASHBOARD);
   const synced = useRef(false);
 
-  // Ensure sheets exist in the workbook, then sync dashboard on first mount
+  // Ensure sheets exist in the workbook, backfill norm_rating, then sync dashboard on first mount
   useEffect(() => {
     if (!synced.current) {
       synced.current = true;
-      ensureSheets().catch(() => {}).finally(() => sync());
+      ensureSheets()
+        .catch(() => {})
+        .then(() => backfillNormRating())
+        .catch(() => {})
+        .finally(() => sync());
     }
   }, []);
 

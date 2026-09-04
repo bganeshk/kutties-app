@@ -53,6 +53,7 @@ import type { StudentMarkSheetModel } from '../db/models/studentmarksheet.model'
 import StudentActivityDetailsScreen from '../screens/StudentActivityDetailsScreen';
 import { StudentActivityList, StudentActivityForm } from '../components/student/studactivity';
 import type { StudentActivityModel } from '../db/models/studentactivity.model';
+import { StudentRatingList, StudentRatingDetail } from '../components/student/rating';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -120,6 +121,8 @@ export type HomeStackParamList = {
     prefilledRegNumber?: string;
     prefilledCourse?: string;
   };
+  StudentRatingList:   undefined;
+  StudentRatingDetail: { student: StudentModel };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -181,6 +184,8 @@ export default function HomeStack() {
       <Stack.Screen name="StudentActivityList"             component={StudentActivityList} />
       <Stack.Screen name="StudentActivityDetails"          component={StudentActivityDetailsScreen} />
       <Stack.Screen name="StudentActivityForm"             component={StudentActivityForm} />
+      <Stack.Screen name="StudentRatingList"               component={StudentRatingList} />
+      <Stack.Screen name="StudentRatingDetail"             component={StudentRatingDetail} />
     </Stack.Navigator>
   );
 }

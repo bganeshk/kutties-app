@@ -35,6 +35,20 @@ export interface StudentActivityModel extends AuditFields {
   closedBy?: string;               // Excel: ClosedBy
   closedAt?: string;               // Excel: ClosedAt   — ISO timestamp
   revision?: number;               // Excel: Revision
+  norm_rating?: number;            // Excel: norm_rating — activityType weight × rating
+}
+
+// ── Norm-rating helper ────────────────────────────────────────────────────────
+// Assignment → 3 × rating  |  Task → 2 × rating  |  anything else → rating
+// Returns undefined when rating is absent.
+export function computeActivityNormRating(
+  activityType?: ActivityType,
+  rating?: number,
+): number | undefined {
+  if (rating == null) return undefined;
+  if (activityType === 'Assignment') return 3 * rating;
+  if (activityType === 'Task')       return 2 * rating;
+  return rating;
 }
 
 // ── Computed helper ───────────────────────────────────────────────────────────
@@ -68,9 +82,12 @@ export function toStudentActivityModel(
   const rawRevision = row.Revision ?? row.revision;
   const rawIsOverdue = row.IsOverdue ?? row.isOverdue;
 
+  const resolvedActivityType = (row.ActivityType ?? row.activityType) as ActivityType | undefined;
+  const resolvedRating = rawRating != null ? Number(rawRating) : undefined;
+
   return {
     id:           String(row.id ?? row.Id ?? ''),
-    activityType: (row.ActivityType ?? row.activityType) as ActivityType | undefined,
+    activityType: resolvedActivityType,
     category:     (row.Category    ?? row.category)     as string | undefined,
     course:       (row.Course      ?? row.course)       as string | undefined,
     assignor:     (row.Assignor    ?? row.assignor)     as string | undefined,
@@ -84,11 +101,12 @@ export function toStudentActivityModel(
     isOverdue:    rawIsOverdue === 'true' || rawIsOverdue === true,
     submissionAttachments: parseAttachments(rawAttachments),
     submissionNote: (row.SubmissionNote ?? row.submissionNote) as string | undefined,
-    rating:       rawRating  != null ? Number(rawRating)  : undefined,
+    rating:       resolvedRating,
     ratingNote:   (row.RatingNote  ?? row.ratingNote)   as string | undefined,
     closedBy:     (row.ClosedBy    ?? row.closedBy)     as string | undefined,
     closedAt:     (row.ClosedAt    ?? row.closedAt)     as string | undefined,
     revision:     rawRevision != null ? Number(rawRevision) : undefined,
     lastmodified: (row.Lastmodified ?? row.lastmodified) as string | undefined,
+    norm_rating:  computeActivityNormRating(resolvedActivityType, resolvedRating),
   };
 }

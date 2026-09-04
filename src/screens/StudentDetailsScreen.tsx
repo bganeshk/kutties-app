@@ -189,6 +189,14 @@ export default function StudentDetailsScreen({ navigation, route }: Props) {
             <Ionicons name="document-text-outline" size={20} color="#1565C0" />
             <Text style={KStyles.detailsQaBtnText}>Assignments</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={KStyles.detailsQaBtn}
+            onPress={() => navigation.navigate('StudentRatingDetail', { student: item })}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="star-outline" size={20} color="#F57F17" />
+            <Text style={KStyles.detailsQaBtnText}>Rating</Text>
+          </TouchableOpacity>
           {/* <TouchableOpacity
             style={KStyles.detailsQaBtn}
             onPress={() => navigation.navigate('StudentDiaryList', {

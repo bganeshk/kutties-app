@@ -84,4 +84,17 @@ export const ExcelApi = {
     );
     return data.data.written;
   },
+
+  /**
+   * Add a column to an existing sheet if it is not already present.
+   * POST /api/:sheet/add-column  body: { column: string }
+   * Returns true if the column was added, false if it already existed.
+   */
+  async addColumn(sheet: string, column: string): Promise<boolean> {
+    const { data } = await client.post<{ success: boolean; data: { added: boolean } }>(
+      `/api/${sheet}/add-column`,
+      { column },
+    );
+    return data.data.added;
+  },
 };

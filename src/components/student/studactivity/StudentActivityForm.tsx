@@ -85,6 +85,21 @@ export default function StudentActivityForm({ navigation, route }: Props) {
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const snackbar = useSnackbar();
 
+  // ── Overdue flag — true when endDate is before today ──────────────────────
+  const isOverdue = useMemo(() => {
+    const raw = isAddEdit ? endDate : item?.endDate;
+    if (!raw) return false;
+    const parts = raw.split('/');
+    if (parts.length !== 3) return false;
+    const [dd, mmm, yyyy] = parts;
+    const monthIndex = MONTHS.indexOf(mmm as typeof MONTHS[number]);
+    if (monthIndex === -1) return false;
+    const deadline = new Date(Number(yyyy), monthIndex, Number(dd));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return deadline < today;
+  }, [isAddEdit, endDate, item?.endDate]);
+
   // ── Reference data ────────────────────────────────────────────────────────
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
   const [loadingRefs,     setLoadingRefs]     = useState(true);
@@ -190,7 +205,7 @@ export default function StudentActivityForm({ navigation, route }: Props) {
     if (isSubmit && activityType === 'Assignment') {
       // Attachment validation is handled by the upload flow; note required here
     }
-    if (isReview && !item?.isOverdue) {
+    if (isReview && !isOverdue) {
       const r = Number(ratingRaw);
       if (!ratingRaw.trim() || isNaN(r) || r < 1 || r > 5) {
         errs.rating = 'Rating (1–5) is required before closing';
@@ -198,7 +213,7 @@ export default function StudentActivityForm({ navigation, route }: Props) {
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
-  }, [isAddEdit, isSubmit, isReview, activityType, assignee, title, startDate, endDate, assignor, reviewer, ratingRaw, item?.isOverdue]);
+  }, [isAddEdit, isSubmit, isReview, activityType, assignee, title, startDate, endDate, assignor, reviewer, ratingRaw, isOverdue]);
 
   // ── Save ──────────────────────────────────────────────────────────────────
   const handleSave = useCallback(async () => {
@@ -225,11 +240,11 @@ export default function StudentActivityForm({ navigation, route }: Props) {
         startDate:    isAddEdit ? (startDate.trim() || undefined) : item?.startDate,
         endDate:      isAddEdit ? (endDate.trim()   || undefined) : item?.endDate,
         status:       nextStatus,
-        isOverdue:    item?.isOverdue,
+        isOverdue:    isReview ? isOverdue : item?.isOverdue,
         submissionAttachments: item?.submissionAttachments,
         submissionNote: isSubmit ? (submissionNote.trim() || undefined) : item?.submissionNote,
         rating: isReview
-          ? (item?.isOverdue ? -1 : (Number(ratingRaw) || undefined))
+          ? (isOverdue ? -1 : (Number(ratingRaw) || undefined))
           : item?.rating,
         closedBy,
         revision:     nextRevision,
@@ -436,7 +451,7 @@ export default function StudentActivityForm({ navigation, route }: Props) {
         {isReview && (
           <>
             <Text style={KStyles.formSection}>Rating</Text>
-            {item?.isOverdue ? (
+            {isOverdue ? (
               <Text style={[KStyles.formError, { marginBottom: 8 }]}>
                 Activity is overdue — negative rating will be applied automatically.
               </Text>
