@@ -17,4 +17,5 @@ export * from './studentobservationqn.model';
 export * from './studentobservationtrack.model';
 export * from './teacheractivity.model';
 export * from './holiday.model';
+export * from './enquiry.model';
 export * from './registry';

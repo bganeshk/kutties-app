@@ -139,6 +139,12 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Holidays':                        'HolidayList',
   'Holidays View':                   'HolidayList',
   'Holiday':                         'HolidayList',
+  'Enquiries':                       'EnquiryList',
+  'Enquiries View':                  'EnquiryList',
+  'Enquiry List':                    'EnquiryList',
+  'Enquiry List View':               'EnquiryList',
+  'EnquiryList':                     'EnquiryList',
+  'Enquiry':                         'EnquiryList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
@@ -305,6 +311,21 @@ const HOLIDAY_CAPTIONS = new Set([
 
 export function isHolidayCaption(caption: string): boolean {
   return HOLIDAY_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that map to EnquiryList */
+const ENQUIRY_CAPTIONS = new Set([
+  'enquiries',
+  'enquiries view',
+  'enquiry list',
+  'enquiry list view',
+  'enquirylist',
+  'enquiry',
+  'enquiry view',
+]);
+
+export function isEnquiryCaption(caption: string): boolean {
+  return ENQUIRY_CAPTIONS.has(caption.trim().toLowerCase());
 }
 
 /** parentview values that belong to a Course context */

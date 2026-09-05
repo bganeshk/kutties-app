@@ -68,6 +68,9 @@ import { TeacherRatingList, TeacherRatingDetail } from '../components/teachers/r
 import HolidayDetailsScreen from '../screens/HolidayDetailsScreen';
 import { HolidayList, HolidayForm } from '../components/holiday';
 import type { HolidayModel } from '../db/models/holiday.model';
+import EnquiryDetailsScreen from '../screens/EnquiryDetailsScreen';
+import { EnquiryList, EnquiryForm } from '../components/enquiry';
+import type { EnquiryModel } from '../db/models/enquiry.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -169,6 +172,9 @@ export type HomeStackParamList = {
   HolidayList:    undefined;
   HolidayDetails: { item: HolidayModel };
   HolidayForm:    { mode: 'add' | 'edit'; item?: HolidayModel };
+  EnquiryList:    undefined;
+  EnquiryDetails: { item: EnquiryModel };
+  EnquiryForm:    { mode: 'add' | 'edit'; item?: EnquiryModel };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -247,6 +253,9 @@ export default function HomeStack() {
       <Stack.Screen name="HolidayList"                     component={HolidayList} />
       <Stack.Screen name="HolidayDetails"                  component={HolidayDetailsScreen} />
       <Stack.Screen name="HolidayForm"                     component={HolidayForm} />
+      <Stack.Screen name="EnquiryList"                     component={EnquiryList} />
+      <Stack.Screen name="EnquiryDetails"                  component={EnquiryDetailsScreen} />
+      <Stack.Screen name="EnquiryForm"                     component={EnquiryForm} />
     </Stack.Navigator>
   );
 }
