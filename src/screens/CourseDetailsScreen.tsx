@@ -187,6 +187,16 @@ export default function CourseDetailsScreen({ navigation, route }: Props) {
             }}
             iconBg="#6A1B9A"
           />
+          <InfoRow
+            icon="ribbon-outline"
+            label="Activity"
+            value="View course activities"
+            onPress={() => navigation.navigate('CourseActivityList', {
+              course:      item.courseName,
+              headerTitle: `${item.courseName} Activities`,
+            })}
+            iconBg="#E65100"
+          />
         </View>
 
         {/* ── Audit ─────────────────────────────────────────────────────── */}

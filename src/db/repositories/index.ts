@@ -18,6 +18,7 @@ export { ParentNoteRepository, parentNoteRepository } from './parentnote.reposit
 export { StudentMarkSheetRepository, studentMarkSheetRepository } from './studentmarksheet.repository';
 export { StudentActivityRepository, studentActivityRepository } from './studentactivity.repository';
 export { TeacherActivityRepository, teacherActivityRepository } from './teacheractivity.repository';
+export { CourseActivityRepository, courseActivityRepository } from './courseactivity.repository';
 export { StudentObservationQnRepository, studentObservationQnRepository } from './studentobservationqn.repository';
 export { StudentObservationTrackRepository, studentObservationTrackRepository } from './studentobservationtrack.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

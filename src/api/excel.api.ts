@@ -91,10 +91,16 @@ export const ExcelApi = {
    * Returns true if the column was added, false if it already existed.
    */
   async addColumn(sheet: string, column: string): Promise<boolean> {
-    const { data } = await client.post<{ success: boolean; data: { added: boolean } }>(
-      `/api/${sheet}/add-column`,
-      { column },
-    );
-    return data.data.added;
+    try {
+      const { data } = await client.post<{ success: boolean; data: { added: boolean } }>(
+        `/api/${sheet}/add-column`,
+        { column },
+      );
+      return data.data.added;
+    } catch (e: any) {
+      // 404 means the server doesn't support this endpoint yet — treat as no-op
+      if (e?.response?.status === 404) return false;
+      throw e;
+    }
   },
 };

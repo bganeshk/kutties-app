@@ -20,6 +20,7 @@ export const SHEETS = {
   STUDENT_MARK_SHEET:   'StudentMarkSheet',
   STUDENT_ACTIVITY:          'StudentActivity',
   TEACHER_ACTIVITY:          'TeacherActivity',
+  COURSE_ACTIVITY:           'CourseActivity',
   STUDENT_OBSERVATION_QN:    'student_Observation_Qn',
   STUDENT_OBSERVATION_TRACK: 'student_Observation_track',
 } as const;

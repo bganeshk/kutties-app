@@ -16,6 +16,7 @@ import { toParentNoteModel } from './parentnote.model';
 import { toStudentMarkSheetModel } from './studentmarksheet.model';
 import { toStudentActivityModel } from './studentactivity.model';
 import { toTeacherActivityModel } from './teacheractivity.model';
+import { toCourseActivityModel } from './courseactivity.model';
 import { toStudentObservationQnModel } from './studentobservationqn.model';
 import { toStudentObservationTrackModel } from './studentobservationtrack.model';
 
@@ -54,6 +55,7 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   StudentMarkSheet:        (raw) => toStudentMarkSheetModel(raw)       as unknown as Record<string, unknown>,
   StudentActivity:         (raw) => toStudentActivityModel(raw)   as unknown as Record<string, unknown>,
   TeacherActivity:         (raw) => toTeacherActivityModel(raw)   as unknown as Record<string, unknown>,
+  CourseActivity:          (raw) => toCourseActivityModel(raw)    as unknown as Record<string, unknown>,
   student_Observation_Qn:  (raw) => toStudentObservationQnModel(raw) as unknown as Record<string, unknown>,
   student_Observation_track:(raw) => toStudentObservationTrackModel(raw)     as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
@@ -205,6 +207,32 @@ const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
     description:           'Description',
     startDate:             'StartDate',
     endDate:               'EndDate',
+    status:                'Status',
+    isOverdue:             'IsOverdue',
+    submissionAttachments: 'SubmissionAttachments',
+    submissionNote:        'SubmissionNote',
+    rating:                'Rating',
+    ratingNote:            'RatingNote',
+    closedBy:              'ClosedBy',
+    closedAt:              'ClosedAt',
+    norm_rating:           'norm_rating',
+    revision:              'Revision',
+    lastmodified:          'Lastmodified',
+  },
+  CourseActivity: {
+    activityType:          'ActivityType',
+    scope:                 'Scope',
+    course:                'Course',
+    category:              'Category',
+    title:                 'Title',
+    description:           'Description',
+    startDate:             'StartDate',
+    endDate:               'EndDate',
+    assignor:              'Assignor',
+    assignee:              'Assignee',
+    coordinator:           'Coordinator',
+    reviewer:              'Reviewer',
+    gradingTarget:         'GradingTarget',
     status:                'Status',
     isOverdue:             'IsOverdue',
     submissionAttachments: 'SubmissionAttachments',

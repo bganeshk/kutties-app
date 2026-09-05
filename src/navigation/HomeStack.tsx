@@ -56,6 +56,9 @@ import type { StudentActivityModel } from '../db/models/studentactivity.model';
 import TeacherActivityDetailsScreen from '../screens/TeacherActivityDetailsScreen';
 import { TeacherActivityList, TeacherActivityForm } from '../components/teachers/activity';
 import type { TeacherActivityModel } from '../db/models/teacheractivity.model';
+import CourseActivityDetailsScreen from '../screens/CourseActivityDetailsScreen';
+import { CourseActivityList, CourseActivityForm } from '../components/course/activity';
+import type { CourseActivityModel } from '../db/models/courseactivity.model';
 import { StudentRatingList, StudentRatingDetail } from '../components/student/rating';
 import { StudentObservationList, StudentObservationForm } from '../components/student/observation';
 import type { StudentObservationTrackModel } from '../db/models/studentobservationtrack.model';
@@ -141,6 +144,17 @@ export type HomeStackParamList = {
     prefilledEmail?: string;
     prefilledCourse?: string;
   };
+  CourseActivityList: {
+    course?: string;
+    scope?: 'course' | 'school';
+    headerTitle?: string;
+  } | undefined;
+  CourseActivityDetails: { item: CourseActivityModel };
+  CourseActivityForm: {
+    mode: 'add' | 'edit' | 'submit' | 'review';
+    item?: CourseActivityModel;
+    prefilledCourse?: string;
+  };
   StudentRatingList:   undefined;
   StudentRatingDetail: { student: StudentModel };
   TeacherRatingList:   undefined;
@@ -213,6 +227,9 @@ export default function HomeStack() {
       <Stack.Screen name="TeacherActivityList"             component={TeacherActivityList} />
       <Stack.Screen name="TeacherActivityDetails"          component={TeacherActivityDetailsScreen} />
       <Stack.Screen name="TeacherActivityForm"             component={TeacherActivityForm} />
+      <Stack.Screen name="CourseActivityList"              component={CourseActivityList} />
+      <Stack.Screen name="CourseActivityDetails"           component={CourseActivityDetailsScreen} />
+      <Stack.Screen name="CourseActivityForm"              component={CourseActivityForm} />
       <Stack.Screen name="StudentRatingList"               component={StudentRatingList} />
       <Stack.Screen name="StudentRatingDetail"             component={StudentRatingDetail} />
       <Stack.Screen name="StudentObservationList"          component={StudentObservationList} />

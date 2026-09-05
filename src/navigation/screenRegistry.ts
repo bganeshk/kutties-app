@@ -128,6 +128,11 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Student Observation Qn':          'StudentObservationList',
   'Student Observation Qn View':     'StudentObservationList',
   'ObservationQn':                   'StudentObservationList',
+  'Course Activity':                 'CourseActivityList',
+  'Course Activity View':            'CourseActivityList',
+  'CourseActivity View':             'CourseActivityList',
+  'Course Activities':               'CourseActivityList',
+  'Course Activities View':          'CourseActivityList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
@@ -262,4 +267,52 @@ const TEACHER_ACTIVITY_CAPTIONS = new Set([
 
 export function isTeacherActivityCaption(caption: string): boolean {
   return TEACHER_ACTIVITY_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that map to CourseActivityList */
+const COURSE_ACTIVITY_CAPTIONS = new Set([
+  'course activity',
+  'course activity view',
+  'courseactivity view',
+  'course activities',
+  'course activities view',
+  'course assignment',
+  'course assignments',
+  'course tasks',
+  'course task',
+]);
+
+export function isCourseActivityCaption(caption: string): boolean {
+  return COURSE_ACTIVITY_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** parentview values that belong to a Course context */
+const COURSE_PARENTVIEWS = new Set([
+  'course',
+  'courses',
+  'course management',
+  'course activities',
+  'course activity',
+  // intermediate drill-down levels under the Course tab
+  'assignment',
+  'assignments',
+  'task',
+  'tasks',
+  'course assignment',
+  'course assignments',
+  'course task',
+  'course tasks',
+  'notification',
+  'notifications',
+  'course notification',
+  'course notifications',
+]);
+
+/**
+ * Returns true when the parentview indicates we are inside a course context.
+ * Used to disambiguate generic captions like "Assignment" / "Tasks" that would
+ * otherwise route to StudentActivityList.
+ */
+export function isCourseParentview(parentview: string): boolean {
+  return COURSE_PARENTVIEWS.has(parentview.trim().toLowerCase());
 }

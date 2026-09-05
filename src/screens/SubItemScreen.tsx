@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSheet } from '../hooks/useSheet';
 import { getIconForCaption } from '../utils/iconMap';
 import type { IconEntry } from '../utils/iconMap';
-import { resolveScreen, isStaffAttendanceCaption, isLeaveCaption, isStudentAttendanceCaption, isStudentDiaryCaption, isParentNoteCaption, isStudentActivityCaption, isTeacherActivityCaption } from '../navigation/screenRegistry';
+import { resolveScreen, isStaffAttendanceCaption, isLeaveCaption, isStudentAttendanceCaption, isStudentDiaryCaption, isParentNoteCaption, isStudentActivityCaption, isTeacherActivityCaption, isCourseActivityCaption, isCourseParentview } from '../navigation/screenRegistry';
 import { Colors, KStyles } from '../styles/kutties-styles';
 import { SHEETS } from '../utils/constants';
 
@@ -132,6 +132,10 @@ export default function SubItemScreen({ navigation, route }: Props) {
                       caption.trim().toLowerCase() === 'attendance') {
                     screenName = 'StudentAttendanceLogList';
                   }
+                  // Context fallback: any unresolved card inside a course parentview → CourseActivityList
+                  if (screenName === 'Landing' && isCourseParentview(parentview)) {
+                    screenName = 'CourseActivityList';
+                  }
                   console.log(`[SubItems] parentview="${parentview}" caption="${caption}" appviewsheet="${appviewsheet}" → screen="${screenName}"`);
                   if (screenName === 'Landing') {
                     navigation.navigate('Landing', {
@@ -155,6 +159,9 @@ export default function SubItemScreen({ navigation, route }: Props) {
                     navigation.navigate('StudentDiaryList', { headerTitle: caption });
                   } else if (screenName === 'ParentNoteList' || isParentNoteCaption(caption)) {
                     navigation.navigate('ParentNoteList', { headerTitle: caption });
+                  } else if (screenName === 'CourseActivityList' || isCourseActivityCaption(caption) ||
+                             (isCourseParentview(parentview) && (screenName === 'StudentActivityList' || isStudentActivityCaption(caption)))) {
+                    navigation.navigate('CourseActivityList', { headerTitle: caption });
                   } else if (screenName === 'StudentActivityList' || isStudentActivityCaption(caption)) {
                     navigation.navigate('StudentActivityList', { headerTitle: caption });
                   } else if (screenName === 'TeacherActivityList' || isTeacherActivityCaption(caption)) {

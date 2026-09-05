@@ -42,6 +42,8 @@ import { StudentActivityList, StudentActivityForm } from '../components/student/
 import StudentActivityDetailsScreen from '../screens/StudentActivityDetailsScreen';
 import TeacherActivityDetailsScreen from '../screens/TeacherActivityDetailsScreen';
 import { TeacherActivityList, TeacherActivityForm } from '../components/teachers/activity';
+import CourseActivityDetailsScreen from '../screens/CourseActivityDetailsScreen';
+import { CourseActivityList, CourseActivityForm } from '../components/course/activity';
 import { StudentRatingList, StudentRatingDetail } from '../components/student/rating';
 import { StudentObservationList, StudentObservationForm } from '../components/student/observation';
 import { TeacherStudentMarkList } from '../components/teachers/studentmark';
@@ -117,6 +119,9 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="TeacherActivityList"             component={TeacherActivityList} />
         <Stack.Screen name="TeacherActivityDetails"          component={TeacherActivityDetailsScreen} />
         <Stack.Screen name="TeacherActivityForm"             component={TeacherActivityForm} />
+        <Stack.Screen name="CourseActivityList"              component={CourseActivityList} />
+        <Stack.Screen name="CourseActivityDetails"           component={CourseActivityDetailsScreen} />
+        <Stack.Screen name="CourseActivityForm"              component={CourseActivityForm} />
         <Stack.Screen name="StudentRatingList"               component={StudentRatingList} />
         <Stack.Screen name="StudentRatingDetail"             component={StudentRatingDetail} />
         <Stack.Screen name="StudentObservationList"          component={StudentObservationList} />
@@ -192,6 +197,9 @@ function CoursesTabStack() {
       <Stack.Screen name="TeacherActivityList"         component={TeacherActivityList} />
       <Stack.Screen name="TeacherActivityDetails"      component={TeacherActivityDetailsScreen} />
       <Stack.Screen name="TeacherActivityForm"         component={TeacherActivityForm} />
+      <Stack.Screen name="CourseActivityList"          component={CourseActivityList} />
+      <Stack.Screen name="CourseActivityDetails"       component={CourseActivityDetailsScreen} />
+      <Stack.Screen name="CourseActivityForm"          component={CourseActivityForm} />
       <Stack.Screen name="StaffPayList"                component={StaffPayList} />
       <Stack.Screen name="StaffPayDetails"             component={StaffPayDetailsScreen} />
       <Stack.Screen name="StaffPayForm"                component={StaffPayForm} />

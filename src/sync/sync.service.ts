@@ -35,6 +35,16 @@ const SHEET_HEADERS: Record<string, string[]> = {
     'Rating', 'RatingNote', 'ClosedBy', 'ClosedAt',
     'norm_rating', 'Revision', 'Lastmodified',
   ],
+  CourseActivity: [
+    'id', 'ActivityType', 'Scope', 'Course', 'Category',
+    'Title', 'Description',
+    'StartDate', 'EndDate',
+    'Assignor', 'Assignee', 'Coordinator', 'Reviewer',
+    'GradingTarget', 'Status', 'IsOverdue',
+    'SubmissionAttachments', 'SubmissionNote',
+    'Rating', 'RatingNote', 'ClosedBy', 'ClosedAt',
+    'norm_rating', 'Revision', 'Lastmodified',
+  ],
   student_Observation_track: [
     'id', 'Student', 'ObsDate', 'QuestionId',
     'Answer', 'Remark', 'RecordedBy',
@@ -146,6 +156,8 @@ const REQUIRED_COLUMNS: Record<string, string[]> = {
   StudentMarkSheet: ['norm_rating'],
   StudentActivity:  ['norm_rating'],
   TeacherActivity:  ['norm_rating'],
+  CourseActivity:   ['norm_rating'],
+  reftbl:           ['assignmentTyperef'],
 };
 
 /**
