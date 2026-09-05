@@ -158,6 +158,12 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Expense':                         'ExpenseList',
   'Expense View':                    'ExpenseList',
   'ExpenseList':                     'ExpenseList',
+  'Financial Summary':               'FinancialSummary',
+  'Financial Summary View':          'FinancialSummary',
+  'Finance Summary':                 'FinancialSummary',
+  'Finance Summary View':            'FinancialSummary',
+  'FinancialSummary':                'FinancialSummary',
+  'FinancialSummary View':           'FinancialSummary',
 };
 
 // Build a lowercase lookup for case-insensitive fallback

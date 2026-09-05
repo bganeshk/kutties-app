@@ -75,6 +75,7 @@ import ExpenseDetailsScreen from '../screens/ExpenseDetailsScreen';
 import { ExpenseList, ExpenseForm } from '../components/finance/expense';
 import type { ExpenseModel } from '../db/models/expense.model';
 import { FeeSummaryScreen, FeeSummaryDrillDown } from '../components/finance/feesummary';
+import { FinancialSummaryScreen, FinancialSummaryDrillDown } from '../components/finance/financesummary';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -182,8 +183,10 @@ export type HomeStackParamList = {
   ExpenseList:    undefined;
   ExpenseDetails: { item: ExpenseModel };
   ExpenseForm:    { mode: 'add' | 'edit'; item?: ExpenseModel };
-  FeeSummary:            undefined;
-  FeeSummaryDrillDown:   { monthKey: string; monthLabel: string };
+  FeeSummary:                    undefined;
+  FeeSummaryDrillDown:           { monthKey: string; monthLabel: string };
+  FinancialSummary:              undefined;
+  FinancialSummaryDrillDown:     { monthKey: string; monthLabel: string };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -270,6 +273,8 @@ export default function HomeStack() {
       <Stack.Screen name="ExpenseForm"                     component={ExpenseForm} />
       <Stack.Screen name="FeeSummary"                      component={FeeSummaryScreen} />
       <Stack.Screen name="FeeSummaryDrillDown"             component={FeeSummaryDrillDown} />
+      <Stack.Screen name="FinancialSummary"                component={FinancialSummaryScreen} />
+      <Stack.Screen name="FinancialSummaryDrillDown"       component={FinancialSummaryDrillDown} />
     </Stack.Navigator>
   );
 }

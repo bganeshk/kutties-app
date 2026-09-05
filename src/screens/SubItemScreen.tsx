@@ -151,6 +151,9 @@ export default function SubItemScreen({ navigation, route }: Props) {
                   } else if (screenName === 'FeeSummary') {
                     // "Fee Collection Summary" card — open fee summary screen
                     navigation.navigate('FeeSummary');
+                  } else if (screenName === 'FinancialSummary') {
+                    // "Financial Summary" card — open financial summary screen
+                    navigation.navigate('FinancialSummary');
                   } else if (screenName === 'StaffPayList') {
                     // "Salary" / "Staff Pay" card — open staff pay list
                     navigation.navigate('StaffPayList', { headerTitle: caption || 'Staff Pay' });
