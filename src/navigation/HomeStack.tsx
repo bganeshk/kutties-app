@@ -65,6 +65,9 @@ import type { StudentObservationTrackModel } from '../db/models/studentobservati
 import { TeacherStudentMarkList } from '../components/teachers/studentmark';
 import TeacherStudentMarkDetailsScreen from '../screens/TeacherStudentMarkDetailsScreen';
 import { TeacherRatingList, TeacherRatingDetail } from '../components/teachers/rating';
+import HolidayDetailsScreen from '../screens/HolidayDetailsScreen';
+import { HolidayList, HolidayForm } from '../components/holiday';
+import type { HolidayModel } from '../db/models/holiday.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -163,6 +166,9 @@ export type HomeStackParamList = {
   StudentObservationForm: { mode: 'add' | 'edit' | 'view'; sessionRecords?: StudentObservationTrackModel[]; prefilledRegNumber?: string };
   TeacherStudentMarkList: { teacherEmail?: string; teacherName?: string; headerTitle?: string };
   TeacherStudentMarkDetails: { teacherEmail: string; regNumber: string; studentName?: string };
+  HolidayList:    undefined;
+  HolidayDetails: { item: HolidayModel };
+  HolidayForm:    { mode: 'add' | 'edit'; item?: HolidayModel };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -238,6 +244,9 @@ export default function HomeStack() {
       <Stack.Screen name="TeacherStudentMarkDetails"       component={TeacherStudentMarkDetailsScreen} />
       <Stack.Screen name="TeacherRatingList"               component={TeacherRatingList} />
       <Stack.Screen name="TeacherRatingDetail"             component={TeacherRatingDetail} />
+      <Stack.Screen name="HolidayList"                     component={HolidayList} />
+      <Stack.Screen name="HolidayDetails"                  component={HolidayDetailsScreen} />
+      <Stack.Screen name="HolidayForm"                     component={HolidayForm} />
     </Stack.Navigator>
   );
 }

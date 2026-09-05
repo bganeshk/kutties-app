@@ -133,6 +133,12 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'CourseActivity View':             'CourseActivityList',
   'Course Activities':               'CourseActivityList',
   'Course Activities View':          'CourseActivityList',
+  'Holiday List':                    'HolidayList',
+  'Holiday List View':               'HolidayList',
+  'HolidayList':                     'HolidayList',
+  'Holidays':                        'HolidayList',
+  'Holidays View':                   'HolidayList',
+  'Holiday':                         'HolidayList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback
@@ -284,6 +290,21 @@ const COURSE_ACTIVITY_CAPTIONS = new Set([
 
 export function isCourseActivityCaption(caption: string): boolean {
   return COURSE_ACTIVITY_CAPTIONS.has(caption.trim().toLowerCase());
+}
+
+/** Captions that map to HolidayList */
+const HOLIDAY_CAPTIONS = new Set([
+  'holiday list',
+  'holiday list view',
+  'holidaylist',
+  'holidays',
+  'holidays view',
+  'holiday',
+  'holiday view',
+]);
+
+export function isHolidayCaption(caption: string): boolean {
+  return HOLIDAY_CAPTIONS.has(caption.trim().toLowerCase());
 }
 
 /** parentview values that belong to a Course context */

@@ -23,6 +23,7 @@ export const SHEETS = {
   COURSE_ACTIVITY:           'CourseActivity',
   STUDENT_OBSERVATION_QN:    'student_Observation_Qn',
   STUDENT_OBSERVATION_TRACK: 'student_Observation_track',
+  HOLIDAY_LIST:              'HolidayList',
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

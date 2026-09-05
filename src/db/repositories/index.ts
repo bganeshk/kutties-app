@@ -21,4 +21,5 @@ export { TeacherActivityRepository, teacherActivityRepository } from './teachera
 export { CourseActivityRepository, courseActivityRepository } from './courseactivity.repository';
 export { StudentObservationQnRepository, studentObservationQnRepository } from './studentobservationqn.repository';
 export { StudentObservationTrackRepository, studentObservationTrackRepository } from './studentobservationtrack.repository';
+export { HolidayRepository, holidayRepository } from './holiday.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

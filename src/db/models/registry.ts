@@ -19,6 +19,7 @@ import { toTeacherActivityModel } from './teacheractivity.model';
 import { toCourseActivityModel } from './courseactivity.model';
 import { toStudentObservationQnModel } from './studentobservationqn.model';
 import { toStudentObservationTrackModel } from './studentobservationtrack.model';
+import { toHolidayModel } from './holiday.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -58,6 +59,7 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   CourseActivity:          (raw) => toCourseActivityModel(raw)    as unknown as Record<string, unknown>,
   student_Observation_Qn:  (raw) => toStudentObservationQnModel(raw) as unknown as Record<string, unknown>,
   student_Observation_track:(raw) => toStudentObservationTrackModel(raw)     as unknown as Record<string, unknown>,
+  HolidayList:             (raw) => toHolidayModel(raw) as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
 };
 
