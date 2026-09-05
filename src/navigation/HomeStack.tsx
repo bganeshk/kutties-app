@@ -74,6 +74,7 @@ import type { EnquiryModel } from '../db/models/enquiry.model';
 import ExpenseDetailsScreen from '../screens/ExpenseDetailsScreen';
 import { ExpenseList, ExpenseForm } from '../components/finance/expense';
 import type { ExpenseModel } from '../db/models/expense.model';
+import { FeeSummaryScreen, FeeSummaryDrillDown } from '../components/finance/feesummary';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -181,6 +182,8 @@ export type HomeStackParamList = {
   ExpenseList:    undefined;
   ExpenseDetails: { item: ExpenseModel };
   ExpenseForm:    { mode: 'add' | 'edit'; item?: ExpenseModel };
+  FeeSummary:            undefined;
+  FeeSummaryDrillDown:   { monthKey: string; monthLabel: string };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -265,6 +268,8 @@ export default function HomeStack() {
       <Stack.Screen name="ExpenseList"                     component={ExpenseList} />
       <Stack.Screen name="ExpenseDetails"                  component={ExpenseDetailsScreen} />
       <Stack.Screen name="ExpenseForm"                     component={ExpenseForm} />
+      <Stack.Screen name="FeeSummary"                      component={FeeSummaryScreen} />
+      <Stack.Screen name="FeeSummaryDrillDown"             component={FeeSummaryDrillDown} />
     </Stack.Navigator>
   );
 }

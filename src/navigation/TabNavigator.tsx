@@ -27,6 +27,7 @@ import { StudentHealthList, StudentHealthForm } from '../components/student/stud
 import StudentFeeDetailsScreen from '../screens/StudentFeeDetailsScreen';
 import FeePendingScreen from '../screens/FeePendingScreen';
 import { StudentFeeList, StudentFeeForm } from '../components/student/studentfee';
+import { FeeSummaryScreen, FeeSummaryDrillDown } from '../components/finance/feesummary';
 import StaffPayDetailsScreen from '../screens/StaffPayDetailsScreen';
 import { StaffPayList, StaffPayForm } from '../components/staffpay';
 import StudentAttendanceLogDetailsScreen from '../screens/StudentAttendanceLogDetailsScreen';
@@ -97,6 +98,8 @@ function makeTabStack(parentview: string, title: string) {
         <Stack.Screen name="StudentFeeDetails" component={StudentFeeDetailsScreen} />
         <Stack.Screen name="StudentFeeForm" component={StudentFeeForm} />
         <Stack.Screen name="FeePending" component={FeePendingScreen} />
+        <Stack.Screen name="FeeSummary" component={FeeSummaryScreen} />
+        <Stack.Screen name="FeeSummaryDrillDown" component={FeeSummaryDrillDown} />
         <Stack.Screen name="StaffPayList" component={StaffPayList} />
         <Stack.Screen name="StaffPayDetails" component={StaffPayDetailsScreen} />
         <Stack.Screen name="StaffPayForm" component={StaffPayForm} />
@@ -171,6 +174,8 @@ function CoursesTabStack() {
       <Stack.Screen name="StudentFeeDetails"           component={StudentFeeDetailsScreen} />
       <Stack.Screen name="StudentFeeForm"              component={StudentFeeForm} />
       <Stack.Screen name="FeePending"                  component={FeePendingScreen} />
+      <Stack.Screen name="FeeSummary"                  component={FeeSummaryScreen} />
+      <Stack.Screen name="FeeSummaryDrillDown"         component={FeeSummaryDrillDown} />
       <Stack.Screen name="StudentDiaryList"            component={StudentDiaryList} />
       <Stack.Screen name="StudentDiaryDetails"         component={StudentDiaryDetailsScreen} />
       <Stack.Screen name="StudentDiaryForm"            component={StudentDiaryForm} />
