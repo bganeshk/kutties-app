@@ -23,4 +23,5 @@ export { StudentObservationQnRepository, studentObservationQnRepository } from '
 export { StudentObservationTrackRepository, studentObservationTrackRepository } from './studentobservationtrack.repository';
 export { HolidayRepository, holidayRepository } from './holiday.repository';
 export { EnquiryRepository, enquiryRepository } from './enquiry.repository';
+export { ExpenseRepository, expenseRepository } from './expense.repository';
 export { getRefOptions, ensureReftbl } from './reftbl.repository';

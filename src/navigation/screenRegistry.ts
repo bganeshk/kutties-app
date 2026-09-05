@@ -145,6 +145,13 @@ export const APP_SCREEN_MAP: Record<string, string> = {
   'Enquiry List View':               'EnquiryList',
   'EnquiryList':                     'EnquiryList',
   'Enquiry':                         'EnquiryList',
+  'Expenses':                        'ExpenseList',
+  'Expenses View':                   'ExpenseList',
+  'School Expenses':                 'ExpenseList',
+  'School Expenses View':            'ExpenseList',
+  'Expense':                         'ExpenseList',
+  'Expense View':                    'ExpenseList',
+  'ExpenseList':                     'ExpenseList',
 };
 
 // Build a lowercase lookup for case-insensitive fallback

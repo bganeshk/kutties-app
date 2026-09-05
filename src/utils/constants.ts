@@ -25,6 +25,7 @@ export const SHEETS = {
   STUDENT_OBSERVATION_TRACK: 'student_Observation_track',
   HOLIDAY_LIST:              'HolidayList',
   ENQUIRIES:                 'enquiries',
+  EXPENSE:                   'expenses',
 } as const;
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

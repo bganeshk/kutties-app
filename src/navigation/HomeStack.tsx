@@ -71,6 +71,9 @@ import type { HolidayModel } from '../db/models/holiday.model';
 import EnquiryDetailsScreen from '../screens/EnquiryDetailsScreen';
 import { EnquiryList, EnquiryForm } from '../components/enquiry';
 import type { EnquiryModel } from '../db/models/enquiry.model';
+import ExpenseDetailsScreen from '../screens/ExpenseDetailsScreen';
+import { ExpenseList, ExpenseForm } from '../components/finance/expense';
+import type { ExpenseModel } from '../db/models/expense.model';
 
 export type HomeStackParamList = {
   HomeMain: undefined;
@@ -175,6 +178,9 @@ export type HomeStackParamList = {
   EnquiryList:    undefined;
   EnquiryDetails: { item: EnquiryModel };
   EnquiryForm:    { mode: 'add' | 'edit'; item?: EnquiryModel };
+  ExpenseList:    undefined;
+  ExpenseDetails: { item: ExpenseModel };
+  ExpenseForm:    { mode: 'add' | 'edit'; item?: ExpenseModel };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -256,6 +262,9 @@ export default function HomeStack() {
       <Stack.Screen name="EnquiryList"                     component={EnquiryList} />
       <Stack.Screen name="EnquiryDetails"                  component={EnquiryDetailsScreen} />
       <Stack.Screen name="EnquiryForm"                     component={EnquiryForm} />
+      <Stack.Screen name="ExpenseList"                     component={ExpenseList} />
+      <Stack.Screen name="ExpenseDetails"                  component={ExpenseDetailsScreen} />
+      <Stack.Screen name="ExpenseForm"                     component={ExpenseForm} />
     </Stack.Navigator>
   );
 }

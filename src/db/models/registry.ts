@@ -21,6 +21,7 @@ import { toStudentObservationQnModel } from './studentobservationqn.model';
 import { toStudentObservationTrackModel } from './studentobservationtrack.model';
 import { toHolidayModel } from './holiday.model';
 import { toEnquiryModel } from './enquiry.model';
+import { toExpenseModel } from './expense.model';
 
 type RowTransformer = (raw: Record<string, unknown>) => Record<string, unknown>;
 
@@ -62,6 +63,7 @@ const TRANSFORMERS: Record<string, RowTransformer> = {
   student_Observation_track:(raw) => toStudentObservationTrackModel(raw)     as unknown as Record<string, unknown>,
   HolidayList:             (raw) => toHolidayModel(raw) as unknown as Record<string, unknown>,
   enquiries:               (raw) => toEnquiryModel(raw) as unknown as Record<string, unknown>,
+  expenses:                (raw) => toExpenseModel(raw) as unknown as Record<string, unknown>,
   reftbl:                  (raw) => toReftblRow(raw),
 };
 
@@ -276,6 +278,18 @@ const EXCEL_KEY_MAPS: Record<string, Record<string, string>> = {
     admissionDate: 'AdmissionDt',
     lastmodified: 'Lastmodified',
     // 'course' is the same in both — no mapping needed
+  },
+  expenses: {
+    recptNo:      'Recpt No',
+    expenseDate:  'Expense Date',
+    expenseType:  'Expense Type',
+    paymentMode:  'Payment Mode',
+    amount:       'Amount',
+    paidTo:       'Paid To',
+    description:  'Description',
+    remarks:      'Remarks',
+    revision:     'revision',
+    lastmodified: 'lastmodified',
   },
 };
 
